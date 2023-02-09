@@ -1,0 +1,454 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  schemas    = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios"]
+  extensions = [pgcrypto]
+}
+
+model migrations {
+  id        Int    @id(map: "PK_8c82d7f526340ab734260ea46be") @default(autoincrement())
+  timestamp BigInt
+  name      String @db.VarChar
+
+  @@schema("public")
+}
+
+model query_result_cache {
+  id         Int     @id(map: "PK_6a98f758d8bfd010e7e10ffd3d3") @default(autoincrement())
+  identifier String? @db.VarChar
+  time       BigInt
+  duration   Int
+  query      String
+  result     String
+
+  @@map("query-result-cache")
+  @@schema("public")
+}
+
+model clientes_clientes {
+  id                 String               @id(map: "PK_d76bf3571d906e4e86470482c08") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  codigo             Decimal              @unique(map: "UQ_38777c5bca00ee20f9b57bc4b38") @db.Decimal
+  nome               String               @db.VarChar(60)
+  sobrenome          String               @db.VarChar(150)
+  email              String               @db.VarChar(60)
+  telefone           String               @db.VarChar(50)
+  id_assessor        String               @db.Uuid
+  cliente_ativo      Boolean
+  dt_criacao         DateTime             @default(now()) @db.Timestamp(6)
+  usuarios           usuarios             @relation(fields: [id_assessor], references: [id], onDelete: Cascade, map: "fk_advisor_client")
+  eventos_convidados eventos_convidados[]
+
+  @@map("clientes")
+  @@schema("clientes")
+}
+
+model prospects {
+  id                 String               @id(map: "PK_9fc60d8f29db14b861e3c96568e") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome               String               @db.VarChar
+  sobrenome          String               @db.VarChar
+  email              String               @db.VarChar
+  telefone           String               @db.VarChar(50)
+  id_assessor        String               @db.Uuid
+  convertido         Boolean?
+  dt_criacao         DateTime             @default(now()) @db.Timestamp(6)
+  usuarios           usuarios             @relation(fields: [id_assessor], references: [id], onDelete: Cascade, map: "fk_advisor_prospect")
+  eventos_convidados eventos_convidados[]
+
+  @@schema("clientes")
+}
+
+model compass_clientes {
+  id                                              String    @id(map: "PK_d76bf3571d906e4e86470482c08") @db.Uuid
+  cd_cliente                                      Decimal   @unique(map: "UQ_f79ca31c4c49e733c3b1eabe252") @db.Decimal
+  id_assessor_origem                              String    @db.Uuid
+  id_assessor_compass                             String?   @db.Uuid
+  disponivel                                      Boolean
+  id_estado                                       String    @db.Uuid
+  id_cidade                                       String    @db.Uuid
+  cliente_ciente                                  Boolean
+  dt_criacao                                      DateTime  @default(now()) @db.Timestamp(6)
+  dt_atualizacao                                  DateTime? @db.Timestamp(6)
+  patrimonio                                      Decimal?  @db.Decimal(10, 2)
+  em_devolucao                                    Boolean   @default(false)
+  usuarios_clientes_id_assessor_compassTousuarios usuarios? @relation("clientes_id_assessor_compassTousuarios", fields: [id_assessor_compass], references: [id], onDelete: Cascade, map: "fk_compass_advisor")
+  cidades                                         cidades   @relation(fields: [id_cidade], references: [id], onDelete: Cascade, map: "fk_compass_client_city")
+  estados                                         estados   @relation(fields: [id_estado], references: [id], onDelete: Cascade, map: "fk_compass_client_state")
+  usuarios_clientes_id_assessor_origemTousuarios  usuarios  @relation("clientes_id_assessor_origemTousuarios", fields: [id_assessor_origem], references: [id], onDelete: Cascade, map: "fk_original_advisor")
+
+  @@map("clientes")
+  @@schema("compass")
+}
+
+model clientes_devolvidos {
+  id                                                         String    @id(map: "PK_cb72ea4db243d3818a75afade5c") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cd_cliente                                                 Decimal   @db.Decimal
+  id_assessor_origem                                         String    @db.Uuid
+  id_assessor_compass                                        String    @db.Uuid
+  devolvido                                                  Boolean   @default(false)
+  dt_solicitacao                                             DateTime  @default(now()) @db.Timestamp(6)
+  dt_devolucao                                               DateTime? @db.Timestamp(6)
+  usuarios_clientes_devolvidos_id_assessor_compassTousuarios usuarios  @relation("clientes_devolvidos_id_assessor_compassTousuarios", fields: [id_assessor_compass], references: [id], onDelete: Cascade, map: "compass_advisor_fk")
+  usuarios_clientes_devolvidos_id_assessor_origemTousuarios  usuarios  @relation("clientes_devolvidos_id_assessor_origemTousuarios", fields: [id_assessor_origem], references: [id], onDelete: Cascade, map: "original_advisor_fk")
+
+  @@schema("compass")
+}
+
+model departamentos {
+  id           String   @id(map: "PK_6d34dc0415358a018818c683c1e") @db.Uuid
+  departamento String   @unique(map: "UQ_f8c1d2eff6a4b2e59dd75cb1565") @db.VarChar(60)
+  dt_criacao   DateTime @default(now()) @db.Timestamp(6)
+
+  @@schema("escritorios")
+}
+
+model filiais {
+  id                   String                 @id(map: "PK_9cc507f6ebfb9cdeca7f05044f5") @db.Uuid
+  id_responsavel       String                 @db.Uuid
+  id_cidade            String                 @db.Uuid
+  dt_criacao           DateTime               @default(now()) @db.Timestamp(6)
+  cidades              cidades                @relation(fields: [id_cidade], references: [id], onDelete: Cascade, map: "fk_branch_city")
+  usuarios             usuarios               @relation(fields: [id_responsavel], references: [id], onDelete: Cascade, map: "fk_branch_leader")
+  filiais_salas        filiais_salas[]
+  times                times[]
+  enderecos            enderecos[]
+  eventos              eventos[]
+  usuarios_informacoes usuarios_informacoes[]
+
+  @@schema("escritorios")
+}
+
+model filiais_salas {
+  id                       String                     @id(map: "PK_293615118f9c63106ab4b982a15") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_filial                String                     @db.Uuid
+  nome                     String                     @db.VarChar(100)
+  qtd_limite_participantes Decimal                    @db.Decimal
+  dt_criacao               DateTime                   @default(now()) @db.Timestamp(6)
+  filiais                  filiais                    @relation(fields: [id_filial], references: [id], onDelete: Cascade, map: "fk_brach_rooms")
+  filiais_salas_reservadas filiais_salas_reservadas[]
+
+  @@schema("escritorios")
+}
+
+model filiais_salas_reservadas {
+  id                                                        String        @id(map: "PK_8ec58a82d833b763d555de8ba7e") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_sala                                                   String        @db.Uuid
+  id_reservador                                             String        @db.Uuid
+  id_utilizador                                             String        @db.Uuid
+  dt_reserva                                                DateTime      @db.Date
+  qtd_participantes                                         Decimal       @db.Decimal
+  hr_inicio                                                 DateTime      @db.Time(6)
+  hr_final                                                  DateTime      @db.Time(6)
+  cancelado                                                 Boolean       @default(false)
+  dt_criacao                                                DateTime      @default(now()) @db.Timestamp(6)
+  filiais_salas                                             filiais_salas @relation(fields: [id_sala], references: [id], onDelete: Cascade, map: "fk_booked_room")
+  usuarios_filiais_salas_reservadas_id_reservadorTousuarios usuarios      @relation("filiais_salas_reservadas_id_reservadorTousuarios", fields: [id_reservador], references: [id], onDelete: Cascade, map: "fk_room_holder")
+  usuarios_filiais_salas_reservadas_id_utilizadorTousuarios usuarios      @relation("filiais_salas_reservadas_id_utilizadorTousuarios", fields: [id_utilizador], references: [id], onDelete: Cascade, map: "fk_room_user")
+
+  @@schema("escritorios")
+}
+
+model funcoes {
+  id     String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  funcao String? @db.VarChar(100)
+
+  @@schema("escritorios")
+}
+
+model times {
+  id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_lider             String?                @db.Uuid
+  id_filial            String?                @db.Uuid
+  filiais              filiais?               @relation(fields: [id_filial], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuarios             usuarios?              @relation(fields: [id_lider], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuarios_informacoes usuarios_informacoes[]
+
+  @@schema("escritorios")
+}
+
+model credenciais {
+  id                String   @id(map: "PK_dcef20a23ab4b9c3302b418a93c") @db.Uuid
+  codigo            Int      @default(autoincrement())
+  senha             String   @db.VarChar
+  id_usuario        String   @db.Uuid
+  dt_validade_senha DateTime @db.Timestamp(6)
+  dt_criacao        DateTime @default(now()) @db.Timestamp(6)
+  usuarios          usuarios @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_users_credentials")
+
+  @@schema("identidades")
+}
+
+model grupos {
+  id             String           @id(map: "PK_34de64ec8a5ecd99afb23b2bd62") @db.Uuid
+  grupo          String           @db.VarChar
+  dt_criacao     DateTime         @default(now()) @db.Timestamp(6)
+  grupos_funcoes grupos_funcoes[]
+
+  @@schema("identidades")
+}
+
+model grupos_funcoes {
+  id         String   @id(map: "PK_584fa03407465524ccea06a1073") @db.Uuid
+  funcao     String   @db.VarChar
+  id_grupo   String   @db.Uuid
+  dt_criacao DateTime @default(now()) @db.Timestamp(6)
+  grupos     grupos   @relation(fields: [id_grupo], references: [id], onDelete: Cascade, map: "fk_groups_roles")
+
+  @@schema("identidades")
+}
+
+model grupos_funcoes_permissoes {
+  id         String   @unique(map: "UQ_2c0b0956cdd2238d2f6a18b5274") @db.Uuid
+  permissoes String   @db.VarChar
+  dt_criacao DateTime @default(now()) @db.Timestamp(6)
+
+  @@schema("identidades")
+}
+
+model tokens_usuarios {
+  id            String   @id(map: "PK_7fd735f9d934597f0704a3e12c5") @db.Uuid
+  refresh_token String   @db.VarChar
+  id_usuario    String   @db.Uuid
+  dt_expiracao  DateTime @db.Timestamp(6)
+  dt_criacao    DateTime @default(now()) @db.Timestamp(6)
+  usuarios      usuarios @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_tokens_usuarios")
+
+  @@schema("identidades")
+}
+
+model usuario_2fa {
+  id_usuario   String    @id(map: "PK_b7e5c306317e097c9148f7a8676") @db.Uuid
+  valido       Boolean
+  chave        String    @unique(map: "UQ_f00ce62a3c294f402be03f7bf4b") @db.VarChar
+  cd_validacao String    @unique(map: "UQ_34e527879d155da5b7beb0611c3") @db.VarChar
+  dt_validacao DateTime? @db.Timestamp(6)
+  dt_criacao   DateTime  @default(now()) @db.Timestamp(6)
+  usuarios     usuarios  @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_users_2fa")
+
+  @@schema("identidades")
+}
+
+model cidades {
+  id         String             @id(map: "PK_cc606d4fea4335e32bd19f3a9fa") @db.Uuid
+  cidade     String             @unique(map: "UQ_d1113d12ffe2554ed7dc42d87e5") @db.VarChar(40)
+  id_estado  String             @db.Uuid
+  dt_criacao DateTime           @default(now()) @db.Timestamp(6)
+  clientes   compass_clientes[]
+  filiais    filiais[]
+  estados    estados            @relation(fields: [id_estado], references: [id], onDelete: Cascade, map: "fk_cities_states")
+  enderecos  enderecos[]
+
+  @@schema("localizacoes")
+}
+
+model enderecos {
+  id          String    @id(map: "PK_208b05002dcdf7bfbad378dcac1") @db.Uuid
+  id_usuario  String?   @db.Uuid
+  id_filial   String?   @db.Uuid
+  logradouro  String    @db.VarChar
+  bairro      String    @db.VarChar
+  id_cidade   String    @db.Uuid
+  cep         String    @db.VarChar(10)
+  complemento String?   @db.VarChar(100)
+  numero      Decimal   @db.Decimal(10, 0)
+  dt_criacao  DateTime  @default(now()) @db.Timestamp(6)
+  filiais     filiais?  @relation(fields: [id_filial], references: [id], onDelete: Cascade, map: "fk_branch_address")
+  cidades     cidades   @relation(fields: [id_cidade], references: [id], onDelete: Cascade, map: "fk_city_address")
+  usuarios    usuarios? @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_user_address")
+
+  @@schema("localizacoes")
+}
+
+model estados {
+  id         String             @id(map: "PK_3d9a9f2658d5086012f27924d30") @db.Uuid
+  estado     String             @unique(map: "UQ_321047fd6e83a5834679b179172") @db.VarChar(40)
+  uf         String             @unique(map: "UQ_727d8a05d0f922861f13978ac5d") @db.VarChar(2)
+  dt_criacao DateTime           @default(now()) @db.Timestamp(6)
+  clientes   compass_clientes[]
+  cidades    cidades[]
+
+  @@schema("localizacoes")
+}
+
+model convites {
+  id                    String             @id(map: "PK_56a248f8700f1843839de151869") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token                 String             @unique(map: "UQ_103be58344b1b33629ce3daf047") @db.Uuid
+  id_eventos_convidados String             @db.Uuid
+  id_evento             String             @db.Uuid
+  dt_criacao            DateTime           @default(now()) @db.Timestamp(6)
+  eventos_convidados    eventos_convidados @relation(fields: [id_eventos_convidados], references: [id], onDelete: Cascade, map: "fk_event_guests_invitation")
+  eventos               eventos            @relation(fields: [id_evento], references: [id], onDelete: Cascade, map: "fk_event_invitation")
+
+  @@schema("marketing")
+}
+
+model eventos {
+  id                  String               @id(map: "PK_40d4a3c6a4bfd24280cb97a509e") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome_imagem         String               @db.VarChar
+  titulo              String               @unique(map: "UQ_4bc42aef69ca6d872611f5a891a") @db.VarChar
+  subtitulo           String               @db.VarChar
+  slug                String               @unique(map: "UQ_b3ab80b72ceb937cc6810e7f5e8") @db.VarChar
+  descricao           String               @db.VarChar
+  horario             String               @db.VarChar
+  local               String               @db.VarChar
+  qtd_vagas_total     Decimal?             @db.Decimal
+  qtd_vagas_restantes Decimal?             @db.Decimal
+  id_tp_evento        String               @db.Uuid
+  dt_limite_inscricao DateTime             @db.Date
+  dt_evento           DateTime             @db.Date
+  id_filial           String               @db.Uuid
+  cancelado           Boolean              @default(false)
+  dt_cancelamento     DateTime?            @db.Timestamp(6)
+  dt_criacao          DateTime             @default(now()) @db.Timestamp(6)
+  convites            convites[]
+  tp_eventos          tp_eventos           @relation(fields: [id_tp_evento], references: [id], onDelete: Cascade, map: "fk_mk_event")
+  filiais             filiais              @relation(fields: [id_filial], references: [id], onDelete: Cascade, map: "fk_mk_event_branch")
+  eventos_convidados  eventos_convidados[]
+
+  @@schema("marketing")
+}
+
+model eventos_convidados {
+  id               String             @id(map: "PK_9bedfae88ac9633183be020c484") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_evento        String             @db.Uuid
+  id_convidador    String             @db.Uuid
+  id_cliente       String?            @db.Uuid
+  id_prospect      String?            @db.Uuid
+  id_tp_convidado  String             @db.Uuid
+  id_status        String             @db.Uuid
+  compareceu       Boolean            @default(false)
+  dt_criacao       DateTime           @default(now()) @db.Timestamp(6)
+  convites         convites[]
+  status_convidado status_convidado   @relation(fields: [id_status], references: [id], onDelete: Cascade, map: "fk_event_invited_status")
+  tp_convidados    tp_convidados      @relation(fields: [id_tp_convidado], references: [id], onDelete: Cascade, map: "fk_event_invited_type")
+  usuarios         usuarios           @relation(fields: [id_convidador], references: [id], onDelete: Cascade, map: "fk_event_inviter")
+  clientes         clientes_clientes? @relation(fields: [id_cliente], references: [id], onDelete: Cascade, map: "fk_invited_client")
+  eventos          eventos            @relation(fields: [id_evento], references: [id], onDelete: Cascade, map: "fk_invited_event")
+  prospects        prospects?         @relation(fields: [id_prospect], references: [id], onDelete: Cascade, map: "fk_invited_prospect")
+
+  @@schema("marketing")
+}
+
+model status_convidado {
+  id                 String               @id(map: "PK_6c3453000598ad3242259f2f0e9") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status             String               @unique(map: "UQ_d21daaa71ada771245e2ce451b1") @db.VarChar(50)
+  dt_criacao         DateTime             @default(now()) @db.Timestamp(6)
+  eventos_convidados eventos_convidados[]
+
+  @@schema("marketing")
+}
+
+model tp_convidados {
+  id                 String               @id(map: "PK_2ad3583c02395a0c3d18fd17a59") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tipo_convidado     String               @db.VarChar(50)
+  dt_criacao         DateTime             @default(now()) @db.Timestamp(6)
+  eventos_convidados eventos_convidados[]
+
+  @@schema("marketing")
+}
+
+model tp_eventos {
+  id          String    @id(map: "PK_afc405460e771e6c9b2f37d90d5") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tipo_evento String    @db.VarChar(50)
+  dt_criacao  DateTime  @default(now()) @db.Timestamp(6)
+  eventos     eventos[]
+
+  @@schema("marketing")
+}
+
+model codigos {
+  id            String        @id(map: "PK_e0a52950dd0aaa80e4a6ee77f1d") @db.Uuid
+  codigo        String        @unique(map: "UQ_fae2149b9e5e6240799bee058e0") @db.VarChar(50)
+  id_usuario    String        @db.Uuid
+  id_tp_codigo  Int           @default(autoincrement())
+  dt_criacao    DateTime      @default(now()) @db.Timestamp(6)
+  tipos_codigos tipos_codigos @relation(fields: [id_tp_codigo], references: [id], onDelete: Cascade, map: "fk_code_type")
+  usuarios      usuarios      @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_user_code")
+
+  @@schema("usuarios")
+}
+
+model estado_civil {
+  id                   Int                    @id(map: "PK_3e8a44960e29a617e353486134e") @default(autoincrement())
+  estado_civil         String                 @unique(map: "UQ_9a98a7bf3dd7858929bf087a1f2") @db.VarChar(50)
+  dt_criacao           DateTime               @default(now()) @db.Timestamp(6)
+  usuarios_informacoes usuarios_informacoes[]
+
+  @@schema("usuarios")
+}
+
+model tipos_codigos {
+  id         Int       @id(map: "PK_bbf93bb2db134aaeda1ca712e0d") @default(autoincrement())
+  tipo       String    @unique(map: "UQ_2decdbe1b295b8712c96a938db3") @db.VarChar(50)
+  dt_criacao DateTime  @default(now()) @db.Timestamp(6)
+  codigos    codigos[]
+
+  @@schema("usuarios")
+}
+
+model usuarios {
+  id                                                                        String                     @id(map: "PK_d7281c63c176e152e4c531594a8") @db.Uuid
+  nome                                                                      String                     @db.VarChar
+  sobrenome                                                                 String                     @db.VarChar
+  email                                                                     String                     @unique(map: "UQ_446adfc18b35418aac32ae0b7b5") @db.VarChar
+  dt_criacao                                                                DateTime                   @default(now()) @db.Timestamp(6)
+  clientes                                                                  clientes_clientes[]
+  prospects                                                                 prospects[]
+  clientes_clientes_id_assessor_compassTousuarios                           compass_clientes[]         @relation("clientes_id_assessor_compassTousuarios")
+  clientes_clientes_id_assessor_origemTousuarios                            compass_clientes[]         @relation("clientes_id_assessor_origemTousuarios")
+  clientes_devolvidos_clientes_devolvidos_id_assessor_compassTousuarios     clientes_devolvidos[]      @relation("clientes_devolvidos_id_assessor_compassTousuarios")
+  clientes_devolvidos_clientes_devolvidos_id_assessor_origemTousuarios      clientes_devolvidos[]      @relation("clientes_devolvidos_id_assessor_origemTousuarios")
+  filiais                                                                   filiais[]
+  filiais_salas_reservadas_filiais_salas_reservadas_id_reservadorTousuarios filiais_salas_reservadas[] @relation("filiais_salas_reservadas_id_reservadorTousuarios")
+  filiais_salas_reservadas_filiais_salas_reservadas_id_utilizadorTousuarios filiais_salas_reservadas[] @relation("filiais_salas_reservadas_id_utilizadorTousuarios")
+  times                                                                     times[]
+  credenciais                                                               credenciais[]
+  tokens_usuarios                                                           tokens_usuarios[]
+  usuario_2fa                                                               usuario_2fa?
+  enderecos                                                                 enderecos[]
+  eventos_convidados                                                        eventos_convidados[]
+  codigos                                                                   codigos[]
+  usuarios_informacoes                                                      usuarios_informacoes[]
+
+  @@schema("usuarios")
+}
+
+model usuarios_generos {
+  id                   Int                    @id(map: "PK_cd465b1c8e00a6e5fba2063371f") @default(autoincrement())
+  genero               String                 @unique(map: "UQ_c7c003337d39367724183587b42") @db.VarChar(20)
+  usuarios_informacoes usuarios_informacoes[]
+
+  @@schema("usuarios")
+}
+
+model usuarios_informacoes {
+  id               String           @id(map: "PK_b499cd3c071755efd8914d67633") @db.Uuid
+  id_usuario       String           @db.Uuid
+  dt_nascimento    DateTime         @db.Date
+  id_filial        String           @db.Uuid
+  id_estado_civil  Int              @default(autoincrement())
+  id_genero        Int              @default(autoincrement())
+  dt_criacao       DateTime         @default(now()) @db.Timestamp(6)
+  id_time          String?          @db.Uuid
+  id_assistente    String?          @db.Uuid
+  carteira         Boolean?
+  tipo             String?          @db.VarChar
+  times            times?           @relation(fields: [id_time], references: [id], onDelete: Cascade, map: "fk_times")
+  filiais          filiais          @relation(fields: [id_filial], references: [id], onDelete: Cascade, map: "fk_user_branch")
+  usuarios_generos usuarios_generos @relation(fields: [id_genero], references: [id], onDelete: Cascade, map: "fk_user_gender")
+  usuarios         usuarios         @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_user_information")
+  estado_civil     estado_civil     @relation(fields: [id_estado_civil], references: [id], onDelete: Cascade, map: "fk_user_marital_status")
+
+  @@schema("usuarios")
+}
+
+model usuarios_tp_relacionamentos {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tipo_relacionamento String @db.VarChar(100)
+
+  @@schema("usuarios")
+}
