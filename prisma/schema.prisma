@@ -270,8 +270,8 @@ model cidades {
 
 model enderecos {
   id          String   @id(map: "PK_208b05002dcdf7bfbad378dcac1") @db.Uuid
-  id_usuario  String?  @db.Uuid
-  id_filial   String?  @db.Uuid
+  id_usuario  String?  @unique @db.Uuid
+  id_filial   String?  @unique @db.Uuid
   logradouro  String   @db.VarChar
   bairro      String   @db.VarChar
   cep         String   @db.VarChar(10)
@@ -435,11 +435,11 @@ model usuarios {
   credenciais                                                               credenciais[]
   tokens_usuarios                                                           tokens_usuarios[]
   usuario_2fa                                                               usuario_2fa?
-  enderecos                                                                 enderecos[]
+  enderecos                                                                 enderecos?
   eventos_convidados                                                        eventos_convidados[]
   codigos                                                                   codigos[]
   usuarios_informacoes                                                      usuarios_informacoes[]
-  colaboradores_informacoes                                                 colaboradores_informacoes[]
+  colaboradores_informacoes                                                 colaboradores_informacoes?
   filiais_equipes                                                           filiais_equipes[]
   colaboradores_expansao                                                    colaboradores_expansao[]
   expansao_assessor_tombamento                                              colaboradores_expansao[]    @relation("assessor_tombamento")
@@ -509,7 +509,7 @@ model colaboradores_funcoes {
 
 model colaboradores_informacoes {
   id               String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  id_colaborador   String                 @db.Uuid
+  id_colaborador   String                 @unique @db.Uuid
   rg               String?                @unique @db.VarChar(20)
   cpf              String?                @unique @db.VarChar(15)
   dt_nascimento    DateTime?              @db.Date

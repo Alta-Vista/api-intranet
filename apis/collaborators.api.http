@@ -20,12 +20,12 @@ content-type: application/json
     "birth_date": "24/08/1998",
     "branch_id": "c67c262c-3883-473f-a4c3-bbcf6bd16b1d",
     "contract_regime": "ASSOCIADO",
-    "cpf": "123.456.789",
+    "cpf": "123.456.789-00",
     "f_b_s": "BACK",
     "gender": "MASCULINO",
     "payment_bank": "Itau",
     "previous_company": "Dia",
-    "rg": "123.456-5",
+    "rg": "123.456-9",
     "role_id": "66cbf5d4-068f-41fc-971f-d71f19c1a82d",
     "team_id": "9cb607ab-83dc-461b-9711-3403d3890333",
     "xp_entry_date": null
@@ -44,3 +44,48 @@ content-type: application/json
     "number": 122334
   }
 }
+###
+PUT http://localhost:3000/collaborators/profile/12c652e6-0ee7-4e88-a708-5d6e5ca0327d HTTP/1.1
+content-type: application/json
+
+{
+  "av_departure_date": null,
+  "av_entry_date": "24/08/2022",
+  "bank_account": "122334-0",
+  "bank_agency": "1234",
+  "birth_date": "24/08/1998",
+  "branch_id": "c67c262c-3883-473f-a4c3-bbcf6bd16b1d",
+  "contract_regime": "CLT",
+  "cpf": "123.456.789-00",
+  "f_b_s": "BACK",
+  "gender": "MASCULINO",
+  "payment_bank": "Itau",
+  "previous_company": "Dia",
+  "rg": "123.456-9",
+  "role_id": "66cbf5d4-068f-41fc-971f-d71f19c1a82d",
+  "team_id": "9cb607ab-83dc-461b-9711-3403d3890333",
+  "xp_entry_date": null
+}
+
+###
+PUT http://localhost:3000/collaborators/address/12c652e6-0ee7-4e88-a708-5d6e5ca0327d HTTP/1.1
+content-type: application/json
+
+{
+  "zip_code": "01001-011",
+  "street": "Praça da Sé",
+  "complement": "123",
+  "neighborhood": "Sé",
+  "fu": "SP",
+  "location": "São Paulo",
+  "number": 122334
+}
+
+
+###
+GET http://localhost:3000/admin/collaborators HTTP/1.1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRVN25id01YXzlJTFluaFZjaXE3ZCJ9.eyJodHRwOi8vdXNlci9yb2xlcyI6WyJNYXN0ZXIiXSwiaXNzIjoiaHR0cHM6Ly9kZXYtMDJhenNpeW4udXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDkzZjdiYWQ3LTZmOTctNDY4NS1iZDFkLTNjYWE1ZDFkYTdkNiIsImF1ZCI6Im15IGlkZXRpZmllciBuZCIsImlhdCI6MTY3NjQwNjMyNSwiZXhwIjoxNjc2NDkyNzI1LCJhenAiOiJxdkx4YlozZVVIOXdXbk50UExWMHMwSWRpQ3A0MG1DViIsImd0eSI6InBhc3N3b3JkIiwicGVybWlzc2lvbnMiOlsiY3JlYXRlOmJyYW5jaGVzIiwiY3JlYXRlOnVzZXJzIiwiZWRpdDpjb21wYXNzLWNsaWVudHMiLCJlZGl0OnVzZXJzIiwibWFya2V0aW5nOmNvbmZpcm0tcHJlc2VuY2UiLCJtYXJrZXRpbmc6Y3JlYXRlLWV2ZW50IiwibWFya2V0aW5nOmVkaXQtZXZlbnQiLCJtYXJrZXRpbmc6cmVhZC1ldmVudCIsIm1hcmtldGluZzpyZWFkLWV2ZW50LWd1ZXN0cyIsIm1hcmtldGluZzpzZW5kLWludml0YXRpb25zIiwicmVhZDpjb21wYXNzLWNsaWVudHMiLCJyZWFkOnVzZXJzIiwidGVzdGU6cGVybWlzc2lvbiJdfQ.yDO9YmViyPx_L_jwK_W3qPE8-S_YCNiI_naxUVAtvXgVV-s-rLYyYC3Hcpa1H1qgK0vU8BMxVhzwLtL3fLAsIdBcrQZtlL0HFewTUYxCLBc54azOpehOZB2vZ83tq3yXoeWiGsod3a7v3wlTG6np1RgGNmzr8eCnMgc9_cdIuGzn8CcXnyYId7Py7FIrhrjidWO2yIdX2dohkC-Q7uc0BsiBrr3cijqNbqQ_LvoC0NPTjKyjKPQpN2nXRfkPX_CWB1KvDGm1vYpWHq1xveHM8brRKgDFmXxmHSwU3gjqa8lKz4_xXZF44fG3BLNiEa9nENt6szQYV2vSBMaFGV873g
+
+
+###
+GET http://localhost:3000/collaborators/12c652e6-0ee7-4e88-a708-5d6e5ca0327d HTTP/1.1
