@@ -30,7 +30,7 @@ export class CollaboratorsService {
     const userId = uuidV4();
     const addressId = uuidV4();
 
-    await this.collaboratorsRepository.createCollaborator({
+    const collaborator = await this.collaboratorsRepository.createCollaborator({
       id: userId,
       email,
       name,
@@ -49,6 +49,20 @@ export class CollaboratorsService {
       ...address,
     };
 
+    const role = await this.collaboratorsRepository.findRoleById(
+      profile.role_id,
+    );
+
+    const collaboratorAuthProvider = {
+      family_name: surname,
+      name,
+      collaborator_id: userId,
+      internal_code: collaborator.cod_interno,
+      email,
+      advisor_code,
+      role: role.funcao,
+    };
+
     this.eventEmitter.emit('create.collaborator-profile', collaboratorProfile);
     this.eventEmitter.emit('create.collaborator-address', collaboratorAddress);
 
@@ -63,6 +77,8 @@ export class CollaboratorsService {
         meaOrExpansionCollaborator,
       );
     }
+
+    this.eventEmitter.emit('collaborator.created', collaboratorAuthProvider);
 
     return;
   }
