@@ -158,6 +158,14 @@ export class CollaboratorsRepository {
     });
   }
 
+  async findRoleById(role_id) {
+    return this.prisma.colaboradores_funcoes.findUnique({
+      where: {
+        id: role_id,
+      },
+    });
+  }
+
   async updateCollaboratorsProfile(
     collaborator_id: string,
     {
