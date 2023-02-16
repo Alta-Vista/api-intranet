@@ -10,6 +10,28 @@ datasource db {
   extensions = [pgcrypto]
 }
 
+enum colaboradores_generos {
+  MASCULINO
+  FEMININO
+
+  @@schema("usuarios")
+}
+
+enum f_b_s {
+  FRONT
+  BACK
+  SALES
+
+  @@schema("usuarios")
+}
+
+enum regime_contrato {
+  CLT
+  ASSOCIADO
+
+  @@schema("usuarios")
+}
+
 model migrations {
   id        Int    @id(map: "PK_8c82d7f526340ab734260ea46be") @default(autoincrement())
   timestamp BigInt
@@ -107,17 +129,19 @@ model departamentos {
 }
 
 model filiais {
-  id                   String                 @id(map: "PK_9cc507f6ebfb9cdeca7f05044f5") @db.Uuid
-  id_responsavel       String                 @db.Uuid
-  id_cidade            String                 @db.Uuid
-  dt_criacao           DateTime               @default(now()) @db.Timestamp(6)
-  cidades              cidades                @relation(fields: [id_cidade], references: [id], onDelete: Cascade, map: "fk_branch_city")
-  usuarios             usuarios               @relation(fields: [id_responsavel], references: [id], onDelete: Cascade, map: "fk_branch_leader")
-  filiais_salas        filiais_salas[]
-  times                times[]
-  enderecos            enderecos[]
-  eventos              eventos[]
-  usuarios_informacoes usuarios_informacoes[]
+  id                        String                      @id(map: "PK_9cc507f6ebfb9cdeca7f05044f5") @db.Uuid
+  id_responsavel            String                      @db.Uuid
+  id_cidade                 String                      @db.Uuid
+  dt_criacao                DateTime                    @default(now()) @db.Timestamp(6)
+  cidades                   cidades                     @relation(fields: [id_cidade], references: [id], onDelete: Cascade, map: "fk_branch_city")
+  usuarios                  usuarios                    @relation(fields: [id_responsavel], references: [id], onDelete: Cascade, map: "fk_branch_leader")
+  filiais_salas             filiais_salas[]
+  times                     times[]
+  enderecos                 enderecos[]
+  eventos                   eventos[]
+  usuarios_informacoes      usuarios_informacoes[]
+  colaboradores_informacoes colaboradores_informacoes[]
+  filiais_equipes           filiais_equipes[]
 
   @@schema("escritorios")
 }
@@ -240,25 +264,25 @@ model cidades {
   clientes   compass_clientes[]
   filiais    filiais[]
   estados    estados            @relation(fields: [id_estado], references: [id], onDelete: Cascade, map: "fk_cities_states")
-  enderecos  enderecos[]
 
   @@schema("localizacoes")
 }
 
 model enderecos {
-  id          String    @id(map: "PK_208b05002dcdf7bfbad378dcac1") @db.Uuid
-  id_usuario  String?   @db.Uuid
-  id_filial   String?   @db.Uuid
-  logradouro  String    @db.VarChar
-  bairro      String    @db.VarChar
-  id_cidade   String    @db.Uuid
-  cep         String    @db.VarChar(10)
-  complemento String?   @db.VarChar(100)
-  numero      Decimal   @db.Decimal(10, 0)
-  dt_criacao  DateTime  @default(now()) @db.Timestamp(6)
-  filiais     filiais?  @relation(fields: [id_filial], references: [id], onDelete: Cascade, map: "fk_branch_address")
-  cidades     cidades   @relation(fields: [id_cidade], references: [id], onDelete: Cascade, map: "fk_city_address")
-  usuarios    usuarios? @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_user_address")
+  id          String   @id(map: "PK_208b05002dcdf7bfbad378dcac1") @db.Uuid
+  id_usuario  String?  @unique @db.Uuid
+  id_filial   String?  @unique @db.Uuid
+  logradouro  String   @db.VarChar
+  bairro      String   @db.VarChar
+  cep         String   @db.VarChar(10)
+  complemento String?  @db.VarChar(100)
+  numero      Decimal  @db.Decimal(10, 0)
+  dt_criacao  DateTime @default(now()) @db.Timestamp(6)
+  localidade  String?  @db.VarChar()
+  uf          String?  @db.VarChar(2)
+
+  filiais  filiais?  @relation(fields: [id_filial], references: [id], onDelete: Cascade, map: "fk_branch_address")
+  usuarios usuarios? @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_user_address")
 
   @@schema("localizacoes")
 }
@@ -391,28 +415,34 @@ model tipos_codigos {
 }
 
 model usuarios {
-  id                                                                        String                     @id(map: "PK_d7281c63c176e152e4c531594a8") @db.Uuid
-  nome                                                                      String                     @db.VarChar
-  sobrenome                                                                 String                     @db.VarChar
-  email                                                                     String                     @unique(map: "UQ_446adfc18b35418aac32ae0b7b5") @db.VarChar
-  dt_criacao                                                                DateTime                   @default(now()) @db.Timestamp(6)
+  id                                                                        String                      @id(map: "PK_d7281c63c176e152e4c531594a8") @db.Uuid
+  nome                                                                      String                      @db.VarChar
+  sobrenome                                                                 String                      @db.VarChar
+  cod_assessor                                                              String?                     @unique @db.VarChar(10)
+  cod_interno                                                               Int                         @unique @default(autoincrement()) @db.Integer
+  email                                                                     String                      @unique(map: "UQ_446adfc18b35418aac32ae0b7b5") @db.VarChar
+  dt_criacao                                                                DateTime                    @default(now()) @db.Timestamp(6)
   clientes                                                                  clientes_clientes[]
   prospects                                                                 prospects[]
-  clientes_clientes_id_assessor_compassTousuarios                           compass_clientes[]         @relation("clientes_id_assessor_compassTousuarios")
-  clientes_clientes_id_assessor_origemTousuarios                            compass_clientes[]         @relation("clientes_id_assessor_origemTousuarios")
-  clientes_devolvidos_clientes_devolvidos_id_assessor_compassTousuarios     clientes_devolvidos[]      @relation("clientes_devolvidos_id_assessor_compassTousuarios")
-  clientes_devolvidos_clientes_devolvidos_id_assessor_origemTousuarios      clientes_devolvidos[]      @relation("clientes_devolvidos_id_assessor_origemTousuarios")
+  clientes_clientes_id_assessor_compassTousuarios                           compass_clientes[]          @relation("clientes_id_assessor_compassTousuarios")
+  clientes_clientes_id_assessor_origemTousuarios                            compass_clientes[]          @relation("clientes_id_assessor_origemTousuarios")
+  clientes_devolvidos_clientes_devolvidos_id_assessor_compassTousuarios     clientes_devolvidos[]       @relation("clientes_devolvidos_id_assessor_compassTousuarios")
+  clientes_devolvidos_clientes_devolvidos_id_assessor_origemTousuarios      clientes_devolvidos[]       @relation("clientes_devolvidos_id_assessor_origemTousuarios")
   filiais                                                                   filiais[]
-  filiais_salas_reservadas_filiais_salas_reservadas_id_reservadorTousuarios filiais_salas_reservadas[] @relation("filiais_salas_reservadas_id_reservadorTousuarios")
-  filiais_salas_reservadas_filiais_salas_reservadas_id_utilizadorTousuarios filiais_salas_reservadas[] @relation("filiais_salas_reservadas_id_utilizadorTousuarios")
+  filiais_salas_reservadas_filiais_salas_reservadas_id_reservadorTousuarios filiais_salas_reservadas[]  @relation("filiais_salas_reservadas_id_reservadorTousuarios")
+  filiais_salas_reservadas_filiais_salas_reservadas_id_utilizadorTousuarios filiais_salas_reservadas[]  @relation("filiais_salas_reservadas_id_utilizadorTousuarios")
   times                                                                     times[]
   credenciais                                                               credenciais[]
   tokens_usuarios                                                           tokens_usuarios[]
   usuario_2fa                                                               usuario_2fa?
-  enderecos                                                                 enderecos[]
+  enderecos                                                                 enderecos?
   eventos_convidados                                                        eventos_convidados[]
   codigos                                                                   codigos[]
   usuarios_informacoes                                                      usuarios_informacoes[]
+  colaboradores_informacoes                                                 colaboradores_informacoes?
+  filiais_equipes                                                           filiais_equipes[]
+  colaboradores_expansao                                                    colaboradores_expansao[]
+  expansao_assessor_tombamento                                              colaboradores_expansao[]    @relation("assessor_tombamento")
 
   @@schema("usuarios")
 }
@@ -449,6 +479,80 @@ model usuarios_informacoes {
 model usuarios_tp_relacionamentos {
   id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tipo_relacionamento String @db.VarChar(100)
+
+  @@schema("usuarios")
+}
+
+model filiais_equipes {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome            String    @db.VarChar()
+  id_lider        String?   @db.Uuid
+  id_filial       String?   @db.Uuid
+  ativa           Boolean   @default(true) @db.Boolean
+  dt_criacao      DateTime  @db.Date
+  dt_encerramento DateTime? @db.Date
+
+  lider                     usuarios?                   @relation(fields: [id_lider], references: [id], onDelete: SetNull, map: "fk_lider_equipe")
+  filial                    filiais?                    @relation(fields: [id_filial], references: [id], onDelete: SetNull, map: "fk_equipe_filial")
+  colaboradores_informacoes colaboradores_informacoes[]
+
+  @@schema("escritorios")
+}
+
+model colaboradores_funcoes {
+  id                        String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  funcao                    String                      @unique
+  colaboradores_informacoes colaboradores_informacoes[]
+
+  @@schema("usuarios")
+}
+
+model colaboradores_informacoes {
+  id               String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_colaborador   String                 @unique @db.Uuid
+  rg               String?                @unique @db.VarChar(20)
+  cpf              String?                @unique @db.VarChar(15)
+  dt_nascimento    DateTime?              @db.Date
+  genero           colaboradores_generos?
+  f_b_s            f_b_s?
+  id_filial        String?                @db.Uuid
+  id_equipe        String?                @db.Uuid
+  id_funcao        String?                @db.Uuid
+  banco_pagamento  String?                @db.VarChar(100)
+  ag               String?                @db.VarChar(10)
+  conta            String?                @db.VarChar(20)
+  regime_contrato  regime_contrato?
+  empresa_anterior String?                @db.VarChar
+  dt_entrada_av    DateTime?              @db.Date
+  dt_entrada_xp    DateTime?              @db.Date
+  dt_saida_av      DateTime?              @db.Date
+
+  filial        filiais?               @relation(fields: [id_filial], references: [id], onDelete: Cascade, map: "fk_colaborador_filial")
+  colaboradores usuarios               @relation(fields: [id_colaborador], references: [id], onDelete: Cascade, map: "fk_colaborador_info")
+  funcao        colaboradores_funcoes? @relation(fields: [id_funcao], references: [id], onDelete: Cascade, map: "fk_colaborador_funcao")
+  equipe        filiais_equipes?       @relation(fields: [id_equipe], references: [id], onDelete: SetNull, map: "fk_colaborador_equipe")
+
+  @@schema("usuarios")
+}
+
+model escritorios_aquisicoes {
+  id                     String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  operacao               String                   @unique @db.VarChar()
+  dt_aquisicao           DateTime                 @db.Date
+  colaboradores_expansao colaboradores_expansao[]
+
+  @@schema("escritorios")
+}
+
+model colaboradores_expansao {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_colaborador String  @unique @db.Uuid
+  id_mea         String? @db.Uuid
+  cod_a_tombado  String? @db.VarChar()
+
+  colaborador         usuarios                @relation(fields: [id_colaborador], references: [id], onDelete: Cascade, map: "fk_colaborador_expansao")
+  mea                 escritorios_aquisicoes? @relation(fields: [id_mea], references: [id], onDelete: SetNull, map: "fk_mea_expansao")
+  assessor_tombamento usuarios?               @relation(name: "assessor_tombamento", fields: [cod_a_tombado], references: [cod_assessor], onDelete: SetNull, map: "fk_assessor_tombamento")
 
   @@schema("usuarios")
 }

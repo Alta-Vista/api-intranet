@@ -13,7 +13,7 @@ export class PermissionsGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     const [req] = context.getArgs();
 
-    const userPermissions = req?.user?.permissions || [];
+    const userPermissions = req?.auth?.permissions || [];
 
     const requiredPermissions: Array<string> =
       this.reflector.get('permissions', context.getHandler()) || [];
@@ -26,6 +26,6 @@ export class PermissionsGuard implements CanActivate {
       return true;
     }
 
-    throw new ForbiddenException('Insuficient Permissions');
+    throw new ForbiddenException('Insufficient Permissions');
   }
 }
