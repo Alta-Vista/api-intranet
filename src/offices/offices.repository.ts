@@ -12,4 +12,21 @@ export class OfficesRepository {
       },
     });
   }
+
+  async listOffices() {
+    return this.prisma.filiais.findMany({
+      select: {
+        id: true,
+        cidades: true,
+      },
+    });
+  }
+
+  async listMaA() {
+    return this.prisma.escritorios_aquisicoes.findMany();
+  }
+
+  async listTeams() {
+    return this.prisma.filiais_equipes.findMany();
+  }
 }

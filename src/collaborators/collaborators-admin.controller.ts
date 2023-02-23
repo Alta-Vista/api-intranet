@@ -32,6 +32,12 @@ export class CollaboratorsAdminController {
     );
   }
 
+  @Get('roles')
+  @Permissions('read:users')
+  getRoles() {
+    return this.collaboratorsService.listRoles();
+  }
+
   @Get(':id')
   @Permissions('read:users')
   getCollaboratorProfile(@Param('id') id: string) {

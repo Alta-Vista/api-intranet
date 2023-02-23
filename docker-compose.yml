@@ -2,7 +2,7 @@ version: '3'
 
 networks:
   server:
-    driver: bridge
+    driver: host
 
 services:
   api.application:

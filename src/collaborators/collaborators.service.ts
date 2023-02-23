@@ -27,6 +27,10 @@ export class CollaboratorsService {
       throw new HttpException('Collaborator already exists', 303);
     }
 
+    if (!email.includes('@altavistainvest.com.br')) {
+      throw new HttpException('Invalid e-mail domain', 400);
+    }
+
     const userId = uuidV4();
     const addressId = uuidV4();
 
@@ -205,5 +209,9 @@ export class CollaboratorsService {
     return this.collaboratorsRepository.getCollaboratorsProfile(
       collaborator_id,
     );
+  }
+
+  async listRoles() {
+    return this.collaboratorsRepository.listRoles();
   }
 }
