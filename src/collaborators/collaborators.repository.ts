@@ -253,6 +253,10 @@ export class CollaboratorsRepository {
     };
   }
 
+  async listRoles() {
+    return this.prisma.colaboradores_funcoes.findMany();
+  }
+
   async getCollaboratorsProfile(collaborator_id: string) {
     return this.prisma.usuarios.findUnique({
       where: {

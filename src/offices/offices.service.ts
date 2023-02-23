@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { CreateOfficeDto } from './dto/create-office.dto';
 import { UpdateOfficeDto } from './dto/update-office.dto';
+import { OfficesRepository } from './offices.repository';
 
 @Injectable()
 export class OfficesService {
-  create(createOfficeDto: CreateOfficeDto) {
-    return 'This action adds a new office';
+  constructor(private officesRepository: OfficesRepository) {}
+
+  findAllOffices() {
+    return this.officesRepository.listOffices();
   }
 
-  findAll() {
-    return `This action returns all offices`;
+  findAllMeA() {
+    return this.officesRepository.listMaA();
+  }
+
+  findAllTeams() {
+    return this.officesRepository.listTeams();
   }
 
   findOne(id: number) {
