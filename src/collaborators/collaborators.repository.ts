@@ -112,13 +112,28 @@ export class CollaboratorsRepository {
     });
   }
 
-  async findCollaborators(email: string, advisor_code: string) {
+  async findCollaborators(
+    email: string,
+    advisor_code: string,
+    cpf: string,
+    rg: string,
+  ) {
     return this.prisma.usuarios.findFirst({
       where: {
         OR: [
           { cod_assessor: advisor_code },
           {
             email,
+          },
+          {
+            colaboradores_informacoes: {
+              cpf,
+            },
+          },
+          {
+            colaboradores_informacoes: {
+              rg,
+            },
           },
         ],
       },
