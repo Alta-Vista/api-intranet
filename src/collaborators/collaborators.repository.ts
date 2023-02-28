@@ -256,6 +256,27 @@ export class CollaboratorsRepository {
       orderBy: {
         nome: 'asc',
       },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        cod_interno: true,
+        sobrenome: true,
+        colaboradores_informacoes: {
+          select: {
+            filial: {
+              select: {
+                cidades: {
+                  select: {
+                    cidade: true,
+                  },
+                },
+              },
+            },
+            dt_entrada_av: true,
+          },
+        },
+      },
       skip,
       take: limit,
     });

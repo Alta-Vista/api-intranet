@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ManagementClient } from 'auth0';
@@ -61,6 +61,10 @@ export class CollaboratorCreatedListener {
       });
     } catch (e) {
       console.log(e);
+
+      if (e.statusCode === 409) {
+        throw new ConflictException();
+      }
     }
   }
 }

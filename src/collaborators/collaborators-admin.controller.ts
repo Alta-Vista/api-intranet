@@ -7,6 +7,8 @@ import {
   Param,
   Get,
   Query,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { CollaboratorsService } from './collaborators.service';
 import { CreateCollaboratorsDataDto } from './dtos/create-collaborators-data.dto';
