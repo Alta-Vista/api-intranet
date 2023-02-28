@@ -112,13 +112,28 @@ export class CollaboratorsRepository {
     });
   }
 
-  async findCollaborators(email: string, advisor_code: string) {
+  async findCollaborators(
+    email: string,
+    advisor_code: string,
+    cpf: string,
+    rg: string,
+  ) {
     return this.prisma.usuarios.findFirst({
       where: {
         OR: [
           { cod_assessor: advisor_code },
           {
             email,
+          },
+          {
+            colaboradores_informacoes: {
+              cpf,
+            },
+          },
+          {
+            colaboradores_informacoes: {
+              rg,
+            },
           },
         ],
       },
@@ -240,6 +255,27 @@ export class CollaboratorsRepository {
     const collaborators = await this.prisma.usuarios.findMany({
       orderBy: {
         nome: 'asc',
+      },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        cod_interno: true,
+        sobrenome: true,
+        colaboradores_informacoes: {
+          select: {
+            filial: {
+              select: {
+                cidades: {
+                  select: {
+                    cidade: true,
+                  },
+                },
+              },
+            },
+            dt_entrada_av: true,
+          },
+        },
       },
       skip,
       take: limit,
