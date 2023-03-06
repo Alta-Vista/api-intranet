@@ -7,8 +7,8 @@ import {
   Param,
   Get,
   Query,
-  UseInterceptors,
   ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CollaboratorsService } from './collaborators.service';
 import { CreateCollaboratorsDataDto } from './dtos/create-collaborators-data.dto';
@@ -22,6 +22,7 @@ import { PermissionsGuard } from '../authorization/permissions.guard';
 
 @Controller('admin/collaborators')
 @UseGuards(AuthorizationGuard, PermissionsGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 export class CollaboratorsAdminController {
   constructor(private collaboratorsService: CollaboratorsService) {}
 

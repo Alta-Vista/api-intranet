@@ -252,7 +252,7 @@ export class CollaboratorsRepository {
   async listCollaborators(limit: number, offset: number) {
     const skip = limit * offset - limit;
 
-    const collaborators = await this.prisma.usuarios.findMany({
+    const queryCollaborators = await this.prisma.usuarios.findMany({
       orderBy: {
         nome: 'asc',
       },
@@ -261,9 +261,11 @@ export class CollaboratorsRepository {
         nome: true,
         email: true,
         cod_interno: true,
+        cod_assessor: true,
         sobrenome: true,
         colaboradores_informacoes: {
           select: {
+            funcao: true,
             filial: {
               select: {
                 cidades: {
@@ -283,9 +285,26 @@ export class CollaboratorsRepository {
 
     const totalCollaborators = await this.prisma.usuarios.count();
 
+    const collaborators = queryCollaborators.map((collaborator) => {
+      return {
+        id: collaborator.id,
+        name: collaborator.nome,
+        surname: collaborator.sobrenome,
+        email: collaborator.email,
+        internal_code: collaborator.cod_interno,
+        advisor_code: collaborator?.cod_assessor,
+        role: collaborator.colaboradores_informacoes.funcao.funcao,
+        av_entry_date:
+          collaborator?.colaboradores_informacoes?.dt_entrada_av || null,
+        branch:
+          collaborator?.colaboradores_informacoes?.filial.cidades.cidade ||
+          null,
+      };
+    });
+
     return {
       total: totalCollaborators,
-      colaboradores: collaborators,
+      collaborators,
     };
   }
 
@@ -294,7 +313,7 @@ export class CollaboratorsRepository {
   }
 
   async getCollaboratorsProfile(collaborator_id: string) {
-    return this.prisma.usuarios.findUnique({
+    const data = await this.prisma.usuarios.findUnique({
       where: {
         id: collaborator_id,
       },
@@ -307,6 +326,7 @@ export class CollaboratorsRepository {
         dt_criacao: true,
         colaboradores_informacoes: {
           select: {
+            id: true,
             cpf: true,
             rg: true,
             f_b_s: true,
@@ -320,16 +340,17 @@ export class CollaboratorsRepository {
             dt_nascimento: true,
             empresa_anterior: true,
             regime_contrato: true,
+            filial: {
+              select: {
+                id: true,
+                cidades: true,
+              },
+            },
             equipe: {
               select: {
                 id: true,
                 nome: true,
-                lider: {
-                  select: {
-                    nome: true,
-                    sobrenome: true,
-                  },
-                },
+                lider: true,
               },
             },
             funcao: true,
@@ -349,5 +370,42 @@ export class CollaboratorsRepository {
         },
       },
     });
+
+    return {
+      name: data.nome,
+      surname: data.sobrenome,
+      email: data.email,
+      advisor_code: data.cod_assessor,
+      internal_code: data.cod_interno,
+      profile: {
+        id: data?.colaboradores_informacoes?.id,
+        cpf: data?.colaboradores_informacoes?.cpf,
+        rg: data?.colaboradores_informacoes?.rg,
+        f_b_s: data?.colaboradores_informacoes?.f_b_s,
+        role: data?.colaboradores_informacoes?.funcao.funcao,
+        team: data?.colaboradores_informacoes?.equipe?.nome,
+        contract_regime: data?.colaboradores_informacoes?.regime_contrato,
+        previous_company: data?.colaboradores_informacoes?.empresa_anterior,
+        birth_date: data?.colaboradores_informacoes.dt_nascimento,
+        bank_agency: data?.colaboradores_informacoes?.ag,
+        bank_account: data?.colaboradores_informacoes?.conta,
+        bank: data?.colaboradores_informacoes?.banco_pagamento,
+        gender: data?.colaboradores_informacoes?.genero,
+        av_entry_date: data?.colaboradores_informacoes?.dt_entrada_av,
+        xp_entry_date: data?.colaboradores_informacoes?.dt_entrada_xp,
+        av_exit_date: data?.colaboradores_informacoes?.dt_saida_av,
+        branch: data?.colaboradores_informacoes?.filial.cidades.cidade,
+      },
+      address: {
+        id: data.enderecos.id,
+        zip_code: data.enderecos.cep,
+        location: data.enderecos.localidade,
+        street: data.enderecos.logradouro,
+        neighborhood: data.enderecos.bairro,
+        complement: data.enderecos?.complemento,
+        number: Number(data.enderecos?.numero),
+        fu: data.enderecos.uf,
+      },
+    };
   }
 }

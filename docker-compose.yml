@@ -4,17 +4,7 @@ networks:
   server:
     driver: host
 
-services:
-  api.application:
-    build: .
-    container_name: nestjs_api
-    depends_on:
-      - db
-    networks:
-      - server
-    ports:
-      - 3000:3000
-  
+services:  
   nginx:
     image: nginx:stable
     container_name: nginx_api
