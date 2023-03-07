@@ -207,7 +207,15 @@ export class CollaboratorsService {
   }
 
   async listCollaborators(limit: number, offset: number) {
-    return this.collaboratorsRepository.listCollaborators(limit, offset);
+    const { collaborators, total } =
+      await this.collaboratorsRepository.listCollaborators(limit, offset);
+
+    return {
+      limit,
+      page: offset,
+      total,
+      collaborators,
+    };
   }
 
   async getCollaboratorProfile(collaborator_id: string) {

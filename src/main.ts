@@ -10,6 +10,7 @@ const whiteList = [
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   app.setGlobalPrefix('v2');
   app.use(helmet());
   app.enableCors({

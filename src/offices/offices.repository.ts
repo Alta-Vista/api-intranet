@@ -14,11 +14,18 @@ export class OfficesRepository {
   }
 
   async listOffices() {
-    return this.prisma.filiais.findMany({
+    const data = await this.prisma.filiais.findMany({
       select: {
         id: true,
         cidades: true,
       },
+    });
+
+    return data.map((office) => {
+      return {
+        id: office.id,
+        location: office.cidades.cidade,
+      };
     });
   }
 
