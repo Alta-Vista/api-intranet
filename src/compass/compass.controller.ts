@@ -3,9 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   UseGuards,
   Query,
 } from '@nestjs/common';
@@ -15,7 +13,6 @@ import { CollaboratorsEntity } from 'src/collaborators/entities/collaborators.en
 import { CompassService } from './compass.service';
 import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations';
 import { ListRequestedClientsDto } from './dto/list-requested-clients.dto';
-import { UpdateCompassDto } from './dto/update-compass.dto';
 
 @Controller('compass')
 @UseGuards(AuthorizationGuard)
@@ -46,15 +43,5 @@ export class CompassController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.compassService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCompassDto: UpdateCompassDto) {
-    return this.compassService.update(+id, updateCompassDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.compassService.remove(+id);
   }
 }

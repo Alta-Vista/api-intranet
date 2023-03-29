@@ -4,7 +4,6 @@ import { CollaboratorsRepository } from 'src/collaborators/collaborators.reposit
 import { CompassRepository } from './compass.repository';
 import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations';
 import { ListRequestedClientsDto } from './dto/list-requested-clients.dto';
-import { UpdateCompassDto } from './dto/update-compass.dto';
 
 enum CompassStatus {
   SOLICITADO = 'SOLICITADO',
@@ -69,13 +68,5 @@ export class CompassService {
 
   findOne(id: number) {
     return `This action returns a #${id} compass`;
-  }
-
-  update(id: number, updateCompassDto: UpdateCompassDto) {
-    return `This action updates a #${id} compass`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} compass`;
   }
 }
