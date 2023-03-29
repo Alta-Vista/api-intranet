@@ -39,9 +39,4 @@ export class CompassController {
       offset: query.offset || 1,
     });
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.compassService.findOne(+id);
-  }
 }

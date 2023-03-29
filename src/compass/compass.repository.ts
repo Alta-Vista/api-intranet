@@ -71,4 +71,15 @@ export class CompassRepository {
       requests,
     };
   }
+
+  async assignClients(client: number, compass_advisor: string) {
+    return this.prisma.compass_clientes.update({
+      where: {
+        cd_cliente: client,
+      },
+      data: {
+        id_assessor_compass: compass_advisor,
+      },
+    });
+  }
 }

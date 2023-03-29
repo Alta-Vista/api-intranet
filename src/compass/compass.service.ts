@@ -66,7 +66,10 @@ export class CompassService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} compass`;
+  async assignClientsToCompassAdvisor(client: string, compass_advisor: string) {
+    return this.compassRepository.assignClients(
+      Number(client),
+      compass_advisor,
+    );
   }
 }
