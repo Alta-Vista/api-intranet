@@ -7,12 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AuthorizationGuard } from 'src/authorization/authorization.guard';
 import { Collaborator } from 'src/authorization/collaborator.decorator';
 import { CollaboratorsEntity } from 'src/collaborators/entities/collaborators.entity';
 import { CompassService } from './compass.service';
 import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations';
+import { ListRequestedClientsDto } from './dto/list-requested-clients.dto';
 import { UpdateCompassDto } from './dto/update-compass.dto';
 
 @Controller('compass')
@@ -29,8 +31,16 @@ export class CompassController {
   }
 
   @Get()
-  findAll() {
-    return this.compassService.findAll();
+  findAll(
+    @Collaborator() collaborator: CollaboratorsEntity,
+    @Query() query: ListRequestedClientsDto,
+  ) {
+    const [, collaboratorId] = collaborator.sub.split('|');
+
+    return this.compassService.findAllRequestedClients(collaboratorId, {
+      limit: query.limit || 10,
+      offset: query.offset || 1,
+    });
   }
 
   @Get(':id')

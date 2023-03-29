@@ -14,5 +14,6 @@ import { CollaboratorsAdminController } from './collaborators-admin.controller';
     CollaboratorCreatedListener,
   ],
   controllers: [CollaboratorsAdminController],
+  exports: [CollaboratorsRepository],
 })
 export class CollaboratorsModule {}

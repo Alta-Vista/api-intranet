@@ -4,6 +4,7 @@ import { CompassController } from './compass.controller';
 import { PrismaModule } from '../database/prisma.module';
 import { CompassRepository } from './compass.repository';
 import { SQSModule } from '../aws/sqs/sqs.module';
+import { CollaboratorsModule } from 'src/collaborators/collaborators.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { SQSModule } from '../aws/sqs/sqs.module';
     SQSModule.register({
       region: 'us-east-1',
     }),
+    CollaboratorsModule,
   ],
   controllers: [CompassController],
   providers: [CompassService, CompassRepository],
