@@ -7,7 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AdminOfficesController } from './offices-admin.controller';
 
 @Module({
-  imports: [PrismaModule, ConfigModule.forRoot()],
+  imports: [PrismaModule, ConfigModule.forRoot({ isGlobal: true })],
   controllers: [OfficesController, AdminOfficesController],
   providers: [OfficesService, OfficesRepository],
 })

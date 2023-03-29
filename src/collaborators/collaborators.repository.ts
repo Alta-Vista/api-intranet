@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { usuarios } from '@prisma/client';
-import { PrismaService } from 'src/database/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 import { CreateCollaboratorsAddressDto } from './dtos/create-collaborators-address.dto';
 import { CreateCollaboratorMeA } from './dtos/create-collaborators-mea.dto';
 import { CreateCollaboratorsProfileDto } from './dtos/create-collaborators-profile.dto';
@@ -140,7 +140,7 @@ export class CollaboratorsRepository {
     });
   }
 
-  async findCollaboratorById(collaboratorId) {
+  async findCollaboratorById(collaboratorId: string) {
     return this.prisma.usuarios.findUnique({
       where: {
         id: collaboratorId,
@@ -157,7 +157,7 @@ export class CollaboratorsRepository {
   }
 
   async updateCollaborator(
-    collaboratorId,
+    collaboratorId: string,
     { email, surname, advisor_code, name }: CreateCollaboratorDto,
   ) {
     return this.prisma.usuarios.update({
@@ -173,7 +173,7 @@ export class CollaboratorsRepository {
     });
   }
 
-  async findRoleById(role_id) {
+  async findRoleById(role_id: string) {
     return this.prisma.colaboradores_funcoes.findUnique({
       where: {
         id: role_id,
@@ -224,7 +224,7 @@ export class CollaboratorsRepository {
   }
 
   async updateCollaboratorsAddress(
-    collaboratorId,
+    collaboratorId: string,
     {
       street,
       zip_code,
