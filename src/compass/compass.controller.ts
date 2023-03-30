@@ -1,15 +1,7 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  UseGuards,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Query } from '@nestjs/common';
 import { AuthorizationGuard } from 'src/authorization/authorization.guard';
 import { Collaborator } from 'src/authorization/collaborator.decorator';
-import { CollaboratorsEntity } from 'src/collaborators/entities/collaborators.entity';
+import { collaboratorAuthInterface } from 'src/collaborators/interfaces/collaborators-auth.interface';
 import { CompassService } from './compass.service';
 import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations';
 import { ListRequestedClientsDto } from './dto/list-requested-clients.dto';
@@ -21,7 +13,7 @@ export class CompassController {
 
   @Post()
   create(
-    @Collaborator() collaborator: CollaboratorsEntity,
+    @Collaborator() collaborator: collaboratorAuthInterface,
     @Body() createCompassDto: CreateCompassSolicitationsDto,
   ) {
     return this.compassService.create(collaborator.sub, createCompassDto);
@@ -29,7 +21,7 @@ export class CompassController {
 
   @Get()
   findAll(
-    @Collaborator() collaborator: CollaboratorsEntity,
+    @Collaborator() collaborator: collaboratorAuthInterface,
     @Query() query: ListRequestedClientsDto,
   ) {
     const [, collaboratorId] = collaborator.sub.split('|');

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateCompassClientesSolicitationsDto } from './dto/create-clients-solicitations.dto';
 import { ListRequestedClientsInterface } from './interfaces';
+import { FindAllClientsInterface } from './interfaces/find-all-clients.interface';
 
 @Injectable()
 export class CompassRepository {
@@ -72,6 +73,32 @@ export class CompassRepository {
     };
   }
 
+  async listCompassClients({ limit, offset }: FindAllClientsInterface) {
+    const skip = limit * offset - limit;
+
+    const clients = await this.prisma.compass_clientes.findMany({
+      select: {
+        id: true,
+        cd_cliente: true,
+        disponivel: true,
+        cliente_ciente: true,
+        em_devolucao: true,
+        patrimonio: true,
+        assessor_compass: true,
+        assessor_origem: true,
+      },
+      skip,
+      take: limit,
+    });
+
+    const total = await this.prisma.compass_clientes.count();
+
+    return {
+      total,
+      clients,
+    };
+  }
+
   async assignClients(client: number, compass_advisor: string) {
     return this.prisma.compass_clientes.update({
       where: {
@@ -79,6 +106,8 @@ export class CompassRepository {
       },
       data: {
         id_assessor_compass: compass_advisor,
+        disponivel: false,
+        dt_atualizacao: new Date(),
       },
     });
   }

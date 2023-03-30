@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
-import { HttpException } from '@nestjs/common';
+import { HttpException, ValidationPipe } from '@nestjs/common';
 
 const whiteList = [
   String(process.env.APP_WEB_URL),
@@ -12,6 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('v2');
+  app.useGlobalPipes(new ValidationPipe());
   app.use(helmet());
   app.enableCors({
     origin: (origin, cb) => {

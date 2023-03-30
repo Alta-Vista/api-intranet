@@ -3,6 +3,7 @@ import { SQSService } from 'src/aws/sqs/sqs.service';
 import { CollaboratorsRepository } from 'src/collaborators/collaborators.repository';
 import { CompassRepository } from './compass.repository';
 import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations';
+import { FindAllClientsDto } from './dto/find-all-clients.dto';
 import { ListRequestedClientsDto } from './dto/list-requested-clients.dto';
 
 enum CompassStatus {
@@ -51,18 +52,19 @@ export class CompassService {
     const collaborator =
       await this.collaboratorsRepository.findCollaboratorById(collaborator_id);
 
-    const requests = await this.compassRepository.listRequestedClients({
-      advisor_code: collaborator.cod_assessor,
-      requester_id: collaborator.id,
-      limit: Number(limit),
-      offset: Number(offset),
-    });
+    const { requests, total } =
+      await this.compassRepository.listRequestedClients({
+        advisor_code: collaborator.cod_assessor,
+        requester_id: collaborator.id,
+        limit: Number(limit),
+        offset: Number(offset),
+      });
 
     return {
       limit: Number(limit),
       page: Number(offset),
-      total: requests.total,
-      requests: requests.requests,
+      total,
+      requests,
     };
   }
 
@@ -71,5 +73,19 @@ export class CompassService {
       Number(client),
       compass_advisor,
     );
+  }
+
+  async findAllClients({ limit, offset }: FindAllClientsDto) {
+    const { clients, total } = await this.compassRepository.listCompassClients({
+      limit: Number(limit),
+      offset: Number(offset),
+    });
+
+    return {
+      total,
+      limit,
+      offset,
+      clients,
+    };
   }
 }
