@@ -1,4 +1,4 @@
-import { Decimal } from '@prisma/client/runtime';
+import { Decimal } from '@prisma/client/runtime/library';
 import { Expose } from 'class-transformer';
 import { CollaboratorsEntity } from 'src/collaborators/entities/collaborators.entity';
 

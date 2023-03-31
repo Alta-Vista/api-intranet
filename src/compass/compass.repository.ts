@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateCompassClientesSolicitationsDto } from './dto/create-clients-solicitations.dto';
 import { ListRequestedClientsInterface } from './interfaces';
-import { FindAllClientsInterface } from './interfaces/find-all-clients.interface';
+import { FindClientsInterface } from './interfaces/find-clients.interface';
 
 @Injectable()
 export class CompassRepository {
@@ -73,7 +73,78 @@ export class CompassRepository {
     };
   }
 
-  async listCompassClients({ limit, offset }: FindAllClientsInterface) {
+  async listCompassClients({
+    limit,
+    offset,
+    isAvailable,
+    advisor,
+    compass_advisor,
+  }: FindClientsInterface) {
+    const skip = limit * offset - limit;
+
+    let where: unknown = {
+      disponivel: isAvailable,
+    };
+
+    if (advisor && !compass_advisor) {
+      where = {
+        disponivel: isAvailable,
+        assessor_origem: {
+          cod_assessor: advisor,
+        },
+      };
+    }
+
+    if (!advisor && compass_advisor) {
+      where = {
+        disponivel: isAvailable,
+        assessor_compass: {
+          cod_assessor: advisor,
+        },
+      };
+    }
+
+    if (advisor && compass_advisor) {
+      where = {
+        disponivel: isAvailable,
+        assessor_compass: {
+          cod_assessor: compass_advisor,
+        },
+        assessor_origem: {
+          cod_assessor: advisor,
+        },
+      };
+    }
+
+    const clients = await this.prisma.compass_clientes.findMany({
+      select: {
+        id: true,
+        cd_cliente: true,
+        disponivel: true,
+        cliente_ciente: true,
+        em_devolucao: true,
+        patrimonio: true,
+        assessor_compass: true,
+        assessor_origem: true,
+      },
+      where,
+      skip,
+      take: limit,
+    });
+
+    const total = await this.prisma.compass_clientes.count();
+
+    return {
+      total,
+      clients,
+    };
+  }
+
+  async listAdvisorClients({
+    limit,
+    offset,
+    collaboratorId,
+  }: FindClientsInterface) {
     const skip = limit * offset - limit;
 
     const clients = await this.prisma.compass_clientes.findMany({
@@ -86,6 +157,10 @@ export class CompassRepository {
         patrimonio: true,
         assessor_compass: true,
         assessor_origem: true,
+      },
+      where: {
+        id_assessor_origem: collaboratorId,
+        disponivel: false,
       },
       skip,
       take: limit,

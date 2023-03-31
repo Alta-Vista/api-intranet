@@ -156,6 +156,18 @@ export class CollaboratorsRepository {
     });
   }
 
+  async findCollaboratorsByRole(role: string) {
+    return this.prisma.usuarios.findMany({
+      where: {
+        colaboradores_informacoes: {
+          funcao: {
+            funcao: role,
+          },
+        },
+      },
+    });
+  }
+
   async updateCollaborator(
     collaboratorId: string,
     { email, surname, advisor_code, name }: CreateCollaboratorDto,
