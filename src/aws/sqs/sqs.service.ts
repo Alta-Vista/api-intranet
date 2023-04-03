@@ -7,24 +7,28 @@ import { SQSSendMessageOptions } from '../interfaces';
 @Injectable()
 export class SQSService {
   private queueURL: string;
+  private environment: string;
 
   constructor(
     @AWSClient(SQSClient) private readonly sqs: SQSClient,
     private configService: ConfigService,
   ) {
     this.queueURL = this.configService.get('SQS_QUEUE_URL');
+    this.environment = this.configService.get('ENVIRONMENT');
   }
 
   async sendMessage(options: SQSSendMessageOptions) {
     try {
-      const command = new SendMessageCommand({
-        QueueUrl: options.sqsQueueUrl ? options.sqsQueueUrl : this.queueURL,
-        MessageBody: options.message,
-        MessageDeduplicationId: options.deduplicationId,
-        MessageGroupId: options.groupId,
-      });
+      if (this.environment === 'prod') {
+        const command = new SendMessageCommand({
+          QueueUrl: options.sqsQueueUrl ? options.sqsQueueUrl : this.queueURL,
+          MessageBody: options.message,
+          MessageDeduplicationId: options.deduplicationId,
+          MessageGroupId: options.groupId,
+        });
 
-      await this.sqs.send(command);
+        await this.sqs.send(command);
+      }
 
       console.log(
         `Message send with id '${options.deduplicationId}' and group '${options.groupId}'`,

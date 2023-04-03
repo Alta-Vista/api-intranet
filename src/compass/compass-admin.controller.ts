@@ -15,6 +15,7 @@ import { ListCompassTransformerInterceptor } from './interceptors/list-compass-c
 import { CompassService } from './compass.service';
 import { AssignCompassClientsDto } from './dto/assign-compass-clients.dto';
 import { FindAllClientsDto } from './dto/find-all-clients.dto';
+import { CompassAdvisorsTransformerInterceptor } from './interceptors/list-compass-advisors-transformer.interceptor';
 
 @Controller('admin/compass')
 @UseGuards(AuthorizationGuard, PermissionsGuard)
@@ -29,15 +30,27 @@ export class CompassAdminController {
     return this.compassService.findAllClients({
       limit: query.limit || '10',
       offset: query.offset || '1',
+      isAvailable: query.isAvailable,
+      advisor: query.advisor,
+      compass_advisor: query.compass_advisor,
     });
   }
 
   @Put('/assign')
   @Permissions('edit:compass-clients')
-  update(@Body() { client, compass_advisor }: AssignCompassClientsDto) {
-    return this.compassService.assignClientsToCompassAdvisor(
+  async update(@Body() { client, compass_advisor }: AssignCompassClientsDto) {
+    await this.compassService.assignClientsToCompassAdvisor(
       client,
       compass_advisor,
     );
+
+    return;
+  }
+
+  @Get('/advisors')
+  @Permissions('read:compass-advisors')
+  @UseInterceptors(CompassAdvisorsTransformerInterceptor)
+  async listAdvisors() {
+    return this.compassService.findCompassAdvisors();
   }
 }

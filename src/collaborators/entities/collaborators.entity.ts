@@ -1,4 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
+import { CollaboratorsInformationEntity } from './collaborators-information.entity';
 
 export class CollaboratorsEntity {
   id: string;
@@ -20,6 +21,8 @@ export class CollaboratorsEntity {
 
   @Exclude()
   dt_criacao: Date;
+
+  colaboradores_informacoes: CollaboratorsInformationEntity;
 
   constructor(partial: Partial<CollaboratorsEntity>) {
     Object.assign(this, partial);

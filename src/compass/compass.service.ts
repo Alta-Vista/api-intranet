@@ -75,10 +75,31 @@ export class CompassService {
     );
   }
 
-  async findAllClients({ limit, offset }: FindAllClientsDto) {
+  async findAllClients(data: FindAllClientsDto) {
     const { clients, total } = await this.compassRepository.listCompassClients({
+      limit: Number(data.limit),
+      offset: Number(data.offset),
+      isAvailable: data.isAvailable === 'true',
+      advisor: data.advisor,
+      compass_advisor: data.compass_advisor,
+    });
+
+    return {
+      total,
+      limit: data.limit,
+      offset: data.offset,
+      clients,
+    };
+  }
+
+  async findAllAdvisorClients(
+    collaboratorId: string,
+    { limit, offset }: FindAllClientsDto,
+  ) {
+    const { clients, total } = await this.compassRepository.listAdvisorClients({
       limit: Number(limit),
       offset: Number(offset),
+      collaboratorId: collaboratorId,
     });
 
     return {
@@ -87,5 +108,11 @@ export class CompassService {
       offset,
       clients,
     };
+  }
+
+  async findCompassAdvisors() {
+    return this.collaboratorsRepository.findCollaboratorsByRole(
+      'Assessor compass',
+    );
   }
 }

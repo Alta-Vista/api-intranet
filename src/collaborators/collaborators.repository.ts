@@ -156,6 +156,18 @@ export class CollaboratorsRepository {
     });
   }
 
+  async findCollaboratorsByRole(role: string) {
+    return this.prisma.usuarios.findMany({
+      where: {
+        colaboradores_informacoes: {
+          funcao: {
+            funcao: role,
+          },
+        },
+      },
+    });
+  }
+
   async updateCollaborator(
     collaboratorId: string,
     { email, surname, advisor_code, name }: CreateCollaboratorDto,
@@ -252,7 +264,7 @@ export class CollaboratorsRepository {
   async listCollaborators(limit: number, offset: number) {
     const skip = limit * offset - limit;
 
-    const queryCollaborators = await this.prisma.usuarios.findMany({
+    const collaborators = await this.prisma.usuarios.findMany({
       orderBy: {
         nome: 'asc',
       },
@@ -266,15 +278,7 @@ export class CollaboratorsRepository {
         colaboradores_informacoes: {
           select: {
             funcao: true,
-            filial: {
-              select: {
-                cidades: {
-                  select: {
-                    cidade: true,
-                  },
-                },
-              },
-            },
+            filial: true,
             dt_entrada_av: true,
           },
         },
@@ -284,23 +288,6 @@ export class CollaboratorsRepository {
     });
 
     const totalCollaborators = await this.prisma.usuarios.count();
-
-    const collaborators = queryCollaborators.map((collaborator) => {
-      return {
-        id: collaborator.id,
-        name: collaborator.nome,
-        surname: collaborator.sobrenome,
-        email: collaborator.email,
-        internal_code: collaborator.cod_interno,
-        advisor_code: collaborator?.cod_assessor,
-        role: collaborator.colaboradores_informacoes.funcao.funcao,
-        av_entry_date:
-          collaborator?.colaboradores_informacoes?.dt_entrada_av || null,
-        branch:
-          collaborator?.colaboradores_informacoes?.filial.cidades.cidade ||
-          null,
-      };
-    });
 
     return {
       total: totalCollaborators,

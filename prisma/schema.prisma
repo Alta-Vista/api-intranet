@@ -143,6 +143,11 @@ model filiais {
   dt_criacao                DateTime                    @default(now()) @db.Timestamp(6)
   cidades                   cidades                     @relation(fields: [id_cidade], references: [id], onDelete: Cascade, map: "fk_branch_city")
   usuarios                  usuarios                    @relation(fields: [id_responsavel], references: [id], onDelete: Cascade, map: "fk_branch_leader")
+  nome                      String?                     @db.VarChar()
+  dt_encerramento           DateTime?                   @db.Date
+  estado                    String?                     @db.VarChar(2)
+  cidade                    String?                     @db.VarChar()
+  ativa                     Boolean                     @default(true) @db.Boolean
   filiais_salas             filiais_salas[]
   times                     times[]
   enderecos                 enderecos[]

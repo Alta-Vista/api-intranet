@@ -1,11 +1,11 @@
 import { IsOptional, IsString } from 'class-validator';
 
-export class ListCollaboratorsDto {
+export class FindAdvisorClientsDto {
   @IsString()
   @IsOptional()
-  limit: number;
+  readonly limit?: string;
 
   @IsString()
   @IsOptional()
-  offset: number;
+  readonly offset?: string;
 }
