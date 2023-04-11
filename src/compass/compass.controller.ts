@@ -12,10 +12,13 @@ import { AuthorizationGuard } from 'src/authorization/authorization.guard';
 import { Collaborator } from 'src/authorization/collaborator.decorator';
 import { collaboratorAuthInterface } from 'src/collaborators/interfaces/collaborators-auth.interface';
 import { CompassService } from './compass.service';
-import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations';
+import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations.dto';
 import { FindAdvisorClientsDto } from './dto/find-advisor-clients.dto';
 import { ListRequestedClientsDto } from './dto/list-requested-clients.dto';
-import { ListCompassTransformerInterceptor } from './interceptors/list-compass-clients-transformer.interceptor';
+import {
+  ListCompassTransformerInterceptor,
+  ListRequestsTransformerInterceptor,
+} from './interceptors';
 
 @Controller('compass')
 @UseGuards(AuthorizationGuard)
@@ -23,7 +26,7 @@ import { ListCompassTransformerInterceptor } from './interceptors/list-compass-c
 export class CompassController {
   constructor(private readonly compassService: CompassService) {}
 
-  @Post()
+  @Post('/clients')
   create(
     @Collaborator() collaborator: collaboratorAuthInterface,
     @Body() createCompassDto: CreateCompassSolicitationsDto,
@@ -32,6 +35,7 @@ export class CompassController {
   }
 
   @Get('/requests')
+  @UseInterceptors(ListRequestsTransformerInterceptor)
   findAllRequestedClients(
     @Collaborator() collaborator: collaboratorAuthInterface,
     @Query() query: ListRequestedClientsDto,

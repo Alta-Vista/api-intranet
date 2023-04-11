@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { SQSService } from 'src/aws/sqs/sqs.service';
 import { CollaboratorsRepository } from 'src/collaborators/collaborators.repository';
 import { CompassRepository } from './compass.repository';
-import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations';
+import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations.dto';
 import { FindAllClientsDto } from './dto/find-all-clients.dto';
 import { ListRequestedClientsDto } from './dto/list-requested-clients.dto';
+import { ReassignCompassClientsDto } from './dto/reassign-compass-clients.dto';
+import { ListReassignedClientsDto } from './dto/list-reassigned-compass-clients.dto';
 
 enum CompassStatus {
   SOLICITADO = 'SOLICITADO',
@@ -27,7 +29,7 @@ export class CompassService {
 
     const status = CompassStatus.SOLICITADO;
 
-    const parsedNewClients = newClients.client.map((client) => {
+    const parsedNewClients = newClients.clients.map((client) => {
       return {
         id_solicitacao: request.id,
         cod_assessor: newClients.advisor_code,
@@ -96,13 +98,15 @@ export class CompassService {
     collaboratorId: string,
     { limit, offset }: FindAllClientsDto,
   ) {
-    const { clients, total } = await this.compassRepository.listAdvisorClients({
-      limit: Number(limit),
-      offset: Number(offset),
-      collaboratorId: collaboratorId,
-    });
+    const { clients, total, wealth } =
+      await this.compassRepository.listAdvisorClients({
+        limit: Number(limit),
+        offset: Number(offset),
+        collaboratorId: collaboratorId,
+      });
 
     return {
+      wealth,
       total,
       limit,
       offset,
@@ -114,5 +118,53 @@ export class CompassService {
     return this.collaboratorsRepository.findCollaboratorsByRole(
       'Assessor compass',
     );
+  }
+
+  async reassignClients(
+    requesterId: string,
+    clients: ReassignCompassClientsDto,
+  ) {
+    const [, collaboratorId] = requesterId.split('|');
+
+    const { id: requestId } = await this.compassRepository.createSolicitation(
+      collaboratorId,
+    );
+
+    const parseReassignedClients = clients.requests.map((request) => ({
+      id_solicitacao: requestId,
+      cliente: request.client,
+      status: CompassStatus.SOLICITADO,
+    }));
+
+    await this.compassRepository.reassignClients(parseReassignedClients);
+
+    clients.requests.forEach((request) => {
+      const message = JSON.stringify({
+        Body: { client: request.client, compass_advisor: request.advisor },
+      });
+
+      return this.sqsService.sendMessage({
+        deduplicationId: `${request.client}-${request.advisor}`,
+        groupId: 'compass',
+        message,
+      });
+    });
+
+    return;
+  }
+
+  async listReassignedClients({ limit, offset }: ListReassignedClientsDto) {
+    const { requests, total } =
+      await this.compassRepository.listReassignedClients({
+        limit: Number(limit),
+        offset: Number(offset),
+      });
+
+    return {
+      total,
+      limit,
+      offset,
+      requests,
+    };
   }
 }

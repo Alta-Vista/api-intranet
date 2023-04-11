@@ -428,36 +428,39 @@ model tipos_codigos {
 }
 
 model usuarios {
-  id                            String                          @id(map: "PK_d7281c63c176e152e4c531594a8") @db.Uuid
-  nome                          String                          @db.VarChar
-  sobrenome                     String                          @db.VarChar
-  cod_assessor                  String?                         @unique @db.VarChar(10)
-  cod_interno                   Int                             @unique @default(autoincrement()) @db.Integer
-  email                         String                          @unique(map: "UQ_446adfc18b35418aac32ae0b7b5") @db.VarChar
-  dt_criacao                    DateTime                        @default(now()) @db.Timestamp(6)
-  clientes                      clientes_clientes[]
-  prospects                     prospects[]
-  assessor_compas               compass_clientes[]              @relation("clientes_id_assessor_compassTousuarios")
-  assessor_origem               compass_clientes[]              @relation("clientes_id_assessor_origemTousuarios")
-  assessor_compass_devolvido    clientes_devolvidos[]           @relation("clientes_devolvidos_id_assessor_compassTousuarios")
-  assessor_origem_devolvido     clientes_devolvidos[]           @relation("clientes_devolvidos_id_assessor_origemTousuarios")
-  filiais                       filiais[]
-  colaborador_reservador        filiais_salas_reservadas[]      @relation("filiais_salas_reservadas_id_reservadorTousuarios")
-  colaborador_utilizador        filiais_salas_reservadas[]      @relation("filiais_salas_reservadas_id_utilizadorTousuarios")
-  times                         times[]
-  credenciais                   credenciais[]
-  tokens_usuarios               tokens_usuarios[]
-  usuario_2fa                   usuario_2fa?
-  enderecos                     enderecos?
-  eventos_convidados            eventos_convidados[]
-  codigos                       codigos[]
-  usuarios_informacoes          usuarios_informacoes[]
-  colaboradores_informacoes     colaboradores_informacoes?
-  filiais_equipes               filiais_equipes[]
-  colaboradores_expansao        colaboradores_expansao[]
-  expansao_assessor_tombamento  colaboradores_expansao[]        @relation("assessor_tombamento")
-  compass_solicitacoes          compass_solicitacoes[]
-  compass_solicitacoes_clientes compass_solicitacoes_clientes[]
+  id                              String                           @id(map: "PK_d7281c63c176e152e4c531594a8") @db.Uuid
+  nome                            String                           @db.VarChar
+  sobrenome                       String                           @db.VarChar
+  cod_assessor                    String?                          @unique @db.VarChar(10)
+  cod_interno                     Int                              @unique @default(autoincrement()) @db.Integer
+  email                           String                           @unique(map: "UQ_446adfc18b35418aac32ae0b7b5") @db.VarChar
+  dt_criacao                      DateTime                         @default(now()) @db.Timestamp(6)
+  clientes                        clientes_clientes[]
+  prospects                       prospects[]
+  assessor_compas                 compass_clientes[]               @relation("clientes_id_assessor_compassTousuarios")
+  assessor_origem                 compass_clientes[]               @relation("clientes_id_assessor_origemTousuarios")
+  assessor_compass_devolvido      clientes_devolvidos[]            @relation("clientes_devolvidos_id_assessor_compassTousuarios")
+  assessor_origem_devolvido       clientes_devolvidos[]            @relation("clientes_devolvidos_id_assessor_origemTousuarios")
+  filiais                         filiais[]
+  colaborador_reservador          filiais_salas_reservadas[]       @relation("filiais_salas_reservadas_id_reservadorTousuarios")
+  colaborador_utilizador          filiais_salas_reservadas[]       @relation("filiais_salas_reservadas_id_utilizadorTousuarios")
+  times                           times[]
+  credenciais                     credenciais[]
+  tokens_usuarios                 tokens_usuarios[]
+  usuario_2fa                     usuario_2fa?
+  enderecos                       enderecos?
+  eventos_convidados              eventos_convidados[]
+  codigos                         codigos[]
+  usuarios_informacoes            usuarios_informacoes[]
+  colaboradores_informacoes       colaboradores_informacoes?
+  filiais_equipes                 filiais_equipes[]
+  colaboradores_expansao          colaboradores_expansao[]
+  expansao_assessor_tombamento    colaboradores_expansao[]         @relation("assessor_tombamento")
+  compass_solicitacoes            compass_solicitacoes[]
+  compass_solicitacoes_clientes   compass_solicitacoes_clientes[]
+  compass_reatribuicoes_a_compass compass_reatribuicoes_clientes[] @relation("assessor_compass")
+  compass_reatribuicoes_a_origem  compass_reatribuicoes_clientes[] @relation("assessor_origem")
+  compass_reatribuicoes_a_destino compass_reatribuicoes_clientes[] @relation("assessor_destino")
 
   @@schema("usuarios")
 }
@@ -577,8 +580,9 @@ model compass_solicitacoes {
   id_solicitante String   @db.Uuid
   dt_solicitacao DateTime @default(now()) @db.Timestamp(6)
 
-  colaborador                   usuarios                        @relation(fields: [id_solicitante], references: [id], onDelete: Cascade, map: "fk_colaboradores_compass_solicitacoes")
-  compass_solicitacoes_clientes compass_solicitacoes_clientes[]
+  colaborador                    usuarios                         @relation(fields: [id_solicitante], references: [id], onDelete: Cascade, map: "fk_colaboradores_compass_solicitacoes")
+  compass_solicitacoes_clientes  compass_solicitacoes_clientes[]
+  compass_reatribuicoes_clientes compass_reatribuicoes_clientes[]
 
   @@schema("compass")
 }
@@ -595,6 +599,26 @@ model compass_solicitacoes_clientes {
 
   solicitacao compass_solicitacoes @relation(fields: [id_solicitacao], references: [id], onDelete: Cascade, map: "fk_compass_clientes_solicitacoes")
   colaborador usuarios             @relation(fields: [cod_assessor], references: [cod_assessor], onDelete: Cascade, map: "fk_compass_colaboradores_clientes_solicitacoes")
+
+  @@schema("compass")
+}
+
+model compass_reatribuicoes_clientes {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_solicitacao String         @db.Uuid
+  cliente        Int            @db.Integer
+  cod_a_origem   String?        @db.VarChar()
+  cod_a_compass  String?        @db.VarChar()
+  cod_a_destino  String?        @db.VarChar()
+  status         compass_status
+  mensagem       String?        @db.VarChar()
+  dt_solicitacao DateTime       @default(now()) @db.Timestamp(6)
+  dt_atualizacao DateTime?      @db.Timestamp(6)
+
+  solicitacao      compass_solicitacoes @relation(fields: [id_solicitacao], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_compass_reatribuicoes_solicitacoes")
+  assessor_origem  usuarios?            @relation(name: "assessor_origem", fields: [cod_a_origem], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_compass_cod_a_origem")
+  assessor_compass usuarios?            @relation(name: "assessor_compass", fields: [cod_a_compass], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_compass_cod_a_compass")
+  assessor_destino usuarios?            @relation(name: "assessor_destino", fields: [cod_a_destino], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_compass_cod_a_destino")
 
   @@schema("compass")
 }

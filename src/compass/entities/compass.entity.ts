@@ -1,4 +1,3 @@
-import { Decimal } from '@prisma/client/runtime/library';
 import { Expose } from 'class-transformer';
 import { CollaboratorsEntity } from 'src/collaborators/entities/collaborators.entity';
 
@@ -6,7 +5,7 @@ export class CompassClientsEntity {
   id: string;
 
   @Expose({ name: 'client' })
-  cd_cliente: Decimal;
+  cd_cliente: number;
 
   @Expose({ name: 'is_available' })
   disponivel: boolean;

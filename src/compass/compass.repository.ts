@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateCompassClientesSolicitationsDto } from './dto/create-clients-solicitations.dto';
-import { ListRequestedClientsInterface } from './interfaces';
-import { FindClientsInterface } from './interfaces/find-clients.interface';
+import {
+  ListRequestedClientsInterface,
+  ReassignClientsInterface,
+  FindClientsInterface,
+  ListReassignedClientsInterface,
+} from './interfaces';
 
 @Injectable()
 export class CompassRepository {
@@ -166,11 +170,25 @@ export class CompassRepository {
       take: limit,
     });
 
-    const total = await this.prisma.compass_clientes.count();
+    const total = await this.prisma.compass_clientes.count({
+      where: {
+        id_assessor_origem: collaboratorId,
+      },
+    });
+
+    const { _sum } = await this.prisma.compass_clientes.aggregate({
+      _sum: {
+        patrimonio: true,
+      },
+      where: {
+        id_assessor_origem: collaboratorId,
+      },
+    });
 
     return {
       total,
       clients,
+      wealth: Number(_sum.patrimonio),
     };
   }
 
@@ -185,5 +203,33 @@ export class CompassRepository {
         dt_atualizacao: new Date(),
       },
     });
+  }
+
+  async reassignClients(data: ReassignClientsInterface[]) {
+    await this.prisma.compass_reatribuicoes_clientes.createMany({
+      data,
+    });
+  }
+
+  async listReassignedClients({
+    limit,
+    offset,
+  }: ListReassignedClientsInterface) {
+    const skip = limit * offset - limit;
+
+    const requests = await this.prisma.compass_reatribuicoes_clientes.findMany({
+      orderBy: {
+        dt_solicitacao: 'asc',
+      },
+      skip,
+      take: limit,
+    });
+
+    const total = await this.prisma.compass_reatribuicoes_clientes.count();
+
+    return {
+      total,
+      requests,
+    };
   }
 }

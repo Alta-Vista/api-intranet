@@ -10,6 +10,7 @@ import { CompassClientsEntity } from '../entities/compass.entity';
 
 interface InterceptDataType {
   total: number;
+  wealth: number;
   limit: number;
   offset: number;
   clients: CompassClientsEntity[];
@@ -24,6 +25,7 @@ export class ListCompassTransformerInterceptor implements NestInterceptor {
           (client) =>
             new CompassClientsEntity({
               ...client,
+              cd_cliente: Number(client.cd_cliente),
               patrimonio: Number(client.patrimonio),
               assessor_compass: new CollaboratorsEntity(
                 client.assessor_compass,
@@ -33,6 +35,7 @@ export class ListCompassTransformerInterceptor implements NestInterceptor {
         );
 
         return {
+          wealth: data.wealth,
           limit: Number(data.limit),
           page: Number(data.offset),
           total: data.total,
