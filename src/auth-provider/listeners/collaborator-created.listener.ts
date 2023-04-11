@@ -48,6 +48,7 @@ export class CollaboratorCreatedListener {
           symbols: true,
           lowercase: true,
           uppercase: true,
+          strict: true,
         });
 
         await this.auth0.createUser({
