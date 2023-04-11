@@ -2,6 +2,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { CollaboratorsInformationEntity } from './collaborators-information.entity';
 
 export class CollaboratorsEntity {
+  @Expose()
   id: string;
 
   @Expose({ name: 'name' })

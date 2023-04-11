@@ -7,6 +7,7 @@ import {
   UseInterceptors,
   Query,
   ClassSerializerInterceptor,
+  Post,
 } from '@nestjs/common';
 import { AuthorizationGuard } from '../authorization/authorization.guard';
 import { Permissions } from '../authorization/permissions.decorator';
@@ -15,7 +16,14 @@ import { ListCompassTransformerInterceptor } from './interceptors/list-compass-c
 import { CompassService } from './compass.service';
 import { AssignCompassClientsDto } from './dto/assign-compass-clients.dto';
 import { FindAllClientsDto } from './dto/find-all-clients.dto';
-import { CompassAdvisorsTransformerInterceptor } from './interceptors/list-compass-advisors-transformer.interceptor';
+import {
+  CompassAdvisorsTransformerInterceptor,
+  ListCompassReassignedClientsTransformerInterceptor,
+} from './interceptors';
+import { Collaborator } from 'src/authorization/collaborator.decorator';
+import { collaboratorAuthInterface } from 'src/collaborators/interfaces/collaborators-auth.interface';
+import { ReassignCompassClientsDto } from './dto/reassign-compass-clients.dto';
+import { ListReassignedClientsDto } from './dto/list-reassigned-compass-clients.dto';
 
 @Controller('admin/compass')
 @UseGuards(AuthorizationGuard, PermissionsGuard)
@@ -36,15 +44,13 @@ export class CompassAdminController {
     });
   }
 
-  @Put('/assign')
+  @Put('/clients/assign')
   @Permissions('edit:compass-clients')
   async update(@Body() { client, compass_advisor }: AssignCompassClientsDto) {
-    await this.compassService.assignClientsToCompassAdvisor(
+    return this.compassService.assignClientsToCompassAdvisor(
       client,
       compass_advisor,
     );
-
-    return;
   }
 
   @Get('/advisors')
@@ -52,5 +58,24 @@ export class CompassAdminController {
   @UseInterceptors(CompassAdvisorsTransformerInterceptor)
   async listAdvisors() {
     return this.compassService.findCompassAdvisors();
+  }
+
+  @Post('/clients/reassign')
+  @Permissions('edit:compass-clients')
+  async reassignClients(
+    @Body() assignClients: ReassignCompassClientsDto,
+    @Collaborator() collaborator: collaboratorAuthInterface,
+  ) {
+    return this.compassService.reassignClients(collaborator.sub, assignClients);
+  }
+
+  @Get('/clients/reassign')
+  @Permissions('read:compass-clients')
+  @UseInterceptors(ListCompassReassignedClientsTransformerInterceptor)
+  async lisReassignedClients(@Query() query: ListReassignedClientsDto) {
+    return this.compassService.listReassignedClients({
+      limit: query.limit || '10',
+      offset: query.offset || '1',
+    });
   }
 }

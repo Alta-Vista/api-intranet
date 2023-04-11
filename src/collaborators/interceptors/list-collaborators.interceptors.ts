@@ -15,12 +15,6 @@ interface InterceptDataType {
   collaborators: CollaboratorsEntity[];
 }
 
-interface Response {
-  limit: number;
-  page: number;
-  collaborators: any;
-}
-
 @Injectable()
 export class ListCollaboratorsTransform<T> implements NestInterceptor<T> {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -28,6 +22,7 @@ export class ListCollaboratorsTransform<T> implements NestInterceptor<T> {
       map((data: InterceptDataType) => {
         const parsedData = data.collaborators.map((collaborator) => {
           return {
+            id: collaborator.id,
             name: collaborator.nome,
             surname: collaborator.sobrenome,
             email: collaborator.email,
