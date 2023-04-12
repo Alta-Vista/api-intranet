@@ -128,6 +128,7 @@ export class CompassRepository {
         cliente_ciente: true,
         em_devolucao: true,
         patrimonio: true,
+        dt_criacao: true,
         assessor_compass: true,
         assessor_origem: true,
       },
@@ -136,7 +137,9 @@ export class CompassRepository {
       take: limit,
     });
 
-    const total = await this.prisma.compass_clientes.count();
+    const total = await this.prisma.compass_clientes.count({
+      where,
+    });
 
     return {
       total,

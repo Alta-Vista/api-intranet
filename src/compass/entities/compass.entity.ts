@@ -19,6 +19,9 @@ export class CompassClientsEntity {
   @Expose({ name: 'wealth' })
   patrimonio: number;
 
+  @Expose({ name: 'created_at' })
+  dt_criacao: Date;
+
   @Expose({ name: 'advisor' })
   assessor_origem: CollaboratorsEntity;
 
