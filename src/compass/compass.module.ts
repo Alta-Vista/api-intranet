@@ -11,7 +11,7 @@ import { CompassAdminController } from './compass-admin.controller';
   imports: [
     PrismaModule,
     SQSModule.register({
-      region: 'us-east-1',
+      region: process.env.AWS_REGION,
     }),
     CollaboratorsModule,
   ],
