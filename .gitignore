@@ -40,3 +40,5 @@ lerna-debug.log*
 
 curl
 nps.http
+TODO.md
+.vscode

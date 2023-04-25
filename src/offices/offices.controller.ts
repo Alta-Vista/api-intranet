@@ -20,19 +20,4 @@ export class OfficesController {
   findAll() {
     return this.officesService.findAllOffices();
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.officesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOfficeDto: UpdateOfficeDto) {
-    return this.officesService.update(+id, updateOfficeDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.officesService.remove(+id);
-  }
 }

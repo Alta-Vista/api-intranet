@@ -6,15 +6,17 @@ import { AuthorizationModule } from './authorization/authorization.module';
 import { CollaboratorsModule } from './collaborators/collaborators.module';
 import { OfficesModule } from './offices/offices.module';
 import { AuthProviderModule } from './auth-provider/auth-provider.module';
+import { CompassModule } from './compass/compass.module';
 
 @Module({
   imports: [
     AuthorizationModule,
     AuthProviderModule,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     CollaboratorsModule,
-    EventEmitterModule.forRoot(),
+    EventEmitterModule.forRoot({ global: true }),
     OfficesModule,
+    CompassModule,
   ],
   controllers: [],
   providers: [],

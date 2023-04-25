@@ -19,6 +19,7 @@ import { UpdateCollaboratorsAddressDto } from './dtos/update-collaborators-addre
 import { ListCollaboratorsDto } from './dtos/list-collaborators.dto';
 import { Permissions } from '../authorization/permissions.decorator';
 import { PermissionsGuard } from '../authorization/permissions.guard';
+import { ListCollaboratorsTransform } from './interceptors/list-collaborators.interceptors';
 
 @Controller('admin/collaborators')
 @UseGuards(AuthorizationGuard, PermissionsGuard)
@@ -28,6 +29,7 @@ export class CollaboratorsAdminController {
 
   @Get()
   @Permissions('read:users')
+  @UseInterceptors(ListCollaboratorsTransform)
   listCollaborators(@Query() query: ListCollaboratorsDto) {
     return this.collaboratorsService.listCollaborators(
       query.limit || 10,
