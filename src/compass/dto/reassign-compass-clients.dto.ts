@@ -13,5 +13,5 @@ export class ReassignCompassClientsDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ReassignCompassClientsType)
-  requests: ReassignCompassClientsType[];
+  clients: ReassignCompassClientsType[];
 }

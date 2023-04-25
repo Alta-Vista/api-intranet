@@ -21,8 +21,6 @@ enum compass_status {
   ATRIBUIDO
   SOLICITADO
   ERRO
-  DEVOLVIDO
-  RECUSADO
 
   @@schema("compass")
 }
@@ -465,6 +463,8 @@ model usuarios {
   compass_reatribuicoes_a_destino compass_reatribuicoes_clientes[] @relation("assessor_destino")
   clientes_assessor_compass       clientes_compass[]               @relation("cliente_assessor_compass")
   clientes_assessor_origem        clientes_compass[]               @relation("cliente_assessor_origem")
+  assessor_origem_devolucao       compass_clientes_devolucao[]     @relation("assessor_o_devolucao")
+  assessor_compass_devolucao      compass_clientes_devolucao[]     @relation("assessor_c_devolucao")
 
   @@schema("usuarios")
 }
@@ -601,8 +601,9 @@ model compass_solicitacoes_clientes {
   dt_solicitacao DateTime       @default(now()) @db.Timestamp(6)
   dt_atualizacao DateTime?      @db.Timestamp(6)
 
-  solicitacao compass_solicitacoes @relation(fields: [id_solicitacao], references: [id], onDelete: Cascade, map: "fk_compass_clientes_solicitacoes")
-  colaborador usuarios             @relation(fields: [cod_assessor], references: [cod_assessor], onDelete: Cascade, map: "fk_compass_colaboradores_clientes_solicitacoes")
+  solicitacao      compass_solicitacoes @relation(fields: [id_solicitacao], references: [id], onDelete: Cascade, map: "fk_compass_clientes_solicitacoes")
+  colaborador      usuarios             @relation(fields: [cod_assessor], references: [cod_assessor], onDelete: Cascade, map: "fk_compass_colaboradores_clientes_solicitacoes")
+  clientes_compass clientes_compass?
 
   @@schema("compass")
 }
@@ -628,20 +629,22 @@ model compass_reatribuicoes_clientes {
 }
 
 model clientes_compass {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cliente        Int      @unique @db.Integer
-  cod_a_origem   String   @db.VarChar()
-  cod_a_compass  String?  @db.VarChar()
-  disponivel     Boolean  @default(false) @db.Boolean
-  patrimonio_xp  Decimal  @db.Decimal(10, 2)
-  cidade         String   @db.VarChar()
-  estado         String   @db.VarChar(2)
-  cliente_ciente Boolean  @db.Boolean
-  dt_criacao     DateTime @default(now()) @db.Timestamp()
-  em_devolucao   Boolean  @default(false) @db.Boolean
+  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente                  Int      @unique @db.Integer
+  cod_a_origem             String   @db.VarChar()
+  cod_a_compass            String?  @db.VarChar()
+  disponivel               Boolean  @default(false) @db.Boolean
+  patrimonio_xp            Decimal  @db.Decimal(10, 2)
+  cidade                   String   @db.VarChar()
+  estado                   String   @db.VarChar(2)
+  cliente_ciente           Boolean  @db.Boolean
+  dt_criacao               DateTime @default(now()) @db.Timestamp()
+  em_devolucao             Boolean  @default(false) @db.Boolean
+  id_solicitacoes_clientes String?  @unique @db.Uuid
 
-  assessor_compass usuarios? @relation(name: "cliente_assessor_compass", fields: [cod_a_compass], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade)
-  assessor_origem  usuarios  @relation(name: "cliente_assessor_origem", fields: [cod_a_origem], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade)
+  solicitacao_clientes compass_solicitacoes_clientes? @relation(fields: [id_solicitacoes_clientes], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_solicitacoes_clientes")
+  assessor_compass     usuarios?                      @relation(name: "cliente_assessor_compass", fields: [cod_a_compass], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade)
+  assessor_origem      usuarios                       @relation(name: "cliente_assessor_origem", fields: [cod_a_origem], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("compass")
 }
@@ -649,6 +652,7 @@ model clientes_compass {
 model compass_clientes_devolucao {
   id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   id_solicitante String         @db.Uuid
+  cliente        Int            @db.Integer
   cod_a_origem   String         @db.VarChar()
   cod_a_compass  String         @db.VarChar()
   motivo         String         @db.VarChar()
@@ -657,6 +661,9 @@ model compass_clientes_devolucao {
   dt_solicitacao DateTime       @default(now()) @db.Timestamp()
   dt_atualizacao DateTime?      @db.Timestamp()
   dt_devolucao   DateTime?      @db.Timestamp()
+
+  assessor_origem  usuarios @relation(name: "assessor_o_devolucao", fields: [cod_a_origem], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_assessores_origem_devolucao")
+  assessor_compass usuarios @relation(name: "assessor_c_devolucao", fields: [cod_a_compass], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_assessores_compass_devolucao")
 
   @@schema("compass")
 }

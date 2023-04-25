@@ -1,17 +1,23 @@
 import { Exclude, Expose } from 'class-transformer';
 import { CompassStatus } from '../interfaces';
 
-export class RequestedClientsEntity {
+class RequestedBackClientsEntity {
   id: string;
 
   @Exclude()
-  id_solicitacao: string;
+  id_solicitante: string;
 
   @Expose({ name: 'client' })
   cliente: number;
 
   @Expose({ name: 'advisor' })
-  cod_assessor: string;
+  cod_a_origem: string;
+
+  @Expose({ name: 'compass_advisor' })
+  cod_a_compass: string;
+
+  @Expose({ name: 'reason' })
+  motivo: string;
 
   @Expose({ name: 'status' })
   status: CompassStatus;
@@ -25,7 +31,12 @@ export class RequestedClientsEntity {
   @Expose({ name: 'updated_at' })
   dt_atualizacao: Date | null;
 
-  constructor(partial: Partial<RequestedClientsEntity>) {
+  @Expose({ name: 'returned_at' })
+  dt_devolucao: Date | null;
+
+  constructor(partial: Partial<RequestedBackClientsEntity>) {
     Object.assign(this, partial);
   }
 }
+
+export { RequestedBackClientsEntity };

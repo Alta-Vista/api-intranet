@@ -11,7 +11,7 @@ export class FindAllClientsDto {
 
   @IsString()
   @IsOptional()
-  readonly isAvailable?: string;
+  readonly is_available?: string;
 
   @IsString()
   @IsOptional()

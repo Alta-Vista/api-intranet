@@ -17,8 +17,11 @@ import { FindAdvisorClientsDto } from './dto/find-advisor-clients.dto';
 import { ListRequestedClientsDto } from './dto/list-requested-clients.dto';
 import {
   ListCompassTransformerInterceptor,
+  ListRequestedBackClientsTransformerInterceptor,
   ListRequestsTransformerInterceptor,
 } from './interceptors';
+import { RequestClientBackDto } from './dto/request-client-back.dto';
+import { ListRequestBackClientsDto } from './dto/list-requested-back-clients.dto';
 
 @Controller('compass')
 @UseGuards(AuthorizationGuard)
@@ -60,5 +63,30 @@ export class CompassController {
       limit: query.limit || '10',
       offset: query.offset || '1',
     });
+  }
+
+  @Post('/clients/client/request-back')
+  createRequestBackClients(
+    @Collaborator() collaborator: collaboratorAuthInterface,
+    @Body() data: RequestClientBackDto,
+  ) {
+    const [, collaboratorId] = collaborator.sub.split('|');
+    return this.compassService.createRequestClientBack(collaboratorId, data);
+  }
+
+  @Get('/clients/client/request-back')
+  @UseInterceptors(ListRequestedBackClientsTransformerInterceptor)
+  listRequestBackClients(
+    @Collaborator() collaborator: collaboratorAuthInterface,
+    @Query() query: ListRequestBackClientsDto,
+  ) {
+    const [, collaboratorId] = collaborator.sub.split('|');
+    return this.compassService.listRequestedBackClients(
+      {
+        limit: query.limit || '10',
+        offset: query.offset || '1',
+      },
+      collaboratorId,
+    );
   }
 }

@@ -1,11 +1,11 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { CollaboratorsEntity } from 'src/collaborators/entities/collaborators.entity';
 
 export class CompassClientsEntity {
   id: string;
 
   @Expose({ name: 'client' })
-  cd_cliente: number;
+  cliente: number;
 
   @Expose({ name: 'is_available' })
   disponivel: boolean;
@@ -13,14 +13,29 @@ export class CompassClientsEntity {
   @Expose({ name: 'is_aware' })
   cliente_ciente: boolean;
 
+  @Exclude()
+  cod_a_origem: string;
+
+  @Exclude()
+  cod_a_compass: string;
+
   @Expose({ name: 'returning' })
   em_devolucao: boolean;
 
   @Expose({ name: 'wealth' })
-  patrimonio: number;
+  patrimonio_xp: number;
 
   @Expose({ name: 'created_at' })
   dt_criacao: Date;
+
+  @Expose({ name: 'city' })
+  cidade: string;
+
+  @Expose({ name: 'state' })
+  estado: string;
+
+  @Expose({ name: 'client_solicitation_id' })
+  id_solicitacoes_clientes: string;
 
   @Expose({ name: 'advisor' })
   assessor_origem: CollaboratorsEntity;
