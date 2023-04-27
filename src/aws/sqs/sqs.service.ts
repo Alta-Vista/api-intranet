@@ -27,7 +27,9 @@ export class SQSService {
           MessageGroupId: options.groupId,
         });
 
-        await this.sqs.send(command);
+        const response = await this.sqs.send(command);
+
+        console.log(`Message send with message id ${response.MessageId}`);
       }
 
       console.log(
