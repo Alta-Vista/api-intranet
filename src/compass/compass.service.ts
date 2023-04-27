@@ -11,14 +11,20 @@ import { CompassStatus } from './interfaces';
 import { AssignCompassClientsDto } from './dto/assign-compass-clients.dto';
 import { RequestClientBackDto } from './dto/request-client-back.dto';
 import { ListRequestBackClientsDto } from './dto/list-requested-back-clients.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CompassService {
+  private compassQueue: string;
+
   constructor(
     private readonly compassRepository: CompassRepository,
     private readonly collaboratorsRepository: CollaboratorsRepository,
     private readonly sqsService: SQSService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.compassQueue = this.configService.get('SQS_COMPASS_QUEUE');
+  }
 
   async create(requesterId: string, newClients: CreateCompassSolicitationsDto) {
     const [, collaboratorId] = requesterId.split('|');
@@ -49,6 +55,7 @@ export class CompassService {
       message,
       deduplicationId: request.id,
       groupId: 'compass',
+      sqsQueueUrl: this.compassQueue,
     });
   }
 
