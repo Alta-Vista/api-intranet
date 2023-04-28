@@ -253,6 +253,7 @@ export class CompassRepository {
     const total = await this.prisma.clientes_compass.count({
       where: {
         cod_a_origem: advisor_code,
+        disponivel: false,
       },
     });
 
@@ -262,6 +263,7 @@ export class CompassRepository {
       },
       where: {
         cod_a_origem: advisor_code,
+        disponivel: false,
       },
     });
 
