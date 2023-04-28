@@ -39,10 +39,12 @@ export class CompassService {
       return {
         id_solicitacao: request.id,
         cod_assessor: newClients.advisor_code,
-        cliente: Number(client),
+        cliente: client,
         status,
       };
     });
+
+    console.log(parsedNewClients);
 
     await this.compassRepository.createClientsSolicitation(parsedNewClients);
 

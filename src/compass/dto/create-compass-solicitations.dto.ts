@@ -1,7 +1,7 @@
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
 export class CreateCompassSolicitationsDto {
-  @IsString({ each: true })
+  @IsNumber({}, { each: true })
   clients: number[];
 
   @IsString()
