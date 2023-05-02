@@ -24,7 +24,7 @@ export class CreateCollaboratorsAddressDto {
   @IsString()
   location: string;
 
-  @IsNumber()
+  @IsString()
   number: number;
 
   @IsOptional()
