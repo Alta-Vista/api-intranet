@@ -1,4 +1,4 @@
-import { IsDate, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 
 enum Gender {
   MASCULINO = 'MASCULINO',
@@ -39,6 +39,7 @@ export class CreateCollaboratorsProfileDto {
   branch_id: string;
 
   @IsUUID()
+  @IsOptional()
   team_id: string;
 
   @IsUUID()
