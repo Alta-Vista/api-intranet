@@ -128,7 +128,7 @@ export class CompassRepository {
 
     const requests = await this.prisma.compass_solicitacoes_clientes.findMany({
       orderBy: {
-        dt_atualizacao: 'asc',
+        dt_atualizacao: 'desc',
       },
       where: {
         OR: [
