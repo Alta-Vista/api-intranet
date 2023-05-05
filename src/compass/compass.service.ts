@@ -16,6 +16,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class CompassService {
   private compassQueue: string;
+  private reassignClientsQueue: string;
 
   constructor(
     private readonly compassRepository: CompassRepository,
@@ -24,6 +25,9 @@ export class CompassService {
     private configService: ConfigService,
   ) {
     this.compassQueue = this.configService.get('SQS_COMPASS_QUEUE');
+    this.reassignClientsQueue = this.configService.get(
+      'SQS_REASSIGN_CLIENTS_QUEUE',
+    );
   }
 
   async create(requesterId: string, newClients: CreateCompassSolicitationsDto) {
@@ -202,6 +206,7 @@ export class CompassService {
     await this.sqsService.sendMessage({
       deduplicationId: requestId,
       groupId: 'compass',
+      sqsQueueUrl: this.reassignClientsQueue,
       message,
     });
 
