@@ -16,6 +16,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class CompassService {
   private compassQueue: string;
+  private reassignClientsQueue: string;
 
   constructor(
     private readonly compassRepository: CompassRepository,
@@ -24,6 +25,9 @@ export class CompassService {
     private configService: ConfigService,
   ) {
     this.compassQueue = this.configService.get('SQS_COMPASS_QUEUE');
+    this.reassignClientsQueue = this.configService.get(
+      'SQS_REASSIGN_CLIENTS_QUEUE',
+    );
   }
 
   async create(requesterId: string, newClients: CreateCompassSolicitationsDto) {
@@ -43,8 +47,6 @@ export class CompassService {
         status,
       };
     });
-
-    console.log(parsedNewClients);
 
     await this.compassRepository.createClientsSolicitation(parsedNewClients);
 
@@ -193,25 +195,19 @@ export class CompassService {
     const parseReassignedClients = clients.clients.map((request) => ({
       id_solicitacao: requestId,
       cliente: request.client,
+      cod_a_destino: request.target_advisor,
       status: CompassStatus.SOLICITADO,
     }));
 
     await this.compassRepository.reassignClients(parseReassignedClients);
 
-    clients.clients.forEach((request) => {
-      const message = JSON.stringify({
-        data: {
-          client: request.client,
-          compass_advisor: request.advisor,
-        },
-        eventType: ['COMPASS-REASSIGN-CLIENTS'],
-      });
+    const message = JSON.stringify({ data: { requestId } });
 
-      return this.sqsService.sendMessage({
-        deduplicationId: `${request.client}-${request.advisor}`,
-        groupId: 'compass',
-        message,
-      });
+    await this.sqsService.sendMessage({
+      deduplicationId: requestId,
+      groupId: 'compass',
+      sqsQueueUrl: this.reassignClientsQueue,
+      message,
     });
 
     return;
