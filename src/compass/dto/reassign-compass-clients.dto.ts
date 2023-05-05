@@ -6,7 +6,7 @@ class ReassignCompassClientsType {
   client: number;
 
   @IsString()
-  advisor: string;
+  target_advisor: string;
 }
 
 export class ReassignCompassClientsDto {

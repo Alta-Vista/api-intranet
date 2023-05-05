@@ -44,8 +44,6 @@ export class CompassService {
       };
     });
 
-    console.log(parsedNewClients);
-
     await this.compassRepository.createClientsSolicitation(parsedNewClients);
 
     const message = JSON.stringify({
@@ -193,25 +191,18 @@ export class CompassService {
     const parseReassignedClients = clients.clients.map((request) => ({
       id_solicitacao: requestId,
       cliente: request.client,
+      cod_a_destino: request.target_advisor,
       status: CompassStatus.SOLICITADO,
     }));
 
     await this.compassRepository.reassignClients(parseReassignedClients);
 
-    clients.clients.forEach((request) => {
-      const message = JSON.stringify({
-        data: {
-          client: request.client,
-          compass_advisor: request.advisor,
-        },
-        eventType: ['COMPASS-REASSIGN-CLIENTS'],
-      });
+    const message = JSON.stringify({ data: { requestId } });
 
-      return this.sqsService.sendMessage({
-        deduplicationId: `${request.client}-${request.advisor}`,
-        groupId: 'compass',
-        message,
-      });
+    await this.sqsService.sendMessage({
+      deduplicationId: requestId,
+      groupId: 'compass',
+      message,
     });
 
     return;
