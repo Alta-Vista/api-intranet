@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CompassController } from './compass.controller';
-import { CompassService } from './compass.service';
+import { CompassService } from '../services';
 
 describe('CompassController', () => {
   let controller: CompassController;

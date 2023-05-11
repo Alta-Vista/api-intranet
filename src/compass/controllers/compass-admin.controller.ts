@@ -9,25 +9,25 @@ import {
   ClassSerializerInterceptor,
   Post,
 } from '@nestjs/common';
-import { AuthorizationGuard } from '../authorization/authorization.guard';
-import { Permissions } from '../authorization/permissions.decorator';
-import { PermissionsGuard } from '../authorization/permissions.guard';
-import { ListCompassTransformerInterceptor } from './interceptors/list-compass-clients-transformer.interceptor';
-import { CompassService } from './compass.service';
-import { AssignCompassClientsDto } from './dto/assign-compass-clients.dto';
-import { FindAllClientsDto } from './dto/find-all-clients.dto';
+import { AuthorizationGuard } from '../../authorization/authorization.guard';
+import { Permissions } from '../../authorization/permissions.decorator';
+import { PermissionsGuard } from '../../authorization/permissions.guard';
+import { ListCompassTransformerInterceptor } from '../interceptors/list-compass-clients-transformer.interceptor';
+import { CompassService } from '../services/compass.service';
+import { AssignCompassClientsDto } from '../dto/assign-compass-clients.dto';
+import { FindAllClientsDto } from '../dto/find-all-clients.dto';
 import {
   CompassAdvisorsTransformerInterceptor,
   GetCompassDataTransformerInterceptor,
   ListCompassReassignedClientsTransformerInterceptor,
   ListRequestedBackClientsTransformerInterceptor,
-} from './interceptors';
+} from '../interceptors';
 import { Collaborator } from 'src/authorization/collaborator.decorator';
 import { collaboratorAuthInterface } from 'src/collaborators/interfaces/collaborators-auth.interface';
-import { ReassignCompassClientsDto } from './dto/reassign-compass-clients.dto';
-import { ListReassignedClientsDto } from './dto/list-reassigned-compass-clients.dto';
-import { ListRequestBackClientsDto } from './dto/list-requested-back-clients.dto';
-import { UpdateRequestBackClientsDto } from './dto/update-requested-back-clients.dto';
+import { ReassignCompassClientsDto } from '../dto/reassign-compass-clients.dto';
+import { ListReassignedClientsDto } from '../dto/list-reassigned-compass-clients.dto';
+import { ListRequestBackClientsDto } from '../dto/list-requested-back-clients.dto';
+import { UpdateRequestBackClientsDto } from '../dto/update-requested-back-clients.dto';
 
 @Controller('admin/compass')
 @UseGuards(AuthorizationGuard, PermissionsGuard)

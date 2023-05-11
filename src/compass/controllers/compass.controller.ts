@@ -11,17 +11,17 @@ import {
 import { AuthorizationGuard } from 'src/authorization/authorization.guard';
 import { Collaborator } from 'src/authorization/collaborator.decorator';
 import { collaboratorAuthInterface } from 'src/collaborators/interfaces/collaborators-auth.interface';
-import { CompassService } from './compass.service';
-import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations.dto';
-import { FindAdvisorClientsDto } from './dto/find-advisor-clients.dto';
-import { ListRequestedClientsDto } from './dto/list-requested-clients.dto';
+import { CompassService } from '../services/compass.service';
+import { CreateCompassSolicitationsDto } from '../dto/create-compass-solicitations.dto';
+import { FindAdvisorClientsDto } from '../dto/find-advisor-clients.dto';
+import { ListRequestedClientsDto } from '../dto/list-requested-clients.dto';
 import {
   ListCompassTransformerInterceptor,
   ListRequestedBackClientsTransformerInterceptor,
   ListRequestsTransformerInterceptor,
-} from './interceptors';
-import { RequestClientBackDto } from './dto/request-client-back.dto';
-import { ListRequestBackClientsDto } from './dto/list-requested-back-clients.dto';
+} from '../interceptors';
+import { RequestClientBackDto } from '../dto/request-client-back.dto';
+import { ListRequestBackClientsDto } from '../dto/list-requested-back-clients.dto';
 
 @Controller('compass')
 @UseGuards(AuthorizationGuard)
@@ -62,6 +62,7 @@ export class CompassController {
     return this.compassService.findAllAdvisorClients(collaboratorId, {
       limit: query.limit || '10',
       offset: query.offset || '1',
+      client: query.client,
     });
   }
 
