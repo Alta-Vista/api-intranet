@@ -3,4 +3,5 @@ export interface ListRequestedBackClientsInterface {
   requester_id?: string;
   limit: number;
   offset: number;
+  client?: number;
 }

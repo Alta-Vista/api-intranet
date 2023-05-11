@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { SQSService } from 'src/aws/sqs/sqs.service';
 import { CollaboratorsRepository } from 'src/collaborators/collaborators.repository';
-import { CompassRepository } from './compass.repository';
-import { CreateCompassSolicitationsDto } from './dto/create-compass-solicitations.dto';
-import { FindAllClientsDto } from './dto/find-all-clients.dto';
-import { ListRequestedClientsDto } from './dto/list-requested-clients.dto';
-import { ReassignCompassClientsDto } from './dto/reassign-compass-clients.dto';
-import { ListReassignedClientsDto } from './dto/list-reassigned-compass-clients.dto';
-import { CompassStatus } from './interfaces';
-import { AssignCompassClientsDto } from './dto/assign-compass-clients.dto';
-import { RequestClientBackDto } from './dto/request-client-back.dto';
-import { ListRequestBackClientsDto } from './dto/list-requested-back-clients.dto';
+import { CompassRepository } from '../compass.repository';
+import { CreateCompassSolicitationsDto } from '../dto/create-compass-solicitations.dto';
+import { FindAllClientsDto } from '../dto/find-all-clients.dto';
+import { ListRequestedClientsDto } from '../dto/list-requested-clients.dto';
+import { ReassignCompassClientsDto } from '../dto/reassign-compass-clients.dto';
+import { ListReassignedClientsDto } from '../dto/list-reassigned-compass-clients.dto';
+import { CompassStatus } from '../interfaces';
+import { AssignCompassClientsDto } from '../dto/assign-compass-clients.dto';
+import { RequestClientBackDto } from '../dto/request-client-back.dto';
+import { ListRequestBackClientsDto } from '../dto/list-requested-back-clients.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -157,7 +157,7 @@ export class CompassService {
 
   async findAllAdvisorClients(
     collaborator_id: string,
-    { limit, offset }: FindAllClientsDto,
+    { limit, offset, client }: FindAllClientsDto,
   ) {
     const { cod_assessor } =
       await this.collaboratorsRepository.findCollaboratorById(collaborator_id);
@@ -167,6 +167,7 @@ export class CompassService {
         limit: Number(limit),
         offset: Number(offset),
         advisor_code: cod_assessor,
+        client: Number(client),
       });
 
     return {

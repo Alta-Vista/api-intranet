@@ -8,4 +8,8 @@ export class ListRequestBackClientsDto {
   @IsString()
   @IsOptional()
   readonly offset?: string;
+
+  @IsString()
+  @IsOptional()
+  readonly client?: string;
 }

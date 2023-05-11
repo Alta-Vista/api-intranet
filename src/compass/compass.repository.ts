@@ -234,14 +234,31 @@ export class CompassRepository {
     limit,
     offset,
     advisor_code,
+    client,
   }: FindClientsInterface) {
     const skip = limit * offset - limit;
 
-    const clients = await this.prisma.clientes_compass.findMany({
-      where: {
+    let where: {
+      cod_a_origem: string;
+      cliente?: number;
+      disponivel: boolean;
+    } = {
+      cod_a_origem: advisor_code,
+      disponivel: false,
+    };
+
+    if (!isNaN(client) && client !== 0) {
+      console.info('Entra aqui');
+
+      where = {
         cod_a_origem: advisor_code,
+        cliente: client,
         disponivel: false,
-      },
+      };
+    }
+
+    const clients = await this.prisma.clientes_compass.findMany({
+      where,
       include: {
         assessor_compass: true,
         assessor_origem: true,
@@ -251,10 +268,7 @@ export class CompassRepository {
     });
 
     const total = await this.prisma.clientes_compass.count({
-      where: {
-        cod_a_origem: advisor_code,
-        disponivel: false,
-      },
+      where,
     });
 
     const { _sum } = await this.prisma.clientes_compass.aggregate({
@@ -271,6 +285,106 @@ export class CompassRepository {
       total,
       clients,
       wealth: Number(_sum.patrimonio_xp),
+    };
+  }
+
+  async listCompassAdvisorClients({
+    limit,
+    offset,
+    compass_advisor,
+    client,
+  }: FindClientsInterface) {
+    const skip = limit * offset - limit;
+
+    let where: {
+      cod_a_compass: string;
+      disponivel: false;
+      cliente?: number;
+    } = {
+      cod_a_compass: compass_advisor,
+      disponivel: false,
+    };
+
+    if (client && !isNaN(client)) {
+      where = {
+        cod_a_compass: compass_advisor,
+        disponivel: false,
+        cliente: client,
+      };
+    }
+
+    const clients = await this.prisma.clientes_compass.findMany({
+      where,
+      include: {
+        assessor_origem: true,
+        assessor_compass: true,
+      },
+      skip,
+      take: limit,
+    });
+
+    const total = await this.prisma.clientes_compass.count({
+      where,
+    });
+
+    const { _sum } = await this.prisma.clientes_compass.aggregate({
+      _sum: {
+        patrimonio_xp: true,
+      },
+      where: {
+        cod_a_compass: compass_advisor,
+        disponivel: false,
+      },
+    });
+
+    return {
+      total,
+      clients,
+      wealth: Number(_sum.patrimonio_xp),
+    };
+  }
+
+  async listCompassAdvisorsReturnedClients({
+    advisor,
+    limit,
+    offset,
+    client,
+  }: ListRequestedBackClientsInterface) {
+    const skip = limit * offset - limit;
+
+    let where: {
+      cod_a_compass: string;
+      status: CompassStatus;
+      cliente?: number;
+    } = {
+      cod_a_compass: advisor,
+      status: CompassStatus.ATRIBUIDO,
+    };
+
+    if (client && !isNaN(client)) {
+      where = {
+        cod_a_compass: advisor,
+        status: CompassStatus.ATRIBUIDO,
+        cliente: client,
+      };
+    }
+
+    const requests = await this.prisma.compass_clientes_devolucao.findMany({
+      where,
+      orderBy: {
+        dt_devolucao: 'desc',
+      },
+      skip,
+      take: limit,
+    });
+
+    const total = await this.prisma.compass_clientes_devolucao.count({
+      where,
+    });
+
+    return {
+      total,
+      requests,
     };
   }
 
@@ -309,6 +423,9 @@ export class CompassRepository {
 
     const requests = await this.prisma.compass_clientes_devolucao.findMany({
       skip,
+      orderBy: {
+        dt_solicitacao: 'desc',
+      },
       take: limit,
     });
 

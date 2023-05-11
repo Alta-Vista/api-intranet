@@ -5,4 +5,5 @@ export interface FindClientsInterface {
   is_available?: boolean;
   advisor?: string;
   compass_advisor?: string;
+  client?: number;
 }

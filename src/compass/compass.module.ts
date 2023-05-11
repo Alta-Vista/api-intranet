@@ -1,22 +1,28 @@
 import { Module } from '@nestjs/common';
-import { CompassService } from './compass.service';
-import { CompassController } from './compass.controller';
+import { CompassService, CompassAdvisorService } from './services';
 import { PrismaModule } from '../database/prisma.module';
 import { CompassRepository } from './compass.repository';
 import { SQSModule } from '../aws/sqs/sqs.module';
 import { CollaboratorsModule } from 'src/collaborators/collaborators.module';
-import { CompassAdminController } from './compass-admin.controller';
+import {
+  CompassAdminController,
+  CompassAdvisorController,
+  CompassController,
+} from './controllers';
 
 @Module({
   imports: [
     PrismaModule,
     SQSModule.register({
-      region: process.env.AWS_REGION,
       endpoint: process.env.AWS_SQS_ENDPOINT,
     }),
     CollaboratorsModule,
   ],
-  controllers: [CompassController, CompassAdminController],
-  providers: [CompassService, CompassRepository],
+  controllers: [
+    CompassController,
+    CompassAdminController,
+    CompassAdvisorController,
+  ],
+  providers: [CompassService, CompassAdvisorService, CompassRepository],
 })
 export class CompassModule {}
