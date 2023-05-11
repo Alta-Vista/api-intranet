@@ -176,37 +176,42 @@ export class CompassRepository {
   }: FindClientsInterface) {
     const skip = limit * offset - limit;
 
-    let where: unknown = {
+    let where: {
+      disponivel: boolean;
+      cod_a_compass?: string;
+      cod_a_origem?: string;
+    } = {
       disponivel: is_available,
     };
 
+    console.log({
+      is_available,
+      advisor,
+      compass_advisor,
+    });
+
     if (advisor && !compass_advisor) {
+      console.log('Somente assessor');
       where = {
         disponivel: is_available,
-        assessor_origem: {
-          cod_assessor: advisor,
-        },
+        cod_a_origem: advisor,
       };
     }
 
     if (!advisor && compass_advisor) {
+      console.log('Somente assessor compass');
       where = {
         disponivel: is_available,
-        assessor_compass: {
-          cod_assessor: advisor,
-        },
+        cod_a_compass: compass_advisor,
       };
     }
 
     if (advisor && compass_advisor) {
+      console.log('Assessor compass e assessor origem');
       where = {
         disponivel: is_available,
-        assessor_compass: {
-          cod_assessor: compass_advisor,
-        },
-        assessor_origem: {
-          cod_assessor: advisor,
-        },
+        cod_a_compass: compass_advisor,
+        cod_a_origem: advisor,
       };
     }
 
