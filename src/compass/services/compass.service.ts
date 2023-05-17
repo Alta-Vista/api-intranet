@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { SQSService } from 'src/aws/sqs/sqs.service';
-import { CollaboratorsRepository } from 'src/collaborators/collaborators.repository';
+import { SQSService } from '../../aws/sqs/sqs.service';
+import { CollaboratorsRepository } from '../../collaborators/collaborators.repository';
 import { CompassRepository } from '../compass.repository';
 import { CreateCompassSolicitationsDto } from '../dto/create-compass-solicitations.dto';
 import { FindAllClientsDto } from '../dto/find-all-clients.dto';

@@ -1,5 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
-import { CollaboratorsEntity } from 'src/collaborators/entities/collaborators.entity';
+import { CollaboratorsEntity } from '../../collaborators/entities/collaborators.entity';
 
 export class CompassClientsEntity {
   id: string;
