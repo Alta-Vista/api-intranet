@@ -1,11 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { InsurancesAdminService } from './insurances-admin.service';
 import { MockFunctionMetadata, ModuleMocker } from 'jest-mock';
-import { InsuranceRepository } from './insurances.repository';
-import { ClientType } from './interfaces';
+import { InsuranceRepository } from '../insurances.repository';
+import { ClientType } from '../interfaces';
 import { HttpException } from '@nestjs/common';
 
 const moduleMocker = new ModuleMocker(global);
+
+const insuranceClients = [
+  { id: '123', cpf: '123456', xp_code: 123, name: 'John', advisor: 'A123456' },
+  {
+    id: '1234',
+    cpf: '1234567',
+    xp_code: 1235,
+    name: 'John Doe',
+    advisor: 'A123456',
+  },
+];
 
 describe('InsurancesService', () => {
   let service: InsurancesAdminService;
@@ -19,22 +30,21 @@ describe('InsurancesService', () => {
           return {
             createInsuranceClient: jest.fn().mockResolvedValue({ id: '1234' }),
             findClient: jest.fn().mockImplementation((data) => {
-              const clients = [{ id: '123', cpf: '123456', xp_code: 123 }];
-
               let foundInsuranceClient: unknown;
 
               if (data.cpf)
-                foundInsuranceClient = clients.find(
+                foundInsuranceClient = insuranceClients.find(
                   (client) => client.cpf === data.cpf,
                 );
 
               if (data.xp_code)
-                foundInsuranceClient = clients.find(
+                foundInsuranceClient = insuranceClients.find(
                   (client) => client.xp_code === data.xp_code,
                 );
 
               return foundInsuranceClient;
             }),
+            listAllClients: jest.fn().mockResolvedValue(insuranceClients),
             totalInsuranceClients: jest.fn().mockResolvedValue(6),
           };
         }
@@ -83,5 +93,11 @@ describe('InsurancesService', () => {
         client_type: ClientType.XP,
       }),
     ).rejects.toBeInstanceOf(HttpException);
+  });
+
+  it('should be able to list insurance clients', async () => {
+    const clients = await service.listClients({ limit: '10', offset: '1' });
+
+    expect(clients).toEqual(insuranceClients);
   });
 });

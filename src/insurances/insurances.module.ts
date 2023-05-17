@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { InsurancesAdminService } from './insurances-admin.service';
-import { InsurancesAdminController } from './insurances-admin.controller';
+import { InsurancesAdminService } from './services/insurances-admin.service';
+import { InsurancesAdminController } from './controllers/insurances-admin.controller';
 import { PrismaModule } from '../database/prisma.module';
 import { InsuranceRepository } from './insurances.repository';
 

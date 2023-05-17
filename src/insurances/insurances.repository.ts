@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { CreateInsuranceClient, FindInsuranceClient } from './interfaces';
+import {
+  CreateInsuranceClient,
+  FindInsuranceClient,
+  ListInsuranceClientsInterface,
+} from './interfaces';
 
 @Injectable()
 export class InsuranceRepository {
@@ -42,5 +46,21 @@ export class InsuranceRepository {
     return this.prisma.clientes.findUnique({
       where,
     });
+  }
+
+  async listAllClients({ limit, offset }: ListInsuranceClientsInterface) {
+    const skip = limit * offset - limit;
+
+    const clients = await this.prisma.clientes.findMany({
+      skip,
+      take: limit,
+    });
+
+    const total = await this.totalInsuranceClients();
+
+    return {
+      total,
+      clients,
+    };
   }
 }

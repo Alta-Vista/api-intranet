@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateInsuranceDto } from './dto/create-insurance.dto';
-import { InsuranceRepository } from './insurances.repository';
+import { CreateInsuranceDto } from '../dto/create-insurance.dto';
+import { InsuranceRepository } from '../insurances.repository';
+import { ListInsuranceInsuranceDto } from '../dto/list-insurance-clients.dto';
 
 @Injectable()
 export class InsurancesAdminService {
@@ -50,5 +51,12 @@ export class InsurancesAdminService {
       id: client.id,
       name: client.nome,
     };
+  }
+
+  async listClients({ limit, offset }: ListInsuranceInsuranceDto) {
+    return this.insurancesRepository.listAllClients({
+      limit: Number(limit),
+      offset: Number(offset),
+    });
   }
 }
