@@ -184,14 +184,7 @@ export class CompassRepository {
       disponivel: is_available,
     };
 
-    console.log({
-      is_available,
-      advisor,
-      compass_advisor,
-    });
-
     if (advisor && !compass_advisor) {
-      console.log('Somente assessor');
       where = {
         disponivel: is_available,
         cod_a_origem: advisor,
@@ -199,7 +192,6 @@ export class CompassRepository {
     }
 
     if (!advisor && compass_advisor) {
-      console.log('Somente assessor compass');
       where = {
         disponivel: is_available,
         cod_a_compass: compass_advisor,
@@ -207,7 +199,6 @@ export class CompassRepository {
     }
 
     if (advisor && compass_advisor) {
-      console.log('Assessor compass e assessor origem');
       where = {
         disponivel: is_available,
         cod_a_compass: compass_advisor,
