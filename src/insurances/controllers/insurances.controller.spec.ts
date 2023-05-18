@@ -1,7 +1,7 @@
 import { MockFunctionMetadata, ModuleMocker } from 'jest-mock';
 import { Test, TestingModule } from '@nestjs/testing';
 import { InsurancesAdminController } from './insurances-admin.controller';
-import { InsurancesAdminService } from './services/insurances-admin.service';
+import { InsurancesAdminService } from '../services/insurances-admin.service';
 
 const moduleMocker = new ModuleMocker(global);
 

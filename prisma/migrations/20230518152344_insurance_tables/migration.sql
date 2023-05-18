@@ -64,6 +64,9 @@ CREATE TABLE "seguros"."clientes_planos" (
     "id_seguradora" UUID,
     "pi" DECIMAL(10,2),
     "pa" DECIMAL(10,2),
+    "origem_alocacao" BOOLEAN NOT NULL,
+    "comissao_percentual" DECIMAL(10,2),
+    "total_comissao" DECIMAL(10,2),
     "periodicidade" "seguros"."seguros_peridiocidade" NOT NULL,
     "id_etapa" UUID,
     "id_produto" UUID,
@@ -80,6 +83,12 @@ CREATE UNIQUE INDEX "seguradoras_seguradora_key" ON "seguros"."seguradoras"("seg
 
 -- CreateIndex
 CREATE UNIQUE INDEX "clientes_cod_xp_key" ON "seguros"."clientes"("cod_xp");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "clientes_cpf_key" ON "seguros"."clientes"("cpf");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "clientes_cod_interno_key" ON "seguros"."clientes"("cod_interno");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "clientes_planos_etapas_etapa_key" ON "seguros"."clientes_planos_etapas"("etapa");

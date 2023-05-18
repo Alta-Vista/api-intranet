@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CompassRepository } from '../compass.repository';
 import { FindAllClientsDto } from '../dto/find-all-clients.dto';
-import { CollaboratorsRepository } from 'src/collaborators/collaborators.repository';
+import { CollaboratorsRepository } from '../../collaborators/collaborators.repository';
 import { ListRequestBackClientsDto } from '../dto/list-requested-back-clients.dto';
 
 @Injectable()

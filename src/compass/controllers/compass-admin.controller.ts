@@ -22,8 +22,8 @@ import {
   ListCompassReassignedClientsTransformerInterceptor,
   ListRequestedBackClientsTransformerInterceptor,
 } from '../interceptors';
-import { Collaborator } from 'src/authorization/collaborator.decorator';
-import { collaboratorAuthInterface } from 'src/collaborators/interfaces/collaborators-auth.interface';
+import { Collaborator } from '../../authorization/collaborator.decorator';
+import { collaboratorAuthInterface } from '../../collaborators/interfaces/collaborators-auth.interface';
 import { ReassignCompassClientsDto } from '../dto/reassign-compass-clients.dto';
 import { ListReassignedClientsDto } from '../dto/list-reassigned-compass-clients.dto';
 import { ListRequestBackClientsDto } from '../dto/list-requested-back-clients.dto';

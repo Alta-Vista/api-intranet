@@ -731,7 +731,7 @@ model clientes {
 
 model clientes_planos_etapas {
   id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  etapa           String            @unique @db.VarBit()
+  etapa           String            @unique @db.VarChar()
   dt_criacao      DateTime          @default(now()) @db.Timestamp()
   dt_atualizacao  DateTime?         @db.Timestamp()
   clientes_planos clientes_planos[]
@@ -740,20 +740,23 @@ model clientes_planos_etapas {
 }
 
 model clientes_planos {
-  id               String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  id_cliente       String                @db.Uuid
-  cod_a            String                @db.VarChar()
-  id_consultor     String?               @db.Uuid
-  id_seguradora    String?               @db.Uuid
-  pi               Decimal?              @db.Decimal(10, 2)
-  pa               Decimal?              @db.Decimal(10, 2)
-  periodicidade    seguros_peridiocidade
-  id_etapa         String?               @db.Uuid
-  id_produto       String?               @db.Uuid
-  dt_indicacao     DateTime?             @db.Timestamp()
-  dt_up_plataforma DateTime?             @db.Timestamp()
-  dt_implementacao DateTime?             @db.Timestamp()
-  dt_pagamento     DateTime?             @db.Timestamp()
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_cliente          String                @db.Uuid
+  cod_a               String                @db.VarChar()
+  id_consultor        String?               @db.Uuid
+  id_seguradora       String?               @db.Uuid
+  pi                  Decimal?              @db.Decimal(10, 2)
+  pa                  Decimal?              @db.Decimal(10, 2)
+  origem_alocacao     Boolean               @db.Boolean
+  comissao_percentual Decimal?              @db.Decimal(10, 2)
+  total_comissao      Decimal?              @db.Decimal(10, 2)
+  periodicidade       seguros_peridiocidade
+  id_etapa            String?               @db.Uuid
+  id_produto          String?               @db.Uuid
+  dt_indicacao        DateTime?             @db.Timestamp()
+  dt_up_plataforma    DateTime?             @db.Timestamp()
+  dt_implementacao    DateTime?             @db.Timestamp()
+  dt_pagamento        DateTime?             @db.Timestamp()
 
   clientes  clientes?               @relation(fields: [id_cliente], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_clientes_seguros_produtos")
   assessor  usuarios                @relation(name: "assessor_clientes_seguros", fields: [cod_a], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_clientes_planos_assessores")

@@ -1,7 +1,7 @@
 import { IsEnum, IsNumber, IsString, ValidateIf } from 'class-validator';
 import { ClientType } from '../interfaces';
 
-export class CreateInsuranceDto {
+export class CreateInsuranceClientDto {
   @ValidateIf((prop) => prop.client_type === 'XP')
   @IsNumber()
   xp_code?: number;
