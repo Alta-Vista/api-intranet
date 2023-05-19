@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../database/prisma.module';
+import { DatabaseModule } from '../database/database.module';
 import { CollaboratorsRepository } from './collaborators.repository';
 import { CollaboratorsService } from './collaborators.service';
 import { CollaboratorCreatedListener } from './listeners/collaborator-created.listener';
@@ -7,7 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CollaboratorsAdminController } from './collaborators-admin.controller';
 
 @Module({
-  imports: [PrismaModule, ConfigModule.forRoot()],
+  imports: [DatabaseModule, ConfigModule.forRoot()],
   providers: [
     CollaboratorsService,
     CollaboratorsRepository,
