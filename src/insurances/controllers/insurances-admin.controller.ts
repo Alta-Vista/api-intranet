@@ -1,12 +1,15 @@
-import { Controller, Post, Body, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UseGuards } from '@nestjs/common';
 import { InsurancesAdminService } from '../services/insurances-admin.service';
 import { CreateInsuranceClientDto } from '../dto/create-insurance-client.dto';
 import { CreateInsuranceInsurerDto } from '../dto/create-insurance-insurer.dto';
 import { CreateInsuranceInsurerProductDto } from '../dto/create-insurance-insurer-product.dto';
 import { CreateInsurancePlansDto } from '../dto/create-insurance-plans.dto';
 import { ListInsuranceInsuranceDto } from '../dto/list-insurance-clients.dto';
+import { AuthorizationGuard } from '../../authorization/authorization.guard';
+import { PermissionsGuard } from '../../authorization/permissions.guard';
 
 @Controller('admin/insurances')
+@UseGuards(AuthorizationGuard, PermissionsGuard)
 export class InsurancesAdminController {
   constructor(private readonly insurancesService: InsurancesAdminService) {}
 

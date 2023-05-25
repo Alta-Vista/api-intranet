@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { InsurancesAdminService } from './services/insurances-admin.service';
 import { InsurancesAdminController } from './controllers/insurances-admin.controller';
-import { PrismaModule } from '../database/prisma.module';
+import { DatabaseModule } from '../database/database.module';
 import { InsuranceRepository } from './insurances.repository';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [DatabaseModule, ConfigModule.forRoot()],
   controllers: [InsurancesAdminController],
   providers: [InsurancesAdminService, InsuranceRepository],
 })
