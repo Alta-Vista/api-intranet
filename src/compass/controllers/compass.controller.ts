@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { AuthorizationGuard } from '../../authorization/authorization.guard';
 import { Collaborator } from '../../authorization/collaborator.decorator';
-import { collaboratorAuthInterface } from '../../collaborators/interfaces/collaborators-auth.interface';
+import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
 import { CompassService } from '../services/compass.service';
 import { CreateCompassSolicitationsDto } from '../dto/create-compass-solicitations.dto';
 import { FindAdvisorClientsDto } from '../dto/find-advisor-clients.dto';

@@ -6,7 +6,11 @@ generator client {
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
+  <<<<<<< HEAD
   schemas    = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "seguros"]
+  =======
+  schemas    = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "mesa_rv"]
+  >>>>>>> ab8a779cf82ce2bdeed2b03a2aed8a4c262177fe
   extensions = [pgcrypto]
 }
 
@@ -54,6 +58,13 @@ enum regime_contrato {
   ASSOCIADO
 
   @@schema("usuarios")
+}
+
+enum tp_ativo {
+  FII
+  ACAO
+
+  @@schema("mesa_rv")
 }
 
 model migrations {
@@ -765,4 +776,28 @@ model clientes_planos {
   produto   produtos?               @relation(fields: [id_produto], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_planos_produtos")
 
   @@schema("seguros")
+}
+
+model clientes_mesa_rv {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente    Int      @unique @db.Integer
+  cod_a      String   @db.VarChar()
+  dt_criacao DateTime @default(now()) @db.Timestamp()
+
+  @@schema("mesa_rv")
+}
+
+model clientes_solicitacao_ativos {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente           Int      @db.Integer
+  cod_a             String   @db.VarChar()
+  ativo             String   @db.VarChar()
+  tipo              tp_ativo
+  qtd_atual         Int      @db.Integer
+  valor_total_atual Decimal  @db.Decimal(10, 2)
+  carteira_adm      Boolean
+  total_solicitado  Decimal  @db.Decimal(10, 2)
+  dt_solicitacao    DateTime @default(now()) @db.Timestamp()
+
+  @@schema("mesa_rv")
 }

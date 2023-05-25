@@ -8,6 +8,7 @@ import { OfficesModule } from './offices/offices.module';
 import { AuthProviderModule } from './auth-provider/auth-provider.module';
 import { CompassModule } from './compass/compass.module';
 import { InsurancesModule } from './insurances/insurances.module';
+import { AutomatedPortfolioModule } from './automated-portfolio/automated-portfolio.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { InsurancesModule } from './insurances/insurances.module';
     OfficesModule,
     CompassModule,
     InsurancesModule,
+    AutomatedPortfolioModule,
   ],
   controllers: [],
   providers: [],

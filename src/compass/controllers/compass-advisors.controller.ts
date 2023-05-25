@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { CompassAdvisorService } from '../services';
 import { FindAllClientsDto } from '../dto/find-all-clients.dto';
-import { Collaborator } from '../../authorization/collaborator.decorator';
-import { collaboratorAuthInterface } from '../../collaborators/interfaces/collaborators-auth.interface';
+import { Collaborator } from 'src/authorization/collaborator.decorator';
+import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
 import {
   ListCompassTransformerInterceptor,
   ListRequestedBackClientsTransformerInterceptor,
