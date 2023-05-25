@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CompassService, CompassAdvisorService } from './services';
-import { PrismaModule } from '../database/prisma.module';
+import { DatabaseModule } from '../database/database.module';
 import { CompassRepository } from './compass.repository';
 import { SQSModule } from '../aws/sqs/sqs.module';
 import { CollaboratorsModule } from 'src/collaborators/collaborators.module';
@@ -12,7 +12,7 @@ import {
 
 @Module({
   imports: [
-    PrismaModule,
+    DatabaseModule,
     SQSModule.register({
       endpoint: process.env.AWS_SQS_ENDPOINT,
     }),
