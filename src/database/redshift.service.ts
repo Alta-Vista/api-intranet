@@ -8,6 +8,7 @@ export class RedshiftService implements OnModuleInit {
   private host: string;
   private password: string;
   private database: string;
+  private port: string;
 
   private client: Client;
 
@@ -16,13 +17,14 @@ export class RedshiftService implements OnModuleInit {
     this.host = this.configService.get('REDSHIFT_HOST');
     this.password = this.configService.get('REDSHIFT_PASSWORD');
     this.database = this.configService.get('REDSHIFT_DB');
+    this.port = this.configService.get('REDSHIFT_PORT');
 
     this.client = new Client({
       user: this.user,
       host: this.host,
       password: this.password,
       database: this.database,
-      port: 5432,
+      port: Number(this.port),
     });
   }
 
@@ -38,14 +40,18 @@ export class RedshiftService implements OnModuleInit {
     text: string,
     values: any[],
   ): Promise<{ data: any[]; total: number }> {
-    const { rows, rowCount } = await this.client.query(text, values);
+    try {
+      const { rows, rowCount } = await this.client.query(text, values);
 
-    const data = rows;
-    const total = rowCount;
+      const data = rows;
+      const total = rowCount;
 
-    return {
-      total,
-      data,
-    };
+      return {
+        total,
+        data,
+      };
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

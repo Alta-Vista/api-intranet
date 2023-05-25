@@ -1,0 +1,81 @@
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { AutomatedPortfolioRepository } from '../automated-portfolio.repository';
+import {
+  ListClientPortfolioDto,
+  CreateAutomatedPortfolioRequestDto,
+} from '../dto';
+import { ListRequestedAssetsDto } from '../dto/list-requested-assets.dto';
+
+@Injectable()
+export class AutomatedPortfolioService {
+  constructor(
+    private automatedPortfolioRepository: AutomatedPortfolioRepository,
+  ) {}
+
+  async create(data: CreateAutomatedPortfolioRequestDto) {
+    return this.automatedPortfolioRepository.createClientSolicitation(
+      data.requests,
+    );
+  }
+
+  async listClientPortfolio(
+    { client }: ListClientPortfolioDto,
+    advisor: string,
+  ) {
+    const findClient = await this.automatedPortfolioRepository.findClientRs(
+      client,
+    );
+
+    if (!findClient) {
+      return {
+        code: 'not.found',
+        status: HttpStatus.NOT_FOUND,
+      };
+    }
+
+    if (findClient.advisor !== advisor) {
+      return {
+        code: 'not.allowed',
+        status: HttpStatus.UNAUTHORIZED,
+      };
+    }
+
+    const clientExists = await this.automatedPortfolioRepository.findClient(
+      Number(client),
+    );
+
+    if (!clientExists) {
+      await this.automatedPortfolioRepository.createClient({
+        advisor,
+        client: Number(client),
+      });
+    }
+
+    const clientPortfolio =
+      await this.automatedPortfolioRepository.findClientStocksAndReits(client);
+
+    return {
+      client,
+      portfolio: clientPortfolio,
+    };
+  }
+
+  async listRequestedAssets(
+    { limit, offset }: ListRequestedAssetsDto,
+    advisor: string,
+  ) {
+    const { assets, total } =
+      await this.automatedPortfolioRepository.listSendedAssets({
+        advisor,
+        limit: Number(limit),
+        offset: Number(offset),
+      });
+
+    return {
+      limit,
+      page: offset,
+      total,
+      assets,
+    };
+  }
+}

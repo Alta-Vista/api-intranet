@@ -7,6 +7,7 @@ import { CollaboratorsModule } from './collaborators/collaborators.module';
 import { OfficesModule } from './offices/offices.module';
 import { AuthProviderModule } from './auth-provider/auth-provider.module';
 import { CompassModule } from './compass/compass.module';
+import { AutomatedPortfolioModule } from './automated-portfolio/automated-portfolio.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CompassModule } from './compass/compass.module';
     EventEmitterModule.forRoot({ global: true }),
     OfficesModule,
     CompassModule,
+    AutomatedPortfolioModule,
   ],
   controllers: [],
   providers: [],
