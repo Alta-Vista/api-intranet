@@ -4,13 +4,11 @@ generator client {
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  <<<<<<< HEAD
-  schemas    = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "seguros"]
-  =======
-  schemas    = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "mesa_rv"]
-  >>>>>>> ab8a779cf82ce2bdeed2b03a2aed8a4c262177fe
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+
+  schemas = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "seguros", "mesa_rv"]
+
   extensions = [pgcrypto]
 }
 
