@@ -23,6 +23,5 @@ import { AutomatedPortfolioModule } from './automated-portfolio/automated-portfo
     AutomatedPortfolioModule,
   ],
   controllers: [],
-  providers: [],
 })
 export class AppModule {}
