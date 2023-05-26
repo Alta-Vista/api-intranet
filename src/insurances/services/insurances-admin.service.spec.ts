@@ -19,11 +19,13 @@ const insuranceClients = [
 ];
 
 const insuranceInsurers = [{ id: '123', insurer: 'Icatu' }];
+
 const insurerProduct = {
   product: 'Proteção patrimonial',
   insurer_id: '123',
   commission: 20.2,
 };
+
 const insurancePlan = {
   id: '123',
   client_id: '112',
@@ -47,7 +49,7 @@ const plansStep = 'Pago';
 
 const insurerProducts = [insurerProduct];
 
-describe('InsurancesService', () => {
+describe('InsurancesAdminService', () => {
   let service: InsurancesAdminService;
 
   beforeEach(async () => {
@@ -196,15 +198,15 @@ describe('InsurancesService', () => {
   });
 
   it('should be able to create a new plan step', async () => {
-    const step = await service.createPlansStep('Assinatura pendente');
+    const step = await service.createPlansStep({ step: 'Assinatura pendente' });
 
     expect(step).toEqual({ step: 'Assinatura pendente' });
   });
 
   it('should not be able to create a new plan step that already exists', async () => {
-    await expect(service.createPlansStep(plansStep)).rejects.toBeInstanceOf(
-      HttpException,
-    );
+    await expect(
+      service.createPlansStep({ step: plansStep }),
+    ).rejects.toBeInstanceOf(HttpException);
   });
 
   it('should be able to create a new insurance plan to client', async () => {

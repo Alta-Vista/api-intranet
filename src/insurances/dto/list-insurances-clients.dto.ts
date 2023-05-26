@@ -1,7 +1,7 @@
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ClientType } from '../interfaces';
 
-export class ListInsuranceInsuranceDto {
+export class ListInsuranceClientsDto {
   @IsNumber()
   @IsOptional()
   xp_code?: string;

@@ -1,10 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateInsuranceClientDto } from '../dto/create-insurance-client.dto';
 import { InsuranceRepository } from '../insurances.repository';
-import { ListInsuranceInsuranceDto } from '../dto/list-insurance-clients.dto';
-import { CreateInsuranceInsurerDto } from '../dto/create-insurance-insurer.dto';
-import { CreateInsuranceInsurerProductDto } from '../dto/create-insurance-insurer-product.dto';
-import { CreateInsurancePlansDto } from '../dto/create-insurance-plans.dto';
+import {
+  CreateInsuranceClientDto,
+  CreateInsuranceInsurerDto,
+  CreateInsuranceInsurerProductDto,
+  CreateInsurancePlansDto,
+  CreateInsurancePlansStepDto,
+  ListInsuranceClientsDto,
+} from '../dto';
 
 @Injectable()
 export class InsurancesAdminService {
@@ -99,7 +102,7 @@ export class InsurancesAdminService {
     });
   }
 
-  async createPlansStep(step: string) {
+  async createPlansStep({ step }: CreateInsurancePlansStepDto) {
     const stepAlreadyExists = await this.insurancesRepository.findPlansStep(
       step,
     );
@@ -121,7 +124,7 @@ export class InsurancesAdminService {
     return this.insurancesRepository.createInsurancePlan(data);
   }
 
-  async listClients({ limit, offset }: ListInsuranceInsuranceDto) {
+  async listClients({ limit, offset }: ListInsuranceClientsDto) {
     return this.insurancesRepository.listAllClients({
       limit: Number(limit),
       offset: Number(offset),

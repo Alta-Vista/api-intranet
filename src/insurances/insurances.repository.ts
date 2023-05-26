@@ -2,11 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import {
   CreateInsuranceClient,
+  CreateInsuranceInsurerProduct,
+  CreateInsurancePlans,
   FindInsuranceClient,
   ListInsuranceClientsInterface,
+  ListInsurancesClientsPlans,
 } from './interfaces';
-import { CreateInsuranceInsurerProduct } from './interfaces/create-insurance-insurer-product.dto';
-import { CreateInsurancePlans } from './interfaces/create-insurance-plans.interface';
 
 @Injectable()
 export class InsuranceRepository {
@@ -72,7 +73,7 @@ export class InsuranceRepository {
         id_cliente: data.client_id,
         dt_implementacao: data.implemented_at,
         dt_indicacao: data.recommended_at,
-        id_consultor: data.insurer_id,
+        id_consultor: data.consultant_id,
         dt_pagamento: data.paid_at,
         pa: data.pa,
         id_etapa: data.step_id,
@@ -116,7 +117,7 @@ export class InsuranceRepository {
   }
 
   async findPlansStep(step: string) {
-    return this.prisma.clientes_planos_etapas.findUniqueOrThrow({
+    return this.prisma.clientes_planos_etapas.findUnique({
       where: {
         etapa: step,
       },
@@ -139,7 +140,88 @@ export class InsuranceRepository {
     };
   }
 
-  async totalInsuranceClients() {
+  async listBrokerClients({
+    limit,
+    offset,
+    broker_id,
+  }: ListInsuranceClientsInterface) {
+    const skip = limit * offset - limit;
+
+    const where = {
+      planos: {
+        every: {
+          id_consultor: broker_id,
+        },
+      },
+    };
+
+    const clients = await this.prisma.clientes.findMany({
+      where,
+      skip,
+      take: limit,
+    });
+
+    const total = await this.totalInsuranceClients(where);
+
+    return {
+      total,
+      clients,
+    };
+  }
+
+  async listClientsPlans({
+    limit,
+    offset,
+    advisor,
+    broker_id,
+    client_id,
+  }: ListInsurancesClientsPlans) {
+    const skip = limit * offset - limit;
+
+    let where: {
+      id_cliente: string;
+      id_consultor?: string;
+      cod_a?: string;
+    } = {
+      id_cliente: client_id,
+    };
+
+    if (advisor) {
+      where = {
+        id_cliente: client_id,
+        cod_a: advisor,
+      };
+    }
+
+    if (broker_id) {
+      where = {
+        id_cliente: client_id,
+        id_consultor: broker_id,
+      };
+    }
+
+    const plans = await this.prisma.clientes_planos.findMany({
+      where,
+      skip,
+      take: limit,
+    });
+
+    const total = await this.prisma.clientes_planos.count({
+      where,
+    });
+
+    return {
+      total,
+      plans,
+    };
+  }
+
+  async totalInsuranceClients(where?: any) {
+    if (where) {
+      return this.prisma.clientes.count({
+        where,
+      });
+    }
     return this.prisma.clientes.count();
   }
 }
