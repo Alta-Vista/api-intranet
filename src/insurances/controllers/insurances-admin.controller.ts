@@ -8,7 +8,7 @@ import {
   CreateInsuranceInsurerProductDto,
   CreateInsurancePlansDto,
   CreateInsurancePlansStepDto,
-  ListInsuranceInsuranceDto,
+  ListInsuranceClientsDto,
 } from '../dto';
 import { Permissions } from '../../authorization/permissions.decorator';
 
@@ -61,7 +61,7 @@ export class InsurancesAdminController {
 
   @Get('clients')
   @Permissions({ permissions: ['read:insurance-clients'] })
-  listAllClients(@Query() query: ListInsuranceInsuranceDto) {
+  listAllClients(@Query() query: ListInsuranceClientsDto) {
     return this.insurancesService.listClients({
       limit: query.limit || '10',
       offset: query.offset || '1',

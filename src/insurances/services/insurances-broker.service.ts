@@ -17,12 +17,10 @@ export class InsurancesBrokerService {
     });
   }
 
-  async listBrokersClientsPlans({
-    broker_id,
-    limit,
-    offset,
-    client_id,
-  }: ListInsurancesPlansDto) {
+  async listBrokersClientsPlans(
+    { limit, offset, client_id }: ListInsurancesPlansDto,
+    broker_id: string,
+  ) {
     return this.insurancesRepository.listClientsPlans({
       broker_id,
       client_id,
