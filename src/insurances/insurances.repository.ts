@@ -21,7 +21,7 @@ export class InsuranceRepository {
     int_code,
     name,
   }: CreateInsuranceClient) {
-    return this.prisma.clientes.create({
+    return this.prisma.seguros_clientes.create({
       data: {
         cpf,
         cod_xp: xp_code,
@@ -46,7 +46,7 @@ export class InsuranceRepository {
     insurer_id,
     product,
   }: CreateInsuranceInsurerProduct) {
-    return this.prisma.produtos.create({
+    return this.prisma.seguradoras_produtos.create({
       data: {
         comissao_percentual: commission,
         nome: product,
@@ -56,7 +56,7 @@ export class InsuranceRepository {
   }
 
   async createPlansStep(step: string) {
-    return this.prisma.clientes_planos_etapas.create({
+    return this.prisma.seguros_clientes_planos_etapas.create({
       data: {
         etapa: step,
       },
@@ -64,7 +64,7 @@ export class InsuranceRepository {
   }
 
   async createInsurancePlan(data: CreateInsurancePlans) {
-    return this.prisma.clientes_planos.create({
+    return this.prisma.seguros_clientes_planos.create({
       data: {
         origem_alocacao: data.from_allocation,
         periodicidade: data.frequency,
@@ -86,7 +86,7 @@ export class InsuranceRepository {
   }
 
   async findInsurerProduct(product: string, insurer_id: string) {
-    return this.prisma.produtos.findFirst({
+    return this.prisma.seguradoras_produtos.findFirst({
       where: {
         nome: product,
         id_seguradora: insurer_id,
@@ -111,13 +111,13 @@ export class InsuranceRepository {
 
     if (xp_code) where = { cod_xp: xp_code };
 
-    return this.prisma.clientes.findUnique({
+    return this.prisma.seguros_clientes.findUnique({
       where,
     });
   }
 
   async findPlansStep(step: string) {
-    return this.prisma.clientes_planos_etapas.findUnique({
+    return this.prisma.seguros_clientes_planos_etapas.findUnique({
       where: {
         etapa: step,
       },
@@ -127,7 +127,7 @@ export class InsuranceRepository {
   async listAllClients({ limit, offset }: ListInsuranceClientsInterface) {
     const skip = limit * offset - limit;
 
-    const clients = await this.prisma.clientes.findMany({
+    const clients = await this.prisma.seguros_clientes.findMany({
       skip,
       take: limit,
     });
@@ -155,7 +155,7 @@ export class InsuranceRepository {
       },
     };
 
-    const clients = await this.prisma.clientes.findMany({
+    const clients = await this.prisma.seguros_clientes.findMany({
       where,
       skip,
       take: limit,
@@ -200,13 +200,13 @@ export class InsuranceRepository {
       };
     }
 
-    const plans = await this.prisma.clientes_planos.findMany({
+    const plans = await this.prisma.seguros_clientes_planos.findMany({
       where,
       skip,
       take: limit,
     });
 
-    const total = await this.prisma.clientes_planos.count({
+    const total = await this.prisma.seguros_clientes_planos.count({
       where,
     });
 
@@ -218,10 +218,10 @@ export class InsuranceRepository {
 
   async totalInsuranceClients(where?: any) {
     if (where) {
-      return this.prisma.clientes.count({
+      return this.prisma.seguros_clientes.count({
         where,
       });
     }
-    return this.prisma.clientes.count();
+    return this.prisma.seguros_clientes.count();
   }
 }
