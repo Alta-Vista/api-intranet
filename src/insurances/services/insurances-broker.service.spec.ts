@@ -80,12 +80,16 @@ describe('InsurancesBrokerService', () => {
   });
 
   it('should be able to list brokers clients plans', async () => {
-    const plans = await service.listBrokersClientsPlans({
-      client_id: '123456',
-      limit: '10',
-      offset: '1',
-      broker_id: '123456',
-    });
+    const broker = '123456';
+
+    const plans = await service.listBrokersClientsPlans(
+      {
+        client_id: '123456',
+        limit: '10',
+        offset: '1',
+      },
+      broker,
+    );
 
     expect(plans).toEqual(insurancePlan);
   });

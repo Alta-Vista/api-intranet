@@ -101,7 +101,11 @@ describe('InsurancesAdminController', () => {
   });
 
   it('should be able to create a new insurer product', async () => {
-    expect(controller.createPlansStep('Fechando negócio')).toEqual({
+    expect(
+      controller.createPlansStep({
+        step: 'Fechando negócio',
+      }),
+    ).toEqual({
       step: 'Fechando negócio',
     });
   });
