@@ -42,4 +42,7 @@ curl
 nps.http
 TODO.md
 .vscode
+.env.test
 DEPLOY.md
+
+/prisma/seed.ts

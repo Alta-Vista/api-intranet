@@ -1,1 +1,0 @@
-[] - Listar clientes com filtros opcionais. ex.; cod, ass_compass, ass_origem,

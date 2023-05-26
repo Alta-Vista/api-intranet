@@ -4,9 +4,11 @@ generator client {
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  schemas    = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "mesa_rv"]
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+
+  schemas = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "seguros", "mesa_rv"]
+
   extensions = [pgcrypto]
 }
 
@@ -15,6 +17,22 @@ enum colaboradores_generos {
   FEMININO
 
   @@schema("usuarios")
+}
+
+enum seguros_tipo_clientes {
+  XP
+  EXTERNO
+
+  @@schema("seguros")
+}
+
+enum seguros_peridiocidade {
+  MENSAL
+  ANUAL
+  UNICA
+  SEMESTRAL
+
+  @@schema("seguros")
 }
 
 enum compass_status {
@@ -472,6 +490,9 @@ model usuarios {
   clientes_assessor_origem        clientes_compass[]               @relation("cliente_assessor_origem")
   assessor_origem_devolucao       compass_clientes_devolucao[]     @relation("assessor_o_devolucao")
   assessor_compass_devolucao      compass_clientes_devolucao[]     @relation("assessor_c_devolucao")
+  clientes_seguros                clientes[]                       @relation("clientes_seguros")
+  asessor_clientes_planos         clientes_planos[]                @relation("assessor_clientes_seguros")
+  consultor_clientes_planos       clientes_planos[]                @relation("consultor_clientes_seguros")
 
   @@schema("usuarios")
 }
@@ -673,6 +694,86 @@ model compass_clientes_devolucao {
   assessor_compass usuarios @relation(name: "assessor_c_devolucao", fields: [cod_a_compass], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_assessores_compass_devolucao")
 
   @@schema("compass")
+}
+
+model seguradoras {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  seguradora     String     @unique
+  ativa          Boolean    @default(true)
+  dt_criacao     DateTime   @default(now()) @db.Timestamp()
+  dt_atualizacao DateTime?  @db.Timestamp()
+  produtos       produtos[]
+
+  @@schema("seguros")
+}
+
+model produtos {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome                String    @db.VarChar()
+  comissao_percentual Decimal   @db.Decimal(10, 2)
+  ativo               Boolean   @default(true) @db.Boolean
+  id_seguradora       String?   @db.Uuid
+  dt_criacao          DateTime  @default(now()) @db.Timestamp()
+  dt_atualizacao      DateTime? @db.Timestamp()
+
+  seguradora      seguradoras?      @relation(fields: [id_seguradora], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_seguradoras_produtos")
+  clientes_planos clientes_planos[]
+
+  @@schema("seguros")
+}
+
+model clientes {
+  id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome        String                @db.VarChar()
+  cod_xp      Int?                  @unique @db.Integer
+  cpf         String?               @unique @db.VarChar()
+  cod_interno String?               @unique @db.VarChar()
+  cod_a       String                @db.VarChar()
+  tp_cliente  seguros_tipo_clientes
+  dt_criacao  DateTime              @default(now()) @db.Timestamp()
+
+  assessor usuarios          @relation(name: "clientes_seguros", fields: [cod_a], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_assessor_seguros_clientes")
+  planos   clientes_planos[]
+
+  @@schema("seguros")
+}
+
+model clientes_planos_etapas {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  etapa           String            @unique @db.VarChar()
+  dt_criacao      DateTime          @default(now()) @db.Timestamp()
+  dt_atualizacao  DateTime?         @db.Timestamp()
+  clientes_planos clientes_planos[]
+
+  @@schema("seguros")
+}
+
+model clientes_planos {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_cliente          String                @db.Uuid
+  cod_a               String                @db.VarChar()
+  id_consultor        String?               @db.Uuid
+  id_seguradora       String?               @db.Uuid
+  pi                  Decimal?              @db.Decimal(10, 2)
+  pa                  Decimal?              @db.Decimal(10, 2)
+  origem_alocacao     Boolean               @db.Boolean
+  comissao_percentual Decimal?              @db.Decimal(10, 2)
+  total_comissao      Decimal?              @db.Decimal(10, 2)
+  periodicidade       seguros_peridiocidade
+  id_etapa            String?               @db.Uuid
+  id_produto          String?               @db.Uuid
+  dt_indicacao        DateTime?             @db.Timestamp()
+  dt_up_plataforma    DateTime?             @db.Timestamp()
+  dt_implementacao    DateTime?             @db.Timestamp()
+  dt_pagamento        DateTime?             @db.Timestamp()
+
+  clientes  clientes?               @relation(fields: [id_cliente], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_clientes_seguros_produtos")
+  assessor  usuarios                @relation(name: "assessor_clientes_seguros", fields: [cod_a], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_clientes_planos_assessores")
+  consultor usuarios?               @relation(name: "consultor_clientes_seguros", fields: [id_consultor], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_consultor_clientes_planos")
+  etapa     clientes_planos_etapas? @relation(fields: [id_etapa], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_planos_etapas")
+  produto   produtos?               @relation(fields: [id_produto], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_planos_produtos")
+
+  @@schema("seguros")
 }
 
 model clientes_mesa_rv {

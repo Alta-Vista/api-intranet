@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AutomatedPortfolioController } from './automated-portfolio.controller';
-import { AutomatedPortfolioService } from './automated-portfolio.service';
+import { AutomatedPortfolioService } from '../services/automated-portfolio.service';
 
 describe('AutomatedPortfolioController', () => {
   let controller: AutomatedPortfolioController;

@@ -1,7 +1,17 @@
-/* eslint-disable prettier/prettier */
 import { SetMetadata } from '@nestjs/common';
 
-const Permissions = (...permissions: string[]) =>
-    SetMetadata('permissions', permissions);
+type PermissionsProps = {
+  mustHaveAll?: boolean;
+  permissions: string[];
+};
+
+const Permissions = ({
+  mustHaveAll = false,
+  permissions,
+}: PermissionsProps) => {
+  const perm = ['*', ...permissions];
+
+  return SetMetadata('permissions', { mustHaveAll, permissions: perm });
+};
 
 export { Permissions };

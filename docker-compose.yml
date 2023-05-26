@@ -4,7 +4,7 @@ networks:
   server:
     driver: host
 
-services:  
+services:
   nginx:
     image: nginx:stable
     container_name: nginx_api
@@ -16,7 +16,6 @@ services:
       - 80:80
     networks:
       - server
-    
   db:
     image: postgres:11.16
     restart: "no"
@@ -29,5 +28,18 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
     ports:
       - 5432:5432
+    networks:
+      - server
+
+  db.test:
+    image: postgres:11.16
+    restart: "no"
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB="testdb"
+      - POSTGRES_HOST=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+    ports:
+      - 5433:5432
     networks:
       - server
