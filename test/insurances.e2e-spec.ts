@@ -98,7 +98,7 @@ describe('InsuranceController (e2e)', () => {
       ],
     });
 
-    insurerProduct = await prismaService.produtos.create({
+    insurerProduct = await prismaService.seguradoras_produtos.create({
       data: {
         nome: 'Seguro Residencial',
         comissao_percentual: 10,
@@ -106,13 +106,13 @@ describe('InsuranceController (e2e)', () => {
       },
     });
 
-    planStep = await prismaService.clientes_planos_etapas.create({
+    planStep = await prismaService.seguros_clientes_planos_etapas.create({
       data: {
         etapa: 'Primeira reunião',
       },
     });
 
-    client = await prismaService.clientes.create({
+    client = await prismaService.seguros_clientes.create({
       data: {
         nome: 'John Doe',
         cod_a: 'A123456',
@@ -232,13 +232,14 @@ describe('InsuranceController (e2e)', () => {
 
   afterAll(async () => {
     const deleteInsurances = prismaService.seguradoras.deleteMany();
-    const deleteInsurancesProduct = prismaService.produtos.deleteMany();
+    const deleteInsurancesProduct =
+      prismaService.seguradoras_produtos.deleteMany();
     const deleteCollaborators = prismaService.usuarios.deleteMany();
     const deleteInsurancePlans =
-      prismaService.clientes_planos_etapas.deleteMany();
-    const deleteInsuranceClients = prismaService.clientes.deleteMany();
+      prismaService.seguros_clientes_planos_etapas.deleteMany();
+    const deleteInsuranceClients = prismaService.seguros_clientes.deleteMany();
     const deleteInsuranceClientsPlan =
-      prismaService.clientes_planos.deleteMany();
+      prismaService.seguros_clientes_planos.deleteMany();
 
     await prismaService.$transaction([
       deleteInsurances,
