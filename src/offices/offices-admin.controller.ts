@@ -10,13 +10,17 @@ export class AdminOfficesController {
   constructor(private readonly officesService: OfficesService) {}
 
   @Get('/mea')
-  @Permissions('read:offices')
+  @Permissions({
+    permissions: ['read:offices'],
+  })
   findAllMeA() {
     return this.officesService.findAllMeA();
   }
 
   @Get('/teams')
-  @Permissions('read:offices')
+  @Permissions({
+    permissions: ['read:offices'],
+  })
   findAllTeams() {
     return this.officesService.findAllTeams();
   }

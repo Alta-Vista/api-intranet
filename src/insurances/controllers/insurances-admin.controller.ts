@@ -1,12 +1,16 @@
 import { Controller, Post, Body, Get, Query, UseGuards } from '@nestjs/common';
 import { InsurancesAdminService } from '../services/insurances-admin.service';
-import { CreateInsuranceClientDto } from '../dto/create-insurance-client.dto';
-import { CreateInsuranceInsurerDto } from '../dto/create-insurance-insurer.dto';
-import { CreateInsuranceInsurerProductDto } from '../dto/create-insurance-insurer-product.dto';
-import { CreateInsurancePlansDto } from '../dto/create-insurance-plans.dto';
-import { ListInsuranceInsuranceDto } from '../dto/list-insurance-clients.dto';
 import { AuthorizationGuard } from '../../authorization/authorization.guard';
 import { PermissionsGuard } from '../../authorization/permissions.guard';
+import {
+  CreateInsuranceClientDto,
+  CreateInsuranceInsurerDto,
+  CreateInsuranceInsurerProductDto,
+  CreateInsurancePlansDto,
+  CreateInsurancePlansStepDto,
+  ListInsuranceInsuranceDto,
+} from '../dto';
+import { Permissions } from '../../authorization/permissions.decorator';
 
 @Controller('admin/insurances')
 @UseGuards(AuthorizationGuard, PermissionsGuard)
@@ -14,16 +18,25 @@ export class InsurancesAdminController {
   constructor(private readonly insurancesService: InsurancesAdminService) {}
 
   @Post('clients')
+  @Permissions({
+    permissions: ['create:insurance-clients'],
+  })
   createClient(@Body() createInsuranceDto: CreateInsuranceClientDto) {
     return this.insurancesService.createClient(createInsuranceDto);
   }
 
   @Post('insurer')
+  @Permissions({
+    permissions: ['create:insurance-insurer'],
+  })
   createInsurer(@Body() createInsurerDto: CreateInsuranceInsurerDto) {
     return this.insurancesService.createInsurer(createInsurerDto);
   }
 
-  @Post('insurer')
+  @Post('insurer/product')
+  @Permissions({
+    permissions: ['create:insurance-product'],
+  })
   createInsurerProduct(
     @Body() createInsurerProductDto: CreateInsuranceInsurerProductDto,
   ) {
@@ -31,11 +44,15 @@ export class InsurancesAdminController {
   }
 
   @Post('plans/step')
-  createPlansStep(@Body() step: string) {
-    return this.insurancesService.createPlansStep(step);
+  @Permissions({
+    permissions: ['create:insurance-step'],
+  })
+  createPlansStep(@Body() createPlansStep: CreateInsurancePlansStepDto) {
+    return this.insurancesService.createPlansStep(createPlansStep);
   }
 
-  @Post('plans/step')
+  @Post('plans')
+  @Permissions({ permissions: ['create:insurance-plans'] })
   createInsurancePlan(
     @Body() createInsurancePlansDto: CreateInsurancePlansDto,
   ) {
@@ -43,6 +60,7 @@ export class InsurancesAdminController {
   }
 
   @Get('clients')
+  @Permissions({ permissions: ['read:insurance-clients'] })
   listAllClients(@Query() query: ListInsuranceInsuranceDto) {
     return this.insurancesService.listClients({
       limit: query.limit || '10',
