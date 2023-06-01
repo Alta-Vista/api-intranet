@@ -22,4 +22,11 @@ export class AutomatedPortfolioAdminService {
       assets,
     };
   }
+
+  async generateAvailableAssetsCSV() {
+    const data =
+      await this.automatedPortfolioRepository.listAvailableRequestedAssets();
+
+    return data;
+  }
 }

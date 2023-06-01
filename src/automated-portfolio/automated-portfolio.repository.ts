@@ -3,8 +3,8 @@ import * as dayjs from 'dayjs';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 import {
+  AssetStatus,
   CreateAutomatedPortfolioClient,
-  CreateAutomatedPortfolioSolicitation,
   ListAutomatedPortfolioRequestedAssets,
 } from './interfaces';
 
@@ -15,38 +15,35 @@ export class AutomatedPortfolioRepository {
     private readonly prisma: PrismaService,
   ) {}
 
-  async createClient({ advisor, client }: CreateAutomatedPortfolioClient) {
-    return this.prisma.clientes_mesa_rv.create({
+  async createRequest({
+    advisor,
+    client,
+    message,
+    automated_portfolio_id,
+    assets,
+  }: CreateAutomatedPortfolioClient) {
+    const data = assets.map((request) => ({
+      ativo: request.asset,
+      status: AssetStatus.SOLICITADO,
+      tipo: request.type,
+      qtd_atual: request.quantity,
+      total_solicitado: request.requested_amount,
+      valor_total_atual: request.amount,
+      mensagem: 'Solicitação recebida!',
+    }));
+
+    return this.prisma.mesa_rv_cart_auto_soli.create({
       data: {
         cliente: client,
         cod_a: advisor,
-      },
-    });
-  }
-
-  async createClientSolicitation(
-    requests: CreateAutomatedPortfolioSolicitation[],
-  ) {
-    const data = requests.map((request) => ({
-      ativo: request.asset,
-      carteira_adm: request.is_automated_portfolio,
-      cliente: request.client,
-      cod_a: request.advisor,
-      qtd_atual: request.quantity,
-      tipo: request.type,
-      total_solicitado: request.solicited_amount,
-      valor_total_atual: request.amount,
-    }));
-
-    return this.prisma.clientes_solicitacao_ativos.createMany({
-      data,
-    });
-  }
-
-  async findClient(client: number) {
-    return this.prisma.clientes_mesa_rv.findUnique({
-      where: {
-        cliente: client,
+        id_carteira: automated_portfolio_id,
+        mensagem: message,
+        dt_atualizacao: new Date(),
+        mesa_rv_cart_auto_soli_ativos: {
+          createMany: {
+            data,
+          },
+        },
       },
     });
   }
@@ -102,6 +99,8 @@ export class AutomatedPortfolioRepository {
 
     const { data } = await this.redshift.query(queryText, values);
 
+    console.log(data);
+
     return data[0];
   }
 
@@ -122,13 +121,13 @@ export class AutomatedPortfolioRepository {
       };
     }
 
-    const assets = await this.prisma.clientes_solicitacao_ativos.findMany({
+    const assets = await this.prisma.mesa_rv_cart_auto_soli.findMany({
       where,
       skip,
       take: limit,
     });
 
-    const total = await this.prisma.clientes_solicitacao_ativos.count({
+    const total = await this.prisma.mesa_rv_cart_auto_soli.count({
       where,
     });
 
@@ -136,5 +135,21 @@ export class AutomatedPortfolioRepository {
       total,
       assets,
     };
+  }
+
+  async listAvailableRequestedAssets() {
+    return this.prisma.mesa_rv_cart_auto_soli_ativos.findMany({
+      where: {
+        status: 'SOLICITADO',
+      },
+    });
+  }
+
+  async listAutomatedPortfolios() {
+    return this.prisma.mesa_rv_carteiras_automatizadas.findMany({
+      where: {
+        ativa: true,
+      },
+    });
   }
 }

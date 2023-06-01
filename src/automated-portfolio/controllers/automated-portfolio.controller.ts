@@ -18,6 +18,7 @@ import { Collaborator } from '../../authorization/collaborator.decorator';
 import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
 import { ListRequestedAssetsDto } from '../dto/list-requested-assets.dto';
 import { ListRequestTransformerInterceptor } from '../interceptors';
+import { ListAutomatedPortfolioTransformerInterceptor } from '../interceptors/list-automated-portfolio-transformer.interceptor';
 
 @Controller('automated-portfolio')
 @UseGuards(AuthorizationGuard)
@@ -28,8 +29,12 @@ export class AutomatedPortfolioController {
   ) {}
 
   @Post('/assets')
-  create(@Body() createMesaRvDto: CreateAutomatedPortfolioRequestDto) {
-    return this.automatedPortfolioService.create(createMesaRvDto);
+  create(
+    @Body() createMesaRvDto: CreateAutomatedPortfolioRequestDto,
+    @Collaborator() collaborator: collaboratorAuthInterface,
+  ) {
+    const advisor = collaborator['http://user/metadata'].Assessor;
+    return this.automatedPortfolioService.create(createMesaRvDto, advisor);
   }
 
   @Get('portfolio')
@@ -59,5 +64,11 @@ export class AutomatedPortfolioController {
       },
       advisor,
     );
+  }
+
+  @Get('/')
+  @UseInterceptors(ListAutomatedPortfolioTransformerInterceptor)
+  listAutomatedPortfolio() {
+    return this.automatedPortfolioService.lisAutomatedPortfolio();
   }
 }

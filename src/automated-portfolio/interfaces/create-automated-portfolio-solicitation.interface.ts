@@ -1,12 +1,13 @@
+import { AssetStatus } from './asset-status.interface';
 import { AssetType } from './asset-type.interface';
 
 export interface CreateAutomatedPortfolioSolicitation {
-  client: number;
-  advisor: string;
+  request_id?: string;
   asset: string;
+  status?: AssetStatus;
   type: AssetType;
   quantity: number;
   amount: number;
-  is_automated_portfolio: boolean;
-  solicited_amount: number;
+  requested_amount: number;
+  message?: string;
 }

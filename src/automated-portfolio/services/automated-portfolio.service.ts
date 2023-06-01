@@ -12,10 +12,14 @@ export class AutomatedPortfolioService {
     private automatedPortfolioRepository: AutomatedPortfolioRepository,
   ) {}
 
-  async create(data: CreateAutomatedPortfolioRequestDto) {
-    return this.automatedPortfolioRepository.createClientSolicitation(
-      data.requests,
-    );
+  async create(data: CreateAutomatedPortfolioRequestDto, advisorCode?: string) {
+    return this.automatedPortfolioRepository.createRequest({
+      advisor: data.advisor || advisorCode,
+      automated_portfolio_id: data.automated_portfolio_id,
+      assets: data.assets,
+      client: data.client,
+      message: data.message,
+    });
   }
 
   async listClientPortfolio(
@@ -38,17 +42,6 @@ export class AutomatedPortfolioService {
         code: 'not.allowed',
         status: HttpStatus.UNAUTHORIZED,
       };
-    }
-
-    const clientExists = await this.automatedPortfolioRepository.findClient(
-      Number(client),
-    );
-
-    if (!clientExists) {
-      await this.automatedPortfolioRepository.createClient({
-        advisor,
-        client: Number(client),
-      });
     }
 
     const clientPortfolio =
@@ -77,5 +70,9 @@ export class AutomatedPortfolioService {
       total,
       assets,
     };
+  }
+
+  async lisAutomatedPortfolio() {
+    return this.automatedPortfolioRepository.listAutomatedPortfolios();
   }
 }
