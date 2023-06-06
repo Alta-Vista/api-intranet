@@ -700,7 +700,7 @@ model mesa_rv_carteiras_automatizadas {
 
 model mesa_rv_cart_auto_soli {
   id                            String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cliente                       Int                             @unique @db.Integer
+  cliente                       Int                             @db.Integer
   cod_a                         String                          @db.VarChar()
   id_carteira                   String                          @db.Uuid
   mensagem                      String?                         @db.VarChar()

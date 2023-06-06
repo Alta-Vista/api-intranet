@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 
 export class AssetsEntity {
   @Expose()
@@ -9,6 +9,9 @@ export class AssetsEntity {
 
   @Expose({ name: 'type' })
   tipo: string;
+
+  @Exclude()
+  id_solicitacao: string;
 
   @Expose()
   status: string;
@@ -21,6 +24,9 @@ export class AssetsEntity {
 
   @Expose({ name: 'total_requested' })
   total_solicitado: number;
+
+  @Expose({ name: 'message' })
+  mensagem: string;
 
   constructor(partial: Partial<AssetsEntity>) {
     Object.assign(this, partial);

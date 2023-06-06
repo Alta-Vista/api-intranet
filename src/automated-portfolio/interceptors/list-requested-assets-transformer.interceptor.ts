@@ -23,8 +23,6 @@ export class ListRequestTransformerInterceptor implements NestInterceptor {
           (request) =>
             new AssetsEntity({
               ...request,
-              total_solicitado: Number(request.total_solicitado),
-              valor_total_atual: Number(request.valor_total_atual),
             }),
         );
 

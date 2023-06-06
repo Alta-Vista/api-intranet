@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AutomatedPortfolioRepository } from '../automated-portfolio.repository';
-import { ListRequestedAssetsDto } from '../dto';
+import { ListRequestsDto, UpdateAutomatedPortfolioDto } from '../dto';
 
 @Injectable()
 export class AutomatedPortfolioAdminService {
@@ -8,11 +8,12 @@ export class AutomatedPortfolioAdminService {
     private automatedPortfolioRepository: AutomatedPortfolioRepository,
   ) {}
 
-  async listRequestedAssets({ limit, offset }: ListRequestedAssetsDto) {
+  async listRequestes({ limit, offset, advisor }: ListRequestsDto) {
     const { assets, total } =
-      await this.automatedPortfolioRepository.listSendedAssets({
+      await this.automatedPortfolioRepository.listRequests({
         limit: Number(limit),
         offset: Number(offset),
+        advisor,
       });
 
     return {
@@ -28,5 +29,15 @@ export class AutomatedPortfolioAdminService {
       await this.automatedPortfolioRepository.listAvailableRequestedAssets();
 
     return data;
+  }
+
+  async updateRequestedAssets({
+    request_id,
+    assets,
+  }: UpdateAutomatedPortfolioDto) {
+    return this.automatedPortfolioRepository.updateManyAssetsRequest({
+      assets,
+      request_id,
+    });
   }
 }

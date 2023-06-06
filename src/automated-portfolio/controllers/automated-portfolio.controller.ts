@@ -12,13 +12,15 @@ import { AutomatedPortfolioService } from '../services/automated-portfolio.servi
 import {
   CreateAutomatedPortfolioRequestDto,
   ListClientPortfolioDto,
+  ListRequestedAssetsDto,
 } from '../dto';
 import { AuthorizationGuard } from '../../authorization/authorization.guard';
 import { Collaborator } from '../../authorization/collaborator.decorator';
 import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
-import { ListRequestedAssetsDto } from '../dto/list-requested-assets.dto';
+import { ListRequestsDto } from '../dto/list-requests.dto';
 import { ListRequestTransformerInterceptor } from '../interceptors';
 import { ListAutomatedPortfolioTransformerInterceptor } from '../interceptors/list-automated-portfolio-transformer.interceptor';
+import { ListRequestAssetsTransformerInterceptor } from '../interceptors/list-request-assets-transformer.interceptor';
 
 @Controller('automated-portfolio')
 @UseGuards(AuthorizationGuard)
@@ -52,17 +54,25 @@ export class AutomatedPortfolioController {
 
   @Get('/assets')
   @UseInterceptors(ListRequestTransformerInterceptor)
-  listRequestedAssets(
-    @Query() listRequestedAssetsDto: ListRequestedAssetsDto,
+  listRequests(
+    @Query() listRequestsDto: ListRequestsDto,
     @Collaborator() collaborator: collaboratorAuthInterface,
   ) {
     const advisor = collaborator['http://user/metadata'].Assessor;
-    return this.automatedPortfolioService.listRequestedAssets(
+    return this.automatedPortfolioService.listRequests(
       {
-        limit: listRequestedAssetsDto.limit || 10,
-        offset: listRequestedAssetsDto.offset || 1,
+        limit: listRequestsDto.limit || 10,
+        offset: listRequestsDto.offset || 1,
       },
       advisor,
+    );
+  }
+
+  @Get('/requests/assets')
+  @UseInterceptors(ListRequestAssetsTransformerInterceptor)
+  listRequestedAssets(@Query() listRequestedAssets: ListRequestedAssetsDto) {
+    return this.automatedPortfolioService.listRequestAssets(
+      listRequestedAssets,
     );
   }
 

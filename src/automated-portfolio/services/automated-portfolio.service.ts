@@ -3,8 +3,9 @@ import { AutomatedPortfolioRepository } from '../automated-portfolio.repository'
 import {
   ListClientPortfolioDto,
   CreateAutomatedPortfolioRequestDto,
+  ListRequestedAssetsDto,
 } from '../dto';
-import { ListRequestedAssetsDto } from '../dto/list-requested-assets.dto';
+import { ListRequestsDto } from '../dto/list-requests.dto';
 
 @Injectable()
 export class AutomatedPortfolioService {
@@ -53,12 +54,9 @@ export class AutomatedPortfolioService {
     };
   }
 
-  async listRequestedAssets(
-    { limit, offset }: ListRequestedAssetsDto,
-    advisor: string,
-  ) {
+  async listRequests({ limit, offset }: ListRequestsDto, advisor: string) {
     const { assets, total } =
-      await this.automatedPortfolioRepository.listSendedAssets({
+      await this.automatedPortfolioRepository.listRequests({
         advisor,
         limit: Number(limit),
         offset: Number(offset),
@@ -74,5 +72,9 @@ export class AutomatedPortfolioService {
 
   async lisAutomatedPortfolio() {
     return this.automatedPortfolioRepository.listAutomatedPortfolios();
+  }
+
+  async listRequestAssets({ request_id }: ListRequestedAssetsDto) {
+    return this.automatedPortfolioRepository.listRequestAssets(request_id);
   }
 }

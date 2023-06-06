@@ -2,6 +2,7 @@ import { AssetStatus } from './asset-status.interface';
 import { AssetType } from './asset-type.interface';
 
 export interface CreateAutomatedPortfolioSolicitation {
+  id?: string;
   request_id?: string;
   asset: string;
   status?: AssetStatus;

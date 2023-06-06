@@ -1,6 +1,6 @@
 import { IsOptional, IsString } from 'class-validator';
 
-export class ListRequestedAssetsDto {
+export class ListRequestsDto {
   @IsString()
   @IsOptional()
   limit: number;

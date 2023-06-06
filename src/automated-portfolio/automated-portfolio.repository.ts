@@ -6,6 +6,7 @@ import {
   AssetStatus,
   CreateAutomatedPortfolioClient,
   ListAutomatedPortfolioRequestedAssets,
+  UpdateAutomatedPortfolioAssetsSolicitations,
 } from './interfaces';
 
 @Injectable()
@@ -104,7 +105,7 @@ export class AutomatedPortfolioRepository {
     return data[0];
   }
 
-  async listSendedAssets({
+  async listRequests({
     advisor,
     limit,
     offset,
@@ -115,17 +116,104 @@ export class AutomatedPortfolioRepository {
       cod_a?: string;
     };
 
+    let assets = await this.prisma.$queryRaw`SELECT
+      cas.id,
+      cas.cliente AS client,
+      cas.cod_a AS advisor, 
+      cas.dt_criacao AS requested_at,
+      cas.dt_atualizacao AS updated_at,
+      portfolio.nome AS portfolio,
+      COALESCE(exec_assets.total, 0)::integer AS total_executed,
+      COALESCE(pending_assets.total, 0)::integer AS total_pending,
+      COALESCE(error_assets.total, 0)::integer AS total_error
+    FROM
+      mesa_rv.mesa_rv_cart_auto_soli cas
+      LEFT JOIN (
+        SELECT
+          COUNT(a.id_solicitacao) AS total,
+          a.id_solicitacao
+        FROM
+          mesa_rv.mesa_rv_cart_auto_soli_ativos a
+        WHERE a.status = 'SUCESSO'
+        GROUP BY
+          a.id_solicitacao
+      ) AS exec_assets ON exec_assets.id_solicitacao = cas.id
+      LEFT JOIN (
+        SELECT
+          COUNT(a.id_solicitacao) AS total,
+          a.id_solicitacao
+        FROM
+          mesa_rv.mesa_rv_cart_auto_soli_ativos a
+        WHERE a.status = 'SOLICITADO' OR a.status = 'EM_ANDAMENTO'
+        GROUP BY
+          a.id_solicitacao
+      ) AS pending_assets ON pending_assets.id_solicitacao = cas.id
+      LEFT JOIN (
+        SELECT
+          COUNT(a.id_solicitacao) AS total,
+          a.id_solicitacao
+        FROM
+          mesa_rv.mesa_rv_cart_auto_soli_ativos a
+        WHERE a.status = 'ERRO'
+        GROUP BY
+          a.id_solicitacao
+      ) AS error_assets ON error_assets.id_solicitacao = cas.id
+      LEFT JOIN mesa_rv.mesa_rv_carteiras_automatizadas AS portfolio ON portfolio.id = cas.id_carteira
+    ORDER BY pending_assets.total DESC
+    LIMIT ${limit} OFFSET ${skip}`;
+
     if (advisor) {
       where = {
         cod_a: advisor,
       };
+      assets = await this.prisma.$queryRaw`SELECT
+        cas.id,
+        cas.cliente AS client,
+        cas.cod_a AS advisor, 
+        cas.dt_criacao AS requested_at,
+        cas.dt_atualizacao AS updated_at,
+        portfolio.nome AS portfolio,
+        COALESCE(exec_assets.total, 0)::integer AS total_executed,
+        COALESCE(pending_assets.total, 0)::integer AS total_pending,
+        COALESCE(error_assets.total, 0)::integer AS total_error
+      FROM
+        mesa_rv.mesa_rv_cart_auto_soli cas
+        LEFT JOIN (
+          SELECT
+            COUNT(a.id_solicitacao) AS total,
+            a.id_solicitacao
+          FROM
+            mesa_rv.mesa_rv_cart_auto_soli_ativos a
+          WHERE a.status = 'SUCESSO'
+          GROUP BY
+            a.id_solicitacao
+        ) AS exec_assets ON exec_assets.id_solicitacao = cas.id
+        LEFT JOIN (
+          SELECT
+            COUNT(a.id_solicitacao) AS total,
+            a.id_solicitacao
+          FROM
+            mesa_rv.mesa_rv_cart_auto_soli_ativos a
+          WHERE a.status = 'SOLICITADO' OR a.status = 'EM_ANDAMENTO'
+          GROUP BY
+            a.id_solicitacao
+        ) AS pending_assets ON pending_assets.id_solicitacao = cas.id
+        LEFT JOIN (
+          SELECT
+            COUNT(a.id_solicitacao) AS total,
+            a.id_solicitacao
+          FROM
+            mesa_rv.mesa_rv_cart_auto_soli_ativos a
+          WHERE a.status = 'ERRO'
+          GROUP BY
+            a.id_solicitacao
+        ) AS error_assets ON error_assets.id_solicitacao = cas.id
+        LEFT JOIN mesa_rv.mesa_rv_carteiras_automatizadas AS portfolio ON portfolio.id = cas.id_carteira
+      WHERE
+        cas.cod_a = ${advisor}
+      ORDER BY cas.dt_atualizacao DESC
+      LIMIT ${limit} OFFSET ${skip}`;
     }
-
-    const assets = await this.prisma.mesa_rv_cart_auto_soli.findMany({
-      where,
-      skip,
-      take: limit,
-    });
 
     const total = await this.prisma.mesa_rv_cart_auto_soli.count({
       where,
@@ -149,6 +237,45 @@ export class AutomatedPortfolioRepository {
     return this.prisma.mesa_rv_carteiras_automatizadas.findMany({
       where: {
         ativa: true,
+      },
+    });
+  }
+
+  async listRequestAssets(id: string) {
+    return this.prisma.mesa_rv_cart_auto_soli.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        carteiras: true,
+        mesa_rv_cart_auto_soli_ativos: true,
+      },
+    });
+  }
+
+  async updateManyAssetsRequest({
+    request_id,
+    assets,
+  }: UpdateAutomatedPortfolioAssetsSolicitations) {
+    assets.forEach(async (asset) => {
+      await this.prisma.mesa_rv_cart_auto_soli_ativos.update({
+        where: {
+          id: asset.id,
+        },
+        data: {
+          status: asset.status,
+          mensagem:
+            asset.status === 'ERRO' ? asset.message : 'Ativo executado!',
+        },
+      });
+    });
+
+    await this.prisma.mesa_rv_cart_auto_soli.update({
+      where: {
+        id: request_id,
+      },
+      data: {
+        dt_atualizacao: new Date(),
       },
     });
   }
