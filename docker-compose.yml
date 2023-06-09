@@ -1,9 +1,5 @@
 version: '3'
 
-networks:
-  server:
-    driver: host
-
 services:
   nginx:
     image: nginx:stable
@@ -15,7 +11,8 @@ services:
     ports:
       - 80:80
     networks:
-      - server
+      - api_network
+
   db:
     image: postgres:11.16
     restart: "no"
@@ -29,17 +26,8 @@ services:
     ports:
       - 5432:5432
     networks:
-      - server
+      - api_network
 
-  db.test:
-    image: postgres:11.16
-    restart: "no"
-    environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB="testdb"
-      - POSTGRES_HOST=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-    ports:
-      - 5433:5432
-    networks:
-      - server
+networks:
+  api_network:
+    driver: bridge
