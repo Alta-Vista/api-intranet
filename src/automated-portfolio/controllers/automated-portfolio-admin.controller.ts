@@ -10,8 +10,15 @@ import {
 } from '@nestjs/common';
 
 import { AuthorizationGuard } from '../../authorization/authorization.guard';
-import { ListRequestTransformerInterceptor } from '../interceptors';
-import { ListRequestsDto, UpdateAutomatedPortfolioDto } from '../dto';
+import {
+  ListAvailableAssetsTransformerInterceptor,
+  ListRequestTransformerInterceptor,
+} from '../interceptors';
+import {
+  ListClientPortfolioDto,
+  ListRequestsDto,
+  UpdateAutomatedPortfolioDto,
+} from '../dto';
 import { AutomatedPortfolioAdminService } from '../services/automated-portfolio-admin.service';
 import { Permissions } from '../../authorization/permissions.decorator';
 
@@ -23,7 +30,7 @@ export class AutomatedPortfolioAdminController {
     private readonly automatedPortfolioService: AutomatedPortfolioAdminService,
   ) {}
 
-  @Put('/assets')
+  @Put('/requests/assets')
   @Permissions({
     permissions: ['update:assets-requests'],
   })
@@ -35,25 +42,33 @@ export class AutomatedPortfolioAdminController {
     );
   }
 
-  @Get('/assets')
+  @Get('/client/portfolio')
+  listPortfolio(@Query() listClientPortfolioDto: ListClientPortfolioDto) {
+    return this.automatedPortfolioService.listClientPortfolio(
+      listClientPortfolioDto,
+    );
+  }
+
+  @Get('/requests')
   @Permissions({
     permissions: ['read:assets-requests'],
   })
   @UseInterceptors(ListRequestTransformerInterceptor)
-  listRequestedAssets(@Query() listRequestsDto: ListRequestsDto) {
-    return this.automatedPortfolioService.listRequestes({
+  listRequests(@Query() listRequestsDto: ListRequestsDto) {
+    return this.automatedPortfolioService.listRequests({
       limit: listRequestsDto.limit || 10,
       offset: listRequestsDto.offset || 1,
       advisor: listRequestsDto.advisor,
+      client: listRequestsDto.client,
     });
   }
 
-  @Get('/assets/available')
+  @Get('/requests/available-assets')
   @Permissions({
     permissions: ['read:assets-requests'],
   })
-  @UseInterceptors(ListRequestTransformerInterceptor)
+  @UseInterceptors(ListAvailableAssetsTransformerInterceptor)
   listAllAvailableRequestedAssets() {
-    return this.automatedPortfolioService.generateAvailableAssetsCSV();
+    return this.automatedPortfolioService.listAllRequestedAssets();
   }
 }

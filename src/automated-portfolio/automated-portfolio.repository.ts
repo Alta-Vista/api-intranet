@@ -100,8 +100,6 @@ export class AutomatedPortfolioRepository {
 
     const { data } = await this.redshift.query(queryText, values);
 
-    console.log(data);
-
     return data[0];
   }
 
@@ -109,12 +107,21 @@ export class AutomatedPortfolioRepository {
     advisor,
     limit,
     offset,
+    client,
   }: ListAutomatedPortfolioRequestedAssets) {
     const skip = limit * offset - limit;
 
     let where: {
       cod_a?: string;
+      cliente?: number;
     };
+
+    console.log({
+      advisor,
+      limit,
+      offset,
+      client,
+    });
 
     let assets = await this.prisma.$queryRaw`SELECT
       cas.id,
@@ -159,16 +166,70 @@ export class AutomatedPortfolioRepository {
           a.id_solicitacao
       ) AS error_assets ON error_assets.id_solicitacao = cas.id
       LEFT JOIN mesa_rv.mesa_rv_carteiras_automatizadas AS portfolio ON portfolio.id = cas.id_carteira
-    ORDER BY pending_assets.total DESC
+    ORDER BY cas.dt_criacao DESC
     LIMIT ${limit} OFFSET ${skip}`;
 
-    if (advisor) {
+    if (client) {
+      where = {
+        cliente: client,
+      };
+
+      assets = await this.prisma.$queryRaw`SELECT
+      cas.id,
+      cas.cliente AS client,
+      cas.cod_a AS advisor, 
+      cas.dt_criacao AS requested_at,
+      cas.dt_atualizacao AS updated_at,
+      portfolio.nome AS portfolio,
+      COALESCE(exec_assets.total, 0)::integer AS total_executed,
+      COALESCE(pending_assets.total, 0)::integer AS total_pending,
+      COALESCE(error_assets.total, 0)::integer AS total_error
+    FROM
+      mesa_rv.mesa_rv_cart_auto_soli cas
+      LEFT JOIN (
+        SELECT
+          COUNT(a.id_solicitacao) AS total,
+          a.id_solicitacao
+        FROM
+          mesa_rv.mesa_rv_cart_auto_soli_ativos a
+        WHERE a.status = 'SUCESSO'
+        GROUP BY
+          a.id_solicitacao
+      ) AS exec_assets ON exec_assets.id_solicitacao = cas.id
+      LEFT JOIN (
+        SELECT
+          COUNT(a.id_solicitacao) AS total,
+          a.id_solicitacao
+        FROM
+          mesa_rv.mesa_rv_cart_auto_soli_ativos a
+        WHERE a.status = 'SOLICITADO' OR a.status = 'EM_ANDAMENTO'
+        GROUP BY
+          a.id_solicitacao
+      ) AS pending_assets ON pending_assets.id_solicitacao = cas.id
+      LEFT JOIN (
+        SELECT
+          COUNT(a.id_solicitacao) AS total,
+          a.id_solicitacao
+        FROM
+          mesa_rv.mesa_rv_cart_auto_soli_ativos a
+        WHERE a.status = 'ERRO'
+        GROUP BY
+          a.id_solicitacao
+      ) AS error_assets ON error_assets.id_solicitacao = cas.id
+      LEFT JOIN mesa_rv.mesa_rv_carteiras_automatizadas AS portfolio ON portfolio.id = cas.id_carteira
+      WHERE
+        cas.cliente = ${client}
+    ORDER BY cas.dt_criacao DESC
+    LIMIT ${limit} OFFSET ${skip}`;
+    }
+
+    if (advisor && !client) {
       where = {
         cod_a: advisor,
       };
       assets = await this.prisma.$queryRaw`SELECT
         cas.id,
-        cas.cliente AS client,
+        cas.cliente AS client, 
         cas.cod_a AS advisor, 
         cas.dt_criacao AS requested_at,
         cas.dt_atualizacao AS updated_at,
@@ -215,6 +276,60 @@ export class AutomatedPortfolioRepository {
       LIMIT ${limit} OFFSET ${skip}`;
     }
 
+    if (advisor && client) {
+      where = {
+        cod_a: advisor,
+        cliente: client,
+      };
+      assets = await this.prisma.$queryRaw`SELECT
+        cas.id,
+        cas.cliente AS client, 
+        cas.cod_a AS advisor, 
+        cas.dt_criacao AS requested_at,
+        cas.dt_atualizacao AS updated_at,
+        portfolio.nome AS portfolio,
+        COALESCE(exec_assets.total, 0)::integer AS total_executed,
+        COALESCE(pending_assets.total, 0)::integer AS total_pending,
+        COALESCE(error_assets.total, 0)::integer AS total_error
+      FROM
+        mesa_rv.mesa_rv_cart_auto_soli cas
+        LEFT JOIN (
+          SELECT
+            COUNT(a.id_solicitacao) AS total,
+            a.id_solicitacao
+          FROM
+            mesa_rv.mesa_rv_cart_auto_soli_ativos a
+          WHERE a.status = 'SUCESSO'
+          GROUP BY
+            a.id_solicitacao
+        ) AS exec_assets ON exec_assets.id_solicitacao = cas.id
+        LEFT JOIN (
+          SELECT
+            COUNT(a.id_solicitacao) AS total,
+            a.id_solicitacao
+          FROM
+            mesa_rv.mesa_rv_cart_auto_soli_ativos a
+          WHERE a.status = 'SOLICITADO' OR a.status = 'EM_ANDAMENTO'
+          GROUP BY
+            a.id_solicitacao
+        ) AS pending_assets ON pending_assets.id_solicitacao = cas.id
+        LEFT JOIN (
+          SELECT
+            COUNT(a.id_solicitacao) AS total,
+            a.id_solicitacao
+          FROM
+            mesa_rv.mesa_rv_cart_auto_soli_ativos a
+          WHERE a.status = 'ERRO'
+          GROUP BY
+            a.id_solicitacao
+        ) AS error_assets ON error_assets.id_solicitacao = cas.id
+        LEFT JOIN mesa_rv.mesa_rv_carteiras_automatizadas AS portfolio ON portfolio.id = cas.id_carteira
+      WHERE
+        cas.cod_a = ${advisor} AND cas.cliente = ${client}
+      ORDER BY cas.dt_criacao DESC
+      LIMIT ${limit} OFFSET ${skip}`;
+    }
+
     const total = await this.prisma.mesa_rv_cart_auto_soli.count({
       where,
     });
@@ -227,6 +342,16 @@ export class AutomatedPortfolioRepository {
 
   async listAvailableRequestedAssets() {
     return this.prisma.mesa_rv_cart_auto_soli_ativos.findMany({
+      select: {
+        ativo: true,
+        tipo: true,
+        total_solicitado: true,
+        solicitacoes: {
+          select: {
+            cliente: true,
+          },
+        },
+      },
       where: {
         status: 'SOLICITADO',
       },

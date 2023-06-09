@@ -16,7 +16,8 @@ interface InterceptDataType {
 
 @Injectable()
 export class ListRequestedBackClientsTransformerInterceptor
-  implements NestInterceptor {
+  implements NestInterceptor
+{
   intercept(_context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data: InterceptDataType) => {

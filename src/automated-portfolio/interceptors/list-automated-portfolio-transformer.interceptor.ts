@@ -9,7 +9,8 @@ import { AutomatedPortfolioEntity } from '../entities/automated-portfolio.entity
 
 @Injectable()
 export class ListAutomatedPortfolioTransformerInterceptor
-  implements NestInterceptor {
+  implements NestInterceptor
+{
   intercept(_context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data: AutomatedPortfolioEntity[]) => {

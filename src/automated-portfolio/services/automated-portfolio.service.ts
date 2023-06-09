@@ -54,12 +54,16 @@ export class AutomatedPortfolioService {
     };
   }
 
-  async listRequests({ limit, offset }: ListRequestsDto, advisor: string) {
+  async listRequests(
+    { limit, offset, client }: ListRequestsDto,
+    advisor: string,
+  ) {
     const { assets, total } =
       await this.automatedPortfolioRepository.listRequests({
         advisor,
         limit: Number(limit),
         offset: Number(offset),
+        client: Number(client),
       });
 
     return {
