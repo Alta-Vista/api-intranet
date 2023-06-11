@@ -12,12 +12,17 @@ import { AutomatedPortfolioService } from '../services/automated-portfolio.servi
 import {
   CreateAutomatedPortfolioRequestDto,
   ListClientPortfolioDto,
+  ListRequestedAssetsDto,
 } from '../dto';
 import { AuthorizationGuard } from '../../authorization/authorization.guard';
 import { Collaborator } from '../../authorization/collaborator.decorator';
 import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
-import { ListRequestedAssetsDto } from '../dto/list-requested-assets.dto';
-import { ListRequestTransformerInterceptor } from '../interceptors';
+import { ListRequestsDto } from '../dto/list-requests.dto';
+import {
+  ListAutomatedPortfolioTransformerInterceptor,
+  ListRequestTransformerInterceptor,
+} from '../interceptors';
+import { ListRequestAssetsTransformerInterceptor } from '../interceptors/list-request-assets-transformer.interceptor';
 
 @Controller('automated-portfolio')
 @UseGuards(AuthorizationGuard)
@@ -28,11 +33,15 @@ export class AutomatedPortfolioController {
   ) {}
 
   @Post('/assets')
-  create(@Body() createMesaRvDto: CreateAutomatedPortfolioRequestDto) {
-    return this.automatedPortfolioService.create(createMesaRvDto);
+  create(
+    @Body() createMesaRvDto: CreateAutomatedPortfolioRequestDto,
+    @Collaborator() collaborator: collaboratorAuthInterface,
+  ) {
+    const advisor = collaborator['http://user/metadata'].Assessor;
+    return this.automatedPortfolioService.create(createMesaRvDto, advisor);
   }
 
-  @Get('portfolio')
+  @Get('/client/portfolio')
   listPortfolio(
     @Query() listClientPortfolioDto: ListClientPortfolioDto,
     @Collaborator() collaborator: collaboratorAuthInterface,
@@ -45,19 +54,34 @@ export class AutomatedPortfolioController {
     );
   }
 
-  @Get('/assets')
+  @Get('/requests')
   @UseInterceptors(ListRequestTransformerInterceptor)
-  listRequestedAssets(
-    @Query() listRequestedAssetsDto: ListRequestedAssetsDto,
+  listRequests(
+    @Query() listRequestsDto: ListRequestsDto,
     @Collaborator() collaborator: collaboratorAuthInterface,
   ) {
     const advisor = collaborator['http://user/metadata'].Assessor;
-    return this.automatedPortfolioService.listRequestedAssets(
+    return this.automatedPortfolioService.listRequests(
       {
-        limit: listRequestedAssetsDto.limit || 10,
-        offset: listRequestedAssetsDto.offset || 1,
+        limit: listRequestsDto.limit || 10,
+        offset: listRequestsDto.offset || 1,
+        client: listRequestsDto.client,
       },
       advisor,
     );
+  }
+
+  @Get('/requests/assets')
+  @UseInterceptors(ListRequestAssetsTransformerInterceptor)
+  listRequestedAssets(@Query() listRequestedAssets: ListRequestedAssetsDto) {
+    return this.automatedPortfolioService.listRequestAssets(
+      listRequestedAssets,
+    );
+  }
+
+  @Get('/')
+  @UseInterceptors(ListAutomatedPortfolioTransformerInterceptor)
+  listAutomatedPortfolio() {
+    return this.automatedPortfolioService.lisAutomatedPortfolio();
   }
 }

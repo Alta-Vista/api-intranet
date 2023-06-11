@@ -3,8 +3,9 @@ import { AutomatedPortfolioRepository } from '../automated-portfolio.repository'
 import {
   ListClientPortfolioDto,
   CreateAutomatedPortfolioRequestDto,
+  ListRequestedAssetsDto,
 } from '../dto';
-import { ListRequestedAssetsDto } from '../dto/list-requested-assets.dto';
+import { ListRequestsDto } from '../dto/list-requests.dto';
 
 @Injectable()
 export class AutomatedPortfolioService {
@@ -12,10 +13,14 @@ export class AutomatedPortfolioService {
     private automatedPortfolioRepository: AutomatedPortfolioRepository,
   ) {}
 
-  async create(data: CreateAutomatedPortfolioRequestDto) {
-    return this.automatedPortfolioRepository.createClientSolicitation(
-      data.requests,
-    );
+  async create(data: CreateAutomatedPortfolioRequestDto, advisorCode?: string) {
+    return this.automatedPortfolioRepository.createRequest({
+      advisor: data.advisor || advisorCode,
+      automated_portfolio_id: data.automated_portfolio_id,
+      assets: data.assets,
+      client: data.client,
+      message: data.message,
+    });
   }
 
   async listClientPortfolio(
@@ -40,17 +45,6 @@ export class AutomatedPortfolioService {
       };
     }
 
-    const clientExists = await this.automatedPortfolioRepository.findClient(
-      Number(client),
-    );
-
-    if (!clientExists) {
-      await this.automatedPortfolioRepository.createClient({
-        advisor,
-        client: Number(client),
-      });
-    }
-
     const clientPortfolio =
       await this.automatedPortfolioRepository.findClientStocksAndReits(client);
 
@@ -60,15 +54,16 @@ export class AutomatedPortfolioService {
     };
   }
 
-  async listRequestedAssets(
-    { limit, offset }: ListRequestedAssetsDto,
+  async listRequests(
+    { limit, offset, client }: ListRequestsDto,
     advisor: string,
   ) {
     const { assets, total } =
-      await this.automatedPortfolioRepository.listSendedAssets({
+      await this.automatedPortfolioRepository.listRequests({
         advisor,
         limit: Number(limit),
         offset: Number(offset),
+        client: Number(client),
       });
 
     return {
@@ -77,5 +72,13 @@ export class AutomatedPortfolioService {
       total,
       assets,
     };
+  }
+
+  async lisAutomatedPortfolio() {
+    return this.automatedPortfolioRepository.listAutomatedPortfolios();
+  }
+
+  async listRequestAssets({ request_id }: ListRequestedAssetsDto) {
+    return this.automatedPortfolioRepository.listRequestAssets(request_id);
   }
 }

@@ -1,14 +1,8 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 
 export class AssetsEntity {
   @Expose()
   id: string;
-
-  @Expose({ name: 'client' })
-  cliente: number;
-
-  @Expose({ name: 'advisor' })
-  cod_a: string;
 
   @Expose({ name: 'asset' })
   ativo: string;
@@ -16,20 +10,23 @@ export class AssetsEntity {
   @Expose({ name: 'type' })
   tipo: string;
 
+  @Exclude()
+  id_solicitacao: string;
+
+  @Expose()
+  status: string;
+
   @Expose({ name: 'quantity' })
   qtd_atual: number;
 
   @Expose({ name: 'amount' })
   valor_total_atual: number;
 
-  @Expose({ name: 'is_automated' })
-  carteira_adm: boolean;
-
-  @Expose({ name: 'requested_at' })
-  dt_solicitacao: boolean;
-
   @Expose({ name: 'total_requested' })
   total_solicitado: number;
+
+  @Expose({ name: 'message' })
+  mensagem: string;
 
   constructor(partial: Partial<AssetsEntity>) {
     Object.assign(this, partial);

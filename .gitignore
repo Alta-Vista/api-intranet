@@ -46,3 +46,6 @@ TODO.md
 DEPLOY.md
 
 /prisma/seed.ts
+
+pnpm-lock.yaml
+yarn.lock

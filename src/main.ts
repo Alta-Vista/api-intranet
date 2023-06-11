@@ -23,7 +23,10 @@ async function bootstrap() {
       }
     },
   });
-  await app.listen(3000);
+
+  const server = await app.listen(3000);
+
+  server.setTimeout(15000);
 }
 
 bootstrap();

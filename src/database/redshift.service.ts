@@ -25,6 +25,7 @@ export class RedshiftService implements OnModuleInit {
       password: this.password,
       database: this.database,
       port: Number(this.port),
+      statement_timeout: 15000,
     });
   }
 

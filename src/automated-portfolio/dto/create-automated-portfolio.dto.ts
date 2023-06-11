@@ -1,21 +1,16 @@
 import {
   IsArray,
-  IsBoolean,
   IsEnum,
   IsNumber,
+  IsOptional,
   IsString,
+  IsUUID,
   ValidateNested,
 } from 'class-validator';
 import { AssetType } from '../interfaces';
 import { Type } from 'class-transformer';
 
 class CreateAutomatedPortfolioRequestType {
-  @IsNumber()
-  client: number;
-
-  @IsString()
-  advisor: string;
-
   @IsString()
   asset: string;
 
@@ -28,16 +23,27 @@ class CreateAutomatedPortfolioRequestType {
   @IsNumber({ maxDecimalPlaces: 2 })
   amount: number;
 
-  @IsBoolean()
-  is_automated_portfolio: boolean;
-
   @IsNumber({ maxDecimalPlaces: 2 })
-  solicited_amount: number;
+  requested_amount: number;
 }
 
 export class CreateAutomatedPortfolioRequestDto {
+  @IsNumber()
+  client: number;
+
+  @IsString()
+  @IsOptional()
+  advisor: string;
+
+  @IsString()
+  @IsOptional()
+  message: string;
+
+  @IsUUID()
+  automated_portfolio_id: string;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateAutomatedPortfolioRequestType)
-  requests: CreateAutomatedPortfolioRequestType[];
+  assets: CreateAutomatedPortfolioRequestType[];
 }
