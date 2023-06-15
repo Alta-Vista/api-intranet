@@ -9,12 +9,17 @@ import {
   CompassAdvisorController,
   CompassController,
 } from './controllers';
+import { ClientAssignedListener } from './listeners/clients-assigned.listener';
+import { SESModule } from 'src/aws/ses/ses.module';
 
 @Module({
   imports: [
     DatabaseModule,
     SQSModule.register({
       endpoint: process.env.AWS_SQS_ENDPOINT,
+    }),
+    SESModule.register({
+      region: process.env.SES_MAIL_REGION,
     }),
     CollaboratorsModule,
   ],
@@ -23,6 +28,11 @@ import {
     CompassAdminController,
     CompassAdvisorController,
   ],
-  providers: [CompassService, CompassAdvisorService, CompassRepository],
+  providers: [
+    CompassService,
+    CompassAdvisorService,
+    CompassRepository,
+    ClientAssignedListener,
+  ],
 })
 export class CompassModule {}

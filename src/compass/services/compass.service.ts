@@ -1,17 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { SQSService } from '../../aws/sqs/sqs.service';
 import { CollaboratorsRepository } from '../../collaborators/collaborators.repository';
 import { CompassRepository } from '../compass.repository';
-import { CreateCompassSolicitationsDto } from '../dto/create-compass-solicitations.dto';
-import { FindAllClientsDto } from '../dto/find-all-clients.dto';
-import { ListRequestedClientsDto } from '../dto/list-requested-clients.dto';
-import { ReassignCompassClientsDto } from '../dto/reassign-compass-clients.dto';
-import { ListReassignedClientsDto } from '../dto/list-reassigned-compass-clients.dto';
 import { CompassStatus } from '../interfaces';
-import { AssignCompassClientsDto } from '../dto/assign-compass-clients.dto';
-import { RequestClientBackDto } from '../dto/request-client-back.dto';
-import { ListRequestBackClientsDto } from '../dto/list-requested-back-clients.dto';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  AssignCompassClientsDto,
+  CreateCompassSolicitationsDto,
+  FindAllClientsDto,
+  ListReassignedClientsDto,
+  ListRequestBackClientsDto,
+  ListRequestedClientsDto,
+  ReassignCompassClientsDto,
+  RequestClientBackDto,
+} from '../dto';
 
 @Injectable()
 export class CompassService {
@@ -22,6 +25,7 @@ export class CompassService {
     private readonly compassRepository: CompassRepository,
     private readonly collaboratorsRepository: CollaboratorsRepository,
     private readonly sqsService: SQSService,
+    private readonly eventEmitter: EventEmitter2,
     private configService: ConfigService,
   ) {
     this.compassQueue = this.configService.get('SQS_COMPASS_QUEUE');
@@ -88,29 +92,30 @@ export class CompassService {
   }
 
   async assignClientsToCompassAdvisor({
-    client,
     compass_advisor,
-    solicitation_id,
+    clients,
   }: AssignCompassClientsDto) {
-    const findSolicitation =
-      await this.compassRepository.findClientSolicitationById(solicitation_id);
+    for await (const client of clients) {
+      await this.compassRepository.updateCompassClient({
+        advisor_compass: compass_advisor,
+        client: client.code,
+        available: false,
+      });
 
-    if (!findSolicitation) {
-      throw new NotFoundException();
+      await this.compassRepository.updateClientSolicitation({
+        id: client.request_id,
+        status: CompassStatus.ATRIBUIDO,
+        message: 'Cliente atribuído com sucesso!',
+        updated_at: new Date(),
+      });
     }
 
-    await this.compassRepository.updateCompassClient({
-      advisor_compass: compass_advisor,
-      client: Number(client),
-      available: false,
-    });
+    // const payload = {
+    //   compass_advisor,
+    //   clients,
+    // };
 
-    await this.compassRepository.updateClientSolicitation({
-      id: solicitation_id,
-      status: CompassStatus.ATRIBUIDO,
-      message: 'Cliente atribuído com sucesso!',
-      updated_at: new Date(),
-    });
+    // this.eventEmitter.emit('compass.clients-assigned', payload);
 
     return;
   }
