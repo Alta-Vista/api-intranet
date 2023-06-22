@@ -9,7 +9,9 @@ import {
   CompassAdvisorController,
   CompassController,
 } from './controllers';
-import { ClientAssignedListener } from './listeners/clients-assigned.listener';
+import { HubSpotModule } from 'src/hubspot/hubspot.module';
+import { ClientsAssignedListener } from './listeners/clients-assigned.listener';
+import { CreateOwnerTaskListener } from './listeners/create-owner-task.listener';
 import { SESModule } from 'src/aws/ses/ses.module';
 
 @Module({
@@ -18,10 +20,11 @@ import { SESModule } from 'src/aws/ses/ses.module';
     SQSModule.register({
       endpoint: process.env.AWS_SQS_ENDPOINT,
     }),
-    SESModule.register({
-      region: process.env.SES_MAIL_REGION,
-    }),
     CollaboratorsModule,
+    HubSpotModule,
+    SESModule.register({
+      region: process.env.AWS_REGION,
+    }),
   ],
   controllers: [
     CompassController,
@@ -32,7 +35,8 @@ import { SESModule } from 'src/aws/ses/ses.module';
     CompassService,
     CompassAdvisorService,
     CompassRepository,
-    ClientAssignedListener,
+    ClientsAssignedListener,
+    CreateOwnerTaskListener,
   ],
 })
 export class CompassModule {}
