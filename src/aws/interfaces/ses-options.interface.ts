@@ -1,5 +1,5 @@
 export interface SESSenMessageOptions {
-  template: 'CompassNewClients';
+  template: 'CompassNewClients' | 'NotificationTemplate';
   templateData: string;
   sendTo: string[];
   bccAddress?: string[];
