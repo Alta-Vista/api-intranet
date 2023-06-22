@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { CreateCompassClientesSolicitationsDto } from './dto/create-clients-solicitations.dto';
+import { CreateCompassClientsSolicitationsDto } from './dto/create-clients-solicitations.dto';
 import {
   ListRequestedClientsInterface,
   ReassignClientsInterface,
@@ -27,7 +27,7 @@ export class CompassRepository {
   }
 
   async createClientsSolicitation(
-    data: CreateCompassClientesSolicitationsDto[],
+    data: CreateCompassClientsSolicitationsDto[],
   ) {
     return this.prisma.compass_solicitacoes_clientes.createMany({
       data,

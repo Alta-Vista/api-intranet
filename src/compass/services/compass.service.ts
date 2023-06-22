@@ -65,6 +65,16 @@ export class CompassService {
       groupId: 'compass',
       sqsQueueUrl: this.compassQueue,
     });
+
+    const payload = {
+      name: '',
+      to: 'bruno.maciel@altavistainvest.com.br',
+      message:
+        'Segmento compass teve novas solicitações de clientes, não se esqueça de fazer as atrobuições desses clientes!',
+      subject: '[SEGMENTO COMPASS] - Novas solicitações',
+    };
+
+    this.eventEmitter.emit('notification.send-notification', payload);
   }
 
   async createRequestClientBack(
@@ -95,7 +105,7 @@ export class CompassService {
     compass_advisor,
     clients,
   }: AssignCompassClientsDto) {
-    for await (const client of clients) {
+    for (const client of clients) {
       await this.compassRepository.updateCompassClient({
         advisor_compass: compass_advisor,
         client: client.code,
@@ -110,12 +120,10 @@ export class CompassService {
       });
     }
 
-    // const payload = {
-    //   compass_advisor,
-    //   clients,
-    // };
-
-    // this.eventEmitter.emit('compass.clients-assigned', payload);
+    this.eventEmitter.emit('compass.clients-assigned', {
+      compass_advisor,
+      clients,
+    });
 
     return;
   }
