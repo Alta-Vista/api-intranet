@@ -116,13 +116,6 @@ export class AutomatedPortfolioRepository {
       cliente?: number;
     };
 
-    console.log({
-      advisor,
-      limit,
-      offset,
-      client,
-    });
-
     let assets = await this.prisma.$queryRaw`SELECT
       cas.id,
       cas.cliente AS client,
