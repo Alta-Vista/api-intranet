@@ -13,6 +13,7 @@ import { HubSpotModule } from 'src/hubspot/hubspot.module';
 import { ClientsAssignedListener } from './listeners/clients-assigned.listener';
 import { CreateOwnerTaskListener } from './listeners/create-owner-task.listener';
 import { SESModule } from 'src/aws/ses/ses.module';
+import { ClientsReassignedListener } from './listeners';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { SESModule } from 'src/aws/ses/ses.module';
     CompassRepository,
     ClientsAssignedListener,
     CreateOwnerTaskListener,
+    ClientsReassignedListener,
   ],
 })
 export class CompassModule {}

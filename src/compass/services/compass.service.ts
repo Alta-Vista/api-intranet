@@ -215,16 +215,16 @@ export class CompassService {
 
     await this.compassRepository.reassignClients(parseReassignedClients);
 
-    const message = JSON.stringify({ data: { requestId } });
+    // const message = JSON.stringify({ data: { requestId } });
 
-    await this.sqsService.sendMessage({
-      deduplicationId: requestId,
-      groupId: 'compass',
-      sqsQueueUrl: this.reassignClientsQueue,
-      message,
-    });
+    // await this.sqsService.sendMessage({
+    //   deduplicationId: requestId,
+    //   groupId: 'compass',
+    //   sqsQueueUrl: this.reassignClientsQueue,
+    //   message,
+    // });
 
-    return;
+    this.eventEmitter.emit('compass.clients-reassigned', requestId);
   }
 
   async listReassignedClients({ limit, offset }: ListReassignedClientsDto) {

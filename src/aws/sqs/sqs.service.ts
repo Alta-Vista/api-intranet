@@ -64,7 +64,11 @@ export class SQSService {
     try {
       if (this.environment === 'dev') {
         this.logger.log(
-          `Message send with id '${options.deduplicationId}' and group 'hubspot-update-contact-owner'`,
+          `Message send with body '${JSON.stringify(
+            message,
+            null,
+            3,
+          )}' and group 'hubspot-update-contact-owner'`,
         );
 
         return;

@@ -60,6 +60,8 @@ export class SESService {
 
       if (this.environment === 'dev') {
         this.logger.log(`Message sended to '${options.sendTo}`);
+
+        return;
       }
 
       const command = new SendTemplatedEmailCommand({
