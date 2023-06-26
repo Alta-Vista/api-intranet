@@ -316,8 +316,6 @@ export class CompassRepository {
     };
 
     if (!isNaN(client) && client !== 0) {
-      console.info('Entra aqui');
-
       where = {
         cod_a_origem: advisor_code,
         cliente: client,
