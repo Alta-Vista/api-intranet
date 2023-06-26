@@ -23,24 +23,32 @@ export class SESService {
 
   async sendMessage(options: SESSenMessageOptions) {
     try {
-      if (this.environment === 'prod') {
-        const command = new SendTemplatedEmailCommand({
-          Template: options.template,
-          TemplateData: options.templateData,
-          Destination: {
-            ToAddresses: options.sendTo,
-            BccAddresses: options.bccAddress,
-            CcAddresses: options.ccAddress,
-          },
-          Source: this.mailSource,
-        });
+      if (this.environment === 'dev') {
+        this.logger.log(
+          `Message sended to '${options.sendTo} and options ${JSON.stringify(
+            options,
+            null,
+            3,
+          )}`,
+        );
 
-        const response = await this.ses.send(command);
-
-        this.logger.log(`Message sended with message id ${response.MessageId}`);
+        return;
       }
 
-      this.logger.log(`Message sended to '${options.sendTo}`);
+      const command = new SendTemplatedEmailCommand({
+        Template: options.template,
+        TemplateData: options.templateData,
+        Destination: {
+          ToAddresses: options.sendTo,
+          BccAddresses: options.bccAddress,
+          CcAddresses: options.ccAddress,
+        },
+        Source: this.mailSource,
+      });
+
+      const response = await this.ses.send(command);
+
+      this.logger.log(`Message sended with message id ${response.MessageId}`);
     } catch (error) {
       this.logger.error(error);
     }
@@ -59,7 +67,7 @@ export class SESService {
       ];
 
       if (this.environment === 'dev') {
-        this.logger.log(`Message sended to '${options.sendTo}`);
+        this.logger.log(`E-mail sended to '${options.sendTo}`);
 
         return;
       }
@@ -80,7 +88,9 @@ export class SESService {
 
       const response = await this.ses.send(command);
 
-      this.logger.log(`E-mail sended with message id ${response.MessageId}`);
+      this.logger.log(
+        `E-mail sended to ${options.sendTo} with message id ${response.MessageId}`,
+      );
     } catch (error) {
       this.logger.error(error);
     }
