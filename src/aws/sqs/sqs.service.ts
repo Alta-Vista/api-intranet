@@ -104,6 +104,8 @@ export class SQSService {
         this.logger.log(
           `Message send with id '${options.deduplicationId}' and group 'hubspot-create-owner-task'`,
         );
+
+        return;
       }
 
       const command = new SendMessageCommand({
@@ -115,7 +117,9 @@ export class SQSService {
 
       const response = await this.sqs.send(command);
 
-      this.logger.log(`Message send with message id ${response.MessageId}`);
+      this.logger.log(
+        `Message send with message id ${response.MessageId} and group 'hubspot-create-owner-task'`,
+      );
     } catch (error) {
       this.logger.error(error);
       console.log(error);
