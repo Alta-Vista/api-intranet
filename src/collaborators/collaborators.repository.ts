@@ -7,6 +7,7 @@ import { CreateCollaboratorsProfileDto } from './dtos/create-collaborators-profi
 import { CreateCollaboratorDto } from './dtos/create-collaborators.dto';
 import { UpdateCollaboratorsProfileDto } from './dtos/update-collaborators-profile.dto';
 import { UpdateCollaboratorsAddressDto } from './dtos/update-collaborators-address.dto';
+import { FindCollaboratorInterface } from './interfaces';
 
 @Injectable()
 export class CollaboratorsRepository {
@@ -112,12 +113,12 @@ export class CollaboratorsRepository {
     });
   }
 
-  async findCollaborators(
-    email: string,
-    advisor_code: string,
-    cpf: string,
-    rg: string,
-  ) {
+  async findCollaborators({
+    advisor_code,
+    cpf,
+    email,
+    rg,
+  }: FindCollaboratorInterface) {
     return this.prisma.usuarios.findFirst({
       where: {
         OR: [

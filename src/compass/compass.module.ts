@@ -9,6 +9,11 @@ import {
   CompassAdvisorController,
   CompassController,
 } from './controllers';
+import { HubSpotModule } from 'src/hubspot/hubspot.module';
+import { ClientsAssignedListener } from './listeners/clients-assigned.listener';
+import { CreateOwnerTaskListener } from './listeners/create-owner-task.listener';
+import { SESModule } from 'src/aws/ses/ses.module';
+import { ClientsReassignedListener } from './listeners';
 
 @Module({
   imports: [
@@ -17,12 +22,23 @@ import {
       endpoint: process.env.AWS_SQS_ENDPOINT,
     }),
     CollaboratorsModule,
+    HubSpotModule,
+    SESModule.register({
+      region: process.env.AWS_REGION,
+    }),
   ],
   controllers: [
     CompassController,
     CompassAdminController,
     CompassAdvisorController,
   ],
-  providers: [CompassService, CompassAdvisorService, CompassRepository],
+  providers: [
+    CompassService,
+    CompassAdvisorService,
+    CompassRepository,
+    ClientsAssignedListener,
+    CreateOwnerTaskListener,
+    ClientsReassignedListener,
+  ],
 })
 export class CompassModule {}

@@ -5,3 +5,4 @@ export * from './find-reassigned-clients.interface';
 export * from './update-client-solicitation.interface';
 export * from './compass-status.interface';
 export * from './request-client-back.interface';
+export * from './update-reassigned-clients.interface';

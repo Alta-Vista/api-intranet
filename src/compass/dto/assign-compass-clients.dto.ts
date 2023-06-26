@@ -1,12 +1,22 @@
-import { IsNumber, IsString, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNumber, IsString, IsUUID, ValidateNested } from 'class-validator';
+
+class AssignCompassClients {
+  @IsNumber()
+  code: number;
+
+  @IsUUID()
+  request_id: string;
+
+  @IsString()
+  advisor: string;
+}
 
 export class AssignCompassClientsDto {
   @IsString()
   compass_advisor: string;
 
-  @IsNumber()
-  client: string;
-
-  @IsUUID()
-  solicitation_id: string;
+  @ValidateNested()
+  @Type(() => AssignCompassClients)
+  clients: AssignCompassClients[];
 }
