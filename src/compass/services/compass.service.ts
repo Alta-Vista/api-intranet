@@ -70,7 +70,7 @@ export class CompassService {
       name: '',
       to: 'bruno.maciel@altavistainvest.com.br',
       message:
-        'Segmento compass teve novas solicitações de clientes, não se esqueça de fazer as atrobuições desses clientes!',
+        'Segmento compass teve novas solicitações de clientes, não se esqueça de fazer as atribuições desses clientes!',
       subject: '[SEGMENTO COMPASS] - Novas solicitações',
     };
 
@@ -97,6 +97,16 @@ export class CompassService {
       client: data.client,
       is_returning: true,
     });
+
+    const payload = {
+      name: '',
+      to: 'bruno.maciel@altavistainvest.com.br',
+      message:
+        'Um assessor solicitou seu cliente de volta para a base de origem, entre na Intranet e faça a devolução.',
+      subject: '[SEGMENTO COMPASS] - Devolução de cliente',
+    };
+
+    this.eventEmitter.emit('notification.send-notification', payload);
 
     return;
   }
@@ -289,6 +299,9 @@ export class CompassService {
     return_client: boolean,
     message?: string,
   ) {
+    const requestedBackClient =
+      await this.compassRepository.findRequestedBackClientById(request_id);
+
     if (return_client === true) {
       const returnedClient =
         await this.compassRepository.updateRequestedBackClients({
@@ -298,6 +311,27 @@ export class CompassService {
           updated_at: new Date(),
           status: CompassStatus.ATRIBUIDO,
         });
+
+      const payload = {
+        name: '',
+        to: requestedBackClient.assessor_origem.email,
+        message: `A sua solicitação de retorno do cliente ${requestedBackClient.cliente} foi processada, ele voltará para sua base em breve!`,
+        subject: '[SEGMENTO COMPASS] - Devolução de cliente',
+      };
+
+      this.eventEmitter.emit('notification.send-notification', payload);
+
+      //Envia mensagem para quem faz as devoluções dos clientes no Connect
+      const requestedBackPayload = {
+        name: '',
+        to: requestedBackClient.assessor_origem.email,
+        subject: '[SEGMENTO COMPASS] - Devolução de cliente',
+      };
+
+      this.eventEmitter.emit(
+        'notification.send-notification',
+        requestedBackPayload,
+      );
 
       return this.compassRepository.deleteCompassClients(
         returnedClient.cliente,
@@ -316,6 +350,15 @@ export class CompassService {
       is_returning: false,
       client: returnedClient.cliente,
     });
+
+    const payload = {
+      name: '',
+      to: requestedBackClient.assessor_origem.email,
+      message: `A sua solicitação de retorno do cliente ${requestedBackClient.cliente} foi posta em espera. Você pode conferir o motivo pela Intranet.`,
+      subject: '[SEGMENTO COMPASS] - Devolução de cliente',
+    };
+
+    this.eventEmitter.emit('notification.send-notification', payload);
 
     return;
   }

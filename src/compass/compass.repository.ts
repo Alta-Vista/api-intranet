@@ -86,6 +86,17 @@ export class CompassRepository {
     });
   }
 
+  async findRequestedBackClientById(requestId: string) {
+    return this.prisma.compass_clientes_devolucao.findUnique({
+      where: {
+        id: requestId,
+      },
+      include: {
+        assessor_origem: true,
+      },
+    });
+  }
+
   async findCompassAdvisorByAdvisorCode(code: string) {
     return this.prisma.usuarios.findFirst({
       where: {
