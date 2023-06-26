@@ -70,7 +70,7 @@ export class CompassService {
       name: '',
       to: 'bruno.maciel@altavistainvest.com.br',
       message:
-        'Segmento compass teve novas solicitações de clientes, não se esqueça de fazer as atribuições desses clientes!',
+        'Novos clientes foram enviados ao segmento compass, não se esqueça de fazer as atribuições desses clientes!',
       subject: '[SEGMENTO COMPASS] - Novas solicitações',
     };
 
