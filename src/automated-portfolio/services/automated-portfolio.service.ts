@@ -6,21 +6,33 @@ import {
   ListRequestedAssetsDto,
 } from '../dto';
 import { ListRequestsDto } from '../dto/list-requests.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class AutomatedPortfolioService {
   constructor(
     private automatedPortfolioRepository: AutomatedPortfolioRepository,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(data: CreateAutomatedPortfolioRequestDto, advisorCode?: string) {
-    return this.automatedPortfolioRepository.createRequest({
+    await this.automatedPortfolioRepository.createRequest({
       advisor: data.advisor || advisorCode,
       automated_portfolio_id: data.automated_portfolio_id,
       assets: data.assets,
       client: data.client,
       message: data.message,
     });
+
+    const payload = {
+      name: '',
+      to: 'caue.glorgiano@altavistainvest.com.br',
+      message:
+        'Um assessor mandou um novo cliente para a carteira automatizada, para ver o cliente e os ativos, entre na Intranet!',
+      subject: '[MESA RV] - Carteira automatizada solicitações',
+    };
+
+    this.eventEmitter.emit('notification.send-notification', payload);
   }
 
   async listClientPortfolio(
