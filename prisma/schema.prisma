@@ -483,6 +483,7 @@ model usuarios {
   clientes_assessor_origem        clientes_compass[]               @relation("cliente_assessor_origem")
   assessor_origem_devolucao       compass_clientes_devolucao[]     @relation("assessor_o_devolucao")
   assessor_compass_devolucao      compass_clientes_devolucao[]     @relation("assessor_c_devolucao")
+  mesa_rv_cart_auto_soli          mesa_rv_cart_auto_soli[]
 
   @@schema("usuarios")
 }
@@ -699,15 +700,17 @@ model mesa_rv_carteiras_automatizadas {
 }
 
 model mesa_rv_cart_auto_soli {
-  id                            String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cliente                       Int                             @db.Integer
-  cod_a                         String                          @db.VarChar()
-  id_carteira                   String                          @db.Uuid
-  mensagem                      String?                         @db.VarChar()
-  dt_criacao                    DateTime                        @default(now()) @db.Timestamp()
-  dt_atualizacao                DateTime                        @db.Timestamp()
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente        Int      @db.Integer
+  cod_a          String   @db.VarChar()
+  id_carteira    String   @db.Uuid
+  mensagem       String?  @db.VarChar()
+  dt_criacao     DateTime @default(now()) @db.Timestamp()
+  dt_atualizacao DateTime @db.Timestamp()
+
   mesa_rv_cart_auto_soli_ativos mesa_rv_cart_auto_soli_ativos[]
   carteiras                     mesa_rv_carteiras_automatizadas @relation(fields: [id_carteira], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_solicitacoes_carteira")
+  assessor                      usuarios                        @relation(fields: [cod_a], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_solicitacoes_assessores")
 
   @@schema("mesa_rv")
 }
@@ -722,6 +725,7 @@ model mesa_rv_cart_auto_soli_ativos {
   valor_total_atual Decimal        @db.Decimal(10, 2)
   total_solicitado  Decimal        @db.Decimal(10, 2)
   mensagem          String?        @db.VarChar()
+  dt_posicao        DateTime?      @db.Date()
 
   solicitacoes mesa_rv_cart_auto_soli @relation(fields: [id_solicitacao], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_clientes_cart_automatizada_solcitacoes")
 

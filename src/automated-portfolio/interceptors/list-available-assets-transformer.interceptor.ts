@@ -11,6 +11,7 @@ interface InterceptDataType {
   tipo: string;
   total_solicitado: number;
   solicitacoes: { cliente: number };
+  dt_posicao: Date;
 }
 
 @Injectable()
@@ -25,6 +26,7 @@ export class ListAvailableAssetsTransformerInterceptor
           type: d.tipo,
           total_amount: Number(d.total_solicitado),
           client: d.solicitacoes.cliente,
+          position_date: d.dt_posicao,
         }));
 
         return parseData;
