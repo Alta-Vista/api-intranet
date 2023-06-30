@@ -1,5 +1,4 @@
 import { RedshiftService } from 'src/database/redshift.service';
-import * as dayjs from 'dayjs';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 import {
@@ -50,8 +49,6 @@ export class AutomatedPortfolioRepository {
   }
 
   async findClientStocksAndReits(client: string) {
-    const date = dayjs().format('YYYY-MM-DD');
-
     const queryText = `
       SELECT
         fii.ativo AS asset,
@@ -62,21 +59,23 @@ export class AutomatedPortfolioRepository {
         xp_repository.fii fii
       WHERE
         fii.account_xp_code = $1
-        AND fii.dt ::date = $2
+        AND
+        fii.dt::date = (select Max(fii.dt::date) From xp_repository.fii)
       UNION
       SELECT
         ac.ativo AS asset,
         ac.qtd_disp AS quantity,
         ac.financeiro AS amount,
-        'ACOES' AS type
+        'ACAO' AS type
       FROM
         xp_repository.acoes ac
       WHERE
         ac.account_xp_code = $1
-        AND ac.dt ::date = $2;
+      AND
+        ac.dt::date = (SELECT MAX(acoes.dt::date) FROM xp_repository.acoes)
     `;
 
-    const values = [client, date];
+    const values = [client];
 
     const { data } = await this.redshift.query(queryText, values);
 

@@ -14,7 +14,7 @@ export class AutomatedPortfolioService {
   ) {}
 
   async create(data: CreateAutomatedPortfolioRequestDto, advisorCode?: string) {
-    return this.automatedPortfolioRepository.createRequest({
+    await this.automatedPortfolioRepository.createRequest({
       advisor: data.advisor || advisorCode,
       automated_portfolio_id: data.automated_portfolio_id,
       assets: data.assets,
