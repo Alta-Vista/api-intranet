@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsDateString,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -25,6 +26,9 @@ class CreateAutomatedPortfolioRequestType {
 
   @IsNumber({ maxDecimalPlaces: 2 })
   requested_amount: number;
+
+  @IsDateString()
+  position_date: Date;
 }
 
 export class CreateAutomatedPortfolioRequestDto {

@@ -11,4 +11,5 @@ export interface CreateAutomatedPortfolioSolicitation {
   amount: number;
   requested_amount: number;
   message?: string;
+  position_date: Date;
 }

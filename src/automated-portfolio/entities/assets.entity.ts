@@ -28,6 +28,9 @@ export class AssetsEntity {
   @Expose({ name: 'message' })
   mensagem: string;
 
+  @Expose({ name: 'position_date' })
+  dt_posicao: Date;
+
   constructor(partial: Partial<AssetsEntity>) {
     Object.assign(this, partial);
   }

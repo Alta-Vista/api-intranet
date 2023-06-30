@@ -30,6 +30,7 @@ export class AutomatedPortfolioRepository {
       total_solicitado: request.requested_amount,
       valor_total_atual: request.amount,
       mensagem: 'Solicitação recebida!',
+      dt_posicao: request.position_date,
     }));
 
     return this.prisma.mesa_rv_cart_auto_soli.create({
@@ -54,6 +55,7 @@ export class AutomatedPortfolioRepository {
         fii.ativo AS asset,
         fii.qtd_disp AS quantity,
         fii.financeiro AS amount,
+        fii.dt AS position_date,
         'FII' AS type
       FROM
         xp_repository.fii fii
@@ -66,6 +68,7 @@ export class AutomatedPortfolioRepository {
         ac.ativo AS asset,
         ac.qtd_disp AS quantity,
         ac.financeiro AS amount,
+        ac.dt AS position_date,
         'ACAO' AS type
       FROM
         xp_repository.acoes ac
@@ -338,6 +341,7 @@ export class AutomatedPortfolioRepository {
         ativo: true,
         tipo: true,
         total_solicitado: true,
+        dt_posicao: true,
         solicitacoes: {
           select: {
             cliente: true,
