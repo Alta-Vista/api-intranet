@@ -45,12 +45,13 @@ export class CompassAdminController {
   @Get('/clients')
   @UseInterceptors(ListCompassTransformerInterceptor)
   async listAllClients(@Query() query: FindAllClientsDto) {
-    return this.compassService.findAllClients({
+    return this.compassService.listAllClients({
       limit: query.limit || '10',
       offset: query.offset || '1',
       is_available: query.is_available,
       advisor: query.advisor,
       compass_advisor: query.compass_advisor,
+      client: query.client,
     });
   }
 
