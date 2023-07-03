@@ -245,6 +245,7 @@ export class CompassRepository {
     is_available,
     advisor,
     compass_advisor,
+    client,
   }: FindClientsInterface) {
     const skip = limit * offset - limit;
 
@@ -252,29 +253,59 @@ export class CompassRepository {
       disponivel: boolean;
       cod_a_compass?: string;
       cod_a_origem?: string;
+      cliente?: number;
     } = {
       disponivel: is_available,
     };
 
-    if (advisor && !compass_advisor) {
+    // Filtra somente por assessores
+    if (advisor && !compass_advisor && !client) {
       where = {
         disponivel: is_available,
         cod_a_origem: advisor,
       };
     }
 
-    if (!advisor && compass_advisor) {
+    // Filtra por assessores e clientes
+    if (advisor && !compass_advisor && client) {
+      where = {
+        disponivel: is_available,
+        cod_a_origem: advisor,
+        cliente: client,
+      };
+    }
+
+    // Filtra por assessor e assessor compass
+    if (advisor && compass_advisor && !client) {
+      where = {
+        disponivel: is_available,
+        cod_a_compass: compass_advisor,
+        cod_a_origem: advisor,
+      };
+    }
+
+    // Filtra por cliente
+    if (!advisor && !compass_advisor && client) {
+      where = {
+        disponivel: is_available,
+        cliente: client,
+      };
+    }
+
+    // Filtra somente por assessores compass
+    if (compass_advisor && !advisor && !client) {
       where = {
         disponivel: is_available,
         cod_a_compass: compass_advisor,
       };
     }
 
-    if (advisor && compass_advisor) {
+    // Filtra por assessores compass e clientes
+    if (compass_advisor && !advisor && client) {
       where = {
         disponivel: is_available,
         cod_a_compass: compass_advisor,
-        cod_a_origem: advisor,
+        cliente: client,
       };
     }
 
