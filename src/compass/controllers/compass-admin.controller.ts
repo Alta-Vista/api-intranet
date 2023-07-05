@@ -13,7 +13,6 @@ import { AuthorizationGuard } from '../../authorization/authorization.guard';
 import { Permissions } from '../../authorization/permissions.decorator';
 import { PermissionsGuard } from '../../authorization/permissions.guard';
 import { ListCompassTransformerInterceptor } from '../interceptors/list-compass-clients-transformer.interceptor';
-import { CompassService } from '../services/compass.service';
 import { Collaborator } from '../../authorization/collaborator.decorator';
 import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
 
@@ -32,12 +31,13 @@ import {
   ReassignCompassClientsDto,
   UpdateRequestBackClientsDto,
 } from '../dto';
+import { CompassAdminService } from '../services/compass-admin.service';
 
 @Controller('admin/compass')
 @UseGuards(AuthorizationGuard, PermissionsGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class CompassAdminController {
-  constructor(private readonly compassService: CompassService) {}
+  constructor(private readonly service: CompassAdminService) {}
 
   @Permissions({
     permissions: ['read:compass-clients'],
@@ -45,7 +45,7 @@ export class CompassAdminController {
   @Get('/clients')
   @UseInterceptors(ListCompassTransformerInterceptor)
   async listAllClients(@Query() query: FindAllClientsDto) {
-    return this.compassService.listAllClients({
+    return this.service.listAllClients({
       limit: query.limit || '10',
       offset: query.offset || '1',
       is_available: query.is_available,
@@ -63,7 +63,7 @@ export class CompassAdminController {
     @Body()
     data: AssignCompassClientsDto,
   ) {
-    return this.compassService.assignClientsToCompassAdvisor(data);
+    return this.service.assignClientsToCompassAdvisor(data);
   }
 
   @Get('/advisors')
@@ -72,7 +72,7 @@ export class CompassAdminController {
   })
   @UseInterceptors(CompassAdvisorsTransformerInterceptor)
   async listAdvisors() {
-    return this.compassService.findCompassAdvisors();
+    return this.service.findCompassAdvisors();
   }
 
   @Get('/data')
@@ -81,7 +81,7 @@ export class CompassAdminController {
   })
   @UseInterceptors(GetCompassDataTransformerInterceptor)
   async getCompassData() {
-    return this.compassService.getCompassData();
+    return this.service.getCompassData();
   }
 
   @Post('/clients/reassign')
@@ -92,7 +92,7 @@ export class CompassAdminController {
     @Body() assignClients: ReassignCompassClientsDto,
     @Collaborator() collaborator: collaboratorAuthInterface,
   ) {
-    return this.compassService.reassignClients(collaborator.sub, assignClients);
+    return this.service.reassignClients(collaborator.sub, assignClients);
   }
 
   @Get('/clients/reassign')
@@ -101,7 +101,7 @@ export class CompassAdminController {
   })
   @UseInterceptors(ListCompassReassignedClientsTransformerInterceptor)
   async lisReassignedClients(@Query() query: ListReassignedClientsDto) {
-    return this.compassService.listReassignedClients({
+    return this.service.listReassignedClients({
       limit: query.limit || '10',
       offset: query.offset || '1',
     });
@@ -113,7 +113,7 @@ export class CompassAdminController {
   })
   @UseInterceptors(ListRequestedBackClientsTransformerInterceptor)
   listRequestBackClients(@Query() query: ListRequestBackClientsDto) {
-    return this.compassService.listRequestedBackClients({
+    return this.service.listRequestedBackClients({
       limit: query.limit || '10',
       offset: query.offset || '1',
     });
@@ -124,7 +124,7 @@ export class CompassAdminController {
     permissions: ['edit:compass-clients'],
   })
   updateRequestBackClients(@Body() data: UpdateRequestBackClientsDto) {
-    return this.compassService.updateRequestedBackClients(
+    return this.service.updateRequestedBackClients(
       data.id,
       data.return_client,
       data.message,
