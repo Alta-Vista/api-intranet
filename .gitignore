@@ -43,3 +43,5 @@ nps.http
 TODO.md
 .vscode
 DEPLOY.md
+
+.env.test
