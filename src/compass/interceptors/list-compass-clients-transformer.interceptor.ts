@@ -5,7 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { CollaboratorsEntity } from 'src/collaborators/entities/collaborators.entity';
+import { CollaboratorsEntity } from '../../collaborators/entities/collaborators.entity';
 import { CompassClientsEntity } from '../entities/compass.entity';
 
 interface InterceptDataType {

@@ -21,12 +21,12 @@ export class CollaboratorsService {
     address,
   }: CreateCollaboratorsDataDto): Promise<void> {
     const collaboratorAlreadyExists =
-      await this.collaboratorsRepository.findCollaborators(
-        email,
+      await this.collaboratorsRepository.findCollaborators({
         advisor_code,
-        profile.cpf,
-        profile.rg,
-      );
+        cpf: profile.cpf,
+        email,
+        rg: profile.rg,
+      });
 
     if (collaboratorAlreadyExists) {
       throw new HttpException('Collaborator already exists', 303);

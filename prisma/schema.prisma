@@ -4,9 +4,11 @@ generator client {
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  schemas    = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios"]
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+
+  schemas = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "mesa_rv"]
+
   extensions = [pgcrypto]
 }
 
@@ -25,6 +27,15 @@ enum compass_status {
   @@schema("compass")
 }
 
+enum mesa_rv_status {
+  ERRO
+  SOLICITADO
+  SUCESSO
+  EM_ANDAMENTO
+
+  @@schema("mesa_rv")
+}
+
 enum f_b_s {
   FRONT
   BACK
@@ -38,6 +49,13 @@ enum regime_contrato {
   ASSOCIADO
 
   @@schema("usuarios")
+}
+
+enum tp_ativo {
+  FII
+  ACAO
+
+  @@schema("mesa_rv")
 }
 
 model migrations {
@@ -465,6 +483,7 @@ model usuarios {
   clientes_assessor_origem        clientes_compass[]               @relation("cliente_assessor_origem")
   assessor_origem_devolucao       compass_clientes_devolucao[]     @relation("assessor_o_devolucao")
   assessor_compass_devolucao      compass_clientes_devolucao[]     @relation("assessor_c_devolucao")
+  mesa_rv_cart_auto_soli          mesa_rv_cart_auto_soli[]
 
   @@schema("usuarios")
 }
@@ -666,4 +685,49 @@ model compass_clientes_devolucao {
   assessor_compass usuarios @relation(name: "assessor_c_devolucao", fields: [cod_a_compass], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_assessores_compass_devolucao")
 
   @@schema("compass")
+}
+
+model mesa_rv_carteiras_automatizadas {
+  id             String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome           String                   @unique @db.VarChar()
+  apli_min       Decimal                  @db.Decimal(10, 2)
+  ativa          Boolean                  @default(true) @db.Boolean
+  dt_criacao     DateTime                 @default(now()) @db.Timestamp()
+  dt_atualizacao DateTime?                @db.Timestamp()
+  solicitacoes   mesa_rv_cart_auto_soli[]
+
+  @@schema("mesa_rv")
+}
+
+model mesa_rv_cart_auto_soli {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente        Int      @db.Integer
+  cod_a          String   @db.VarChar()
+  id_carteira    String   @db.Uuid
+  mensagem       String?  @db.VarChar()
+  dt_criacao     DateTime @default(now()) @db.Timestamp()
+  dt_atualizacao DateTime @db.Timestamp()
+
+  mesa_rv_cart_auto_soli_ativos mesa_rv_cart_auto_soli_ativos[]
+  carteiras                     mesa_rv_carteiras_automatizadas @relation(fields: [id_carteira], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_solicitacoes_carteira")
+  assessor                      usuarios                        @relation(fields: [cod_a], references: [cod_assessor], onDelete: Cascade, onUpdate: Cascade, map: "fk_solicitacoes_assessores")
+
+  @@schema("mesa_rv")
+}
+
+model mesa_rv_cart_auto_soli_ativos {
+  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_solicitacao    String         @db.Uuid
+  ativo             String         @db.VarChar()
+  status            mesa_rv_status
+  tipo              tp_ativo
+  qtd_atual         Int            @db.Integer
+  valor_total_atual Decimal        @db.Decimal(10, 2)
+  total_solicitado  Decimal        @db.Decimal(10, 2)
+  mensagem          String?        @db.VarChar()
+  dt_posicao        DateTime?      @db.Date()
+
+  solicitacoes mesa_rv_cart_auto_soli @relation(fields: [id_solicitacao], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_clientes_cart_automatizada_solcitacoes")
+
+  @@schema("mesa_rv")
 }

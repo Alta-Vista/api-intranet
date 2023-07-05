@@ -28,7 +28,9 @@ export class CollaboratorsAdminController {
   constructor(private collaboratorsService: CollaboratorsService) {}
 
   @Get()
-  @Permissions('read:users')
+  @Permissions({
+    permissions: ['read:users'],
+  })
   @UseInterceptors(ListCollaboratorsTransform)
   listCollaborators(@Query() query: ListCollaboratorsDto) {
     return this.collaboratorsService.listCollaborators(
@@ -38,25 +40,33 @@ export class CollaboratorsAdminController {
   }
 
   @Get('roles')
-  @Permissions('read:users')
+  @Permissions({
+    permissions: ['read:users'],
+  })
   getRoles() {
     return this.collaboratorsService.listRoles();
   }
 
   @Get(':id')
-  @Permissions('read:users')
+  @Permissions({
+    permissions: ['read:users'],
+  })
   getCollaboratorProfile(@Param('id') id: string) {
     return this.collaboratorsService.getCollaboratorProfile(id);
   }
 
   @Post()
-  @Permissions('create:users')
+  @Permissions({
+    permissions: ['create:users'],
+  })
   createCollaborator(@Body() data: CreateCollaboratorsDataDto) {
     return this.collaboratorsService.createCollaborator(data);
   }
 
   @Put(':id')
-  @Permissions('edit:users')
+  @Permissions({
+    permissions: ['edit:users'],
+  })
   updateCollaborator(
     @Param('id') id: string,
     @Body() data: UpdateCollaboratorsDataDto,
@@ -65,7 +75,9 @@ export class CollaboratorsAdminController {
   }
 
   @Put('/profile/:id')
-  @Permissions('edit:users')
+  @Permissions({
+    permissions: ['edit:users'],
+  })
   updateCollaboratorProfile(
     @Param('id') id: string,
     @Body() data: UpdateCollaboratorsProfileDto,
@@ -74,7 +86,9 @@ export class CollaboratorsAdminController {
   }
 
   @Put('/address/:id')
-  @Permissions('edit:users')
+  @Permissions({
+    permissions: ['edit:users'],
+  })
   updateCollaboratorAddress(
     @Param('id') id: string,
     @Body() data: UpdateCollaboratorsAddressDto,

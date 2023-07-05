@@ -1,10 +1,6 @@
 version: '3'
 
-networks:
-  server:
-    driver: host
-
-services:  
+services:
   nginx:
     image: nginx:stable
     container_name: nginx_api
@@ -15,8 +11,8 @@ services:
     ports:
       - 80:80
     networks:
-      - server
-    
+      - api_network
+
   db:
     image: postgres:11.16
     restart: "no"
@@ -30,4 +26,8 @@ services:
     ports:
       - 5432:5432
     networks:
-      - server
+      - api_network
+
+networks:
+  api_network:
+    driver: bridge

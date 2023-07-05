@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { CreateCompassClientesSolicitationsDto } from './dto/create-clients-solicitations.dto';
+import { CreateCompassClientsSolicitationsDto } from './dto/create-clients-solicitations.dto';
 import {
   ListRequestedClientsInterface,
   ReassignClientsInterface,
@@ -8,6 +8,7 @@ import {
   ListReassignedClientsInterface,
   UpdateClientSolicitation,
   RequestClientBackInterface,
+  UpdateReassignedClientsInterface,
 } from './interfaces';
 import { CompassStatus } from './interfaces';
 import { UpdateCompassClientInterface } from './interfaces/update-compass-client.interface';
@@ -27,7 +28,7 @@ export class CompassRepository {
   }
 
   async createClientsSolicitation(
-    data: CreateCompassClientesSolicitationsDto[],
+    data: CreateCompassClientsSolicitationsDto[],
   ) {
     return this.prisma.compass_solicitacoes_clientes.createMany({
       data,
@@ -69,10 +70,42 @@ export class CompassRepository {
     });
   }
 
+  async findReassignedClientsByRequestId(requestId: string) {
+    return this.prisma.compass_reatribuicoes_clientes.findMany({
+      where: {
+        id_solicitacao: requestId,
+      },
+    });
+  }
+
   async findCompassClient(client: number) {
     return this.prisma.clientes_compass.findUnique({
       where: {
         cliente: client,
+      },
+    });
+  }
+
+  async findRequestedBackClientById(requestId: string) {
+    return this.prisma.compass_clientes_devolucao.findUnique({
+      where: {
+        id: requestId,
+      },
+      include: {
+        assessor_origem: true,
+      },
+    });
+  }
+
+  async findCompassAdvisorByAdvisorCode(code: string) {
+    return this.prisma.usuarios.findFirst({
+      where: {
+        cod_assessor: code,
+        colaboradores_informacoes: {
+          funcao: {
+            funcao: 'Assessor compass',
+          },
+        },
       },
     });
   }
@@ -116,6 +149,45 @@ export class CompassRepository {
       pendingClients,
       totalAdvisors,
     };
+  }
+
+  async getReassignmentsTargetAdvisor(requestId: string) {
+    return this.prisma.compass_reatribuicoes_clientes.groupBy({
+      by: ['cod_a_destino'],
+      where: {
+        id_solicitacao: requestId,
+        status: 'ATRIBUIDO',
+      },
+    });
+  }
+
+  async getReassignmentsTargetAdvisorClients(
+    requestId: string,
+    advisorCode: string,
+  ) {
+    const clients = await this.prisma.compass_reatribuicoes_clientes.findMany({
+      where: {
+        id_solicitacao: requestId,
+        cod_a_destino: advisorCode,
+        status: 'ATRIBUIDO',
+      },
+      select: {
+        cod_a_destino: true,
+        cliente: true,
+        assessor_origem: {
+          select: {
+            nome: true,
+            sobrenome: true,
+          },
+        },
+      },
+    });
+
+    return clients.map((client) => ({
+      code: client.cliente,
+      advisor: `${client.assessor_origem.nome} ${client.assessor_origem.sobrenome}`,
+      targetAdvisor: client.cod_a_destino,
+    }));
   }
 
   async listRequestedClients({
@@ -173,6 +245,7 @@ export class CompassRepository {
     is_available,
     advisor,
     compass_advisor,
+    client,
   }: FindClientsInterface) {
     const skip = limit * offset - limit;
 
@@ -180,38 +253,59 @@ export class CompassRepository {
       disponivel: boolean;
       cod_a_compass?: string;
       cod_a_origem?: string;
+      cliente?: number;
     } = {
       disponivel: is_available,
     };
 
-    console.log({
-      is_available,
-      advisor,
-      compass_advisor,
-    });
-
-    if (advisor && !compass_advisor) {
-      console.log('Somente assessor');
+    // Filtra somente por assessores
+    if (advisor && !compass_advisor && !client) {
       where = {
         disponivel: is_available,
         cod_a_origem: advisor,
       };
     }
 
-    if (!advisor && compass_advisor) {
-      console.log('Somente assessor compass');
+    // Filtra por assessores e clientes
+    if (advisor && !compass_advisor && client) {
+      where = {
+        disponivel: is_available,
+        cod_a_origem: advisor,
+        cliente: client,
+      };
+    }
+
+    // Filtra por assessor e assessor compass
+    if (advisor && compass_advisor && !client) {
+      where = {
+        disponivel: is_available,
+        cod_a_compass: compass_advisor,
+        cod_a_origem: advisor,
+      };
+    }
+
+    // Filtra por cliente
+    if (!advisor && !compass_advisor && client) {
+      where = {
+        disponivel: is_available,
+        cliente: client,
+      };
+    }
+
+    // Filtra somente por assessores compass
+    if (compass_advisor && !advisor && !client) {
       where = {
         disponivel: is_available,
         cod_a_compass: compass_advisor,
       };
     }
 
-    if (advisor && compass_advisor) {
-      console.log('Assessor compass e assessor origem');
+    // Filtra por assessores compass e clientes
+    if (compass_advisor && !advisor && client) {
       where = {
         disponivel: is_available,
         cod_a_compass: compass_advisor,
-        cod_a_origem: advisor,
+        cliente: client,
       };
     }
 
@@ -253,8 +347,6 @@ export class CompassRepository {
     };
 
     if (!isNaN(client) && client !== 0) {
-      console.info('Entra aqui');
-
       where = {
         cod_a_origem: advisor_code,
         cliente: client,
@@ -551,6 +643,27 @@ export class CompassRepository {
         status,
         mensagem: message,
         dt_atualizacao: updated_at,
+      },
+    });
+  }
+
+  async updateReassignedClients({
+    id,
+    message,
+    status,
+    currentCompassAdvisor,
+    advisor,
+  }: UpdateReassignedClientsInterface) {
+    return this.prisma.compass_reatribuicoes_clientes.update({
+      where: {
+        id,
+      },
+      data: {
+        mensagem: message,
+        cod_a_origem: advisor,
+        cod_a_compass: currentCompassAdvisor,
+        status,
+        dt_atualizacao: new Date(),
       },
     });
   }

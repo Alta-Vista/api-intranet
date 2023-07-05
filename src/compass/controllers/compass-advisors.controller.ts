@@ -9,12 +9,12 @@ import {
 import { CompassAdvisorService } from '../services';
 import { FindAllClientsDto } from '../dto/find-all-clients.dto';
 import { Collaborator } from 'src/authorization/collaborator.decorator';
-import { collaboratorAuthInterface } from 'src/collaborators/interfaces/collaborators-auth.interface';
+import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
 import {
   ListCompassTransformerInterceptor,
   ListRequestedBackClientsTransformerInterceptor,
 } from '../interceptors';
-import { AuthorizationGuard } from 'src/authorization/authorization.guard';
+import { AuthorizationGuard } from '../../authorization/authorization.guard';
 import { ListRequestBackClientsDto } from '../dto/list-requested-back-clients.dto';
 
 @Controller('compass/advisors')

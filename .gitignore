@@ -42,6 +42,10 @@ curl
 nps.http
 TODO.md
 .vscode
+.env.test
 DEPLOY.md
 
-.env.test
+/prisma/seed.ts
+
+pnpm-lock.yaml
+yarn.lock

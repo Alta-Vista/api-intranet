@@ -7,6 +7,9 @@ import { CollaboratorsModule } from './collaborators/collaborators.module';
 import { OfficesModule } from './offices/offices.module';
 import { AuthProviderModule } from './auth-provider/auth-provider.module';
 import { CompassModule } from './compass/compass.module';
+import { AutomatedPortfolioModule } from './automated-portfolio/automated-portfolio.module';
+import { SESModule } from './aws/ses/ses.module';
+import { SendMailNotificationsListener } from './listeners/send-mail-notifications.listener';
 
 @Module({
   imports: [
@@ -17,8 +20,11 @@ import { CompassModule } from './compass/compass.module';
     EventEmitterModule.forRoot({ global: true }),
     OfficesModule,
     CompassModule,
+    AutomatedPortfolioModule,
+    SESModule.register({
+      region: process.env.SES_MAIL_REGION,
+    }),
   ],
-  controllers: [],
-  providers: [],
+  providers: [SendMailNotificationsListener],
 })
 export class AppModule {}

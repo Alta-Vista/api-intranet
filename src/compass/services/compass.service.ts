@@ -1,17 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { SQSService } from 'src/aws/sqs/sqs.service';
-import { CollaboratorsRepository } from 'src/collaborators/collaborators.repository';
+import { Injectable } from '@nestjs/common';
+import { SQSService } from '../../aws/sqs/sqs.service';
+import { CollaboratorsRepository } from '../../collaborators/collaborators.repository';
 import { CompassRepository } from '../compass.repository';
-import { CreateCompassSolicitationsDto } from '../dto/create-compass-solicitations.dto';
-import { FindAllClientsDto } from '../dto/find-all-clients.dto';
-import { ListRequestedClientsDto } from '../dto/list-requested-clients.dto';
-import { ReassignCompassClientsDto } from '../dto/reassign-compass-clients.dto';
-import { ListReassignedClientsDto } from '../dto/list-reassigned-compass-clients.dto';
 import { CompassStatus } from '../interfaces';
-import { AssignCompassClientsDto } from '../dto/assign-compass-clients.dto';
-import { RequestClientBackDto } from '../dto/request-client-back.dto';
-import { ListRequestBackClientsDto } from '../dto/list-requested-back-clients.dto';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  AssignCompassClientsDto,
+  CreateCompassSolicitationsDto,
+  FindAllClientsDto,
+  ListReassignedClientsDto,
+  ListRequestBackClientsDto,
+  ListRequestedClientsDto,
+  ReassignCompassClientsDto,
+  RequestClientBackDto,
+} from '../dto';
 
 @Injectable()
 export class CompassService {
@@ -22,6 +25,7 @@ export class CompassService {
     private readonly compassRepository: CompassRepository,
     private readonly collaboratorsRepository: CollaboratorsRepository,
     private readonly sqsService: SQSService,
+    private readonly eventEmitter: EventEmitter2,
     private configService: ConfigService,
   ) {
     this.compassQueue = this.configService.get('SQS_COMPASS_QUEUE');
@@ -61,6 +65,16 @@ export class CompassService {
       groupId: 'compass',
       sqsQueueUrl: this.compassQueue,
     });
+
+    const payload = {
+      name: '',
+      to: 'bruno.maciel@altavistainvest.com.br',
+      message:
+        'Novos clientes foram enviados ao segmento compass, não se esqueça de fazer as atribuições desses clientes!',
+      subject: '[SEGMENTO COMPASS] - Novas solicitações',
+    };
+
+    this.eventEmitter.emit('notification.send-notification', payload);
   }
 
   async createRequestClientBack(
@@ -84,32 +98,41 @@ export class CompassService {
       is_returning: true,
     });
 
+    const payload = {
+      name: '',
+      to: 'bruno.maciel@altavistainvest.com.br',
+      message:
+        'Um assessor solicitou seu cliente de volta para a base de origem, entre na Intranet e faça a devolução.',
+      subject: '[SEGMENTO COMPASS] - Devolução de cliente',
+    };
+
+    this.eventEmitter.emit('notification.send-notification', payload);
+
     return;
   }
 
   async assignClientsToCompassAdvisor({
-    client,
     compass_advisor,
-    solicitation_id,
+    clients,
   }: AssignCompassClientsDto) {
-    const findSolicitation =
-      await this.compassRepository.findClientSolicitationById(solicitation_id);
+    for (const client of clients) {
+      await this.compassRepository.updateCompassClient({
+        advisor_compass: compass_advisor,
+        client: client.code,
+        available: false,
+      });
 
-    if (!findSolicitation) {
-      throw new NotFoundException();
+      await this.compassRepository.updateClientSolicitation({
+        id: client.request_id,
+        status: CompassStatus.ATRIBUIDO,
+        message: 'Cliente atribuído com sucesso!',
+        updated_at: new Date(),
+      });
     }
 
-    await this.compassRepository.updateCompassClient({
-      advisor_compass: compass_advisor,
-      client: Number(client),
-      available: false,
-    });
-
-    await this.compassRepository.updateClientSolicitation({
-      id: solicitation_id,
-      status: CompassStatus.ATRIBUIDO,
-      message: 'Cliente atribuído com sucesso!',
-      updated_at: new Date(),
+    this.eventEmitter.emit('compass.clients-assigned', {
+      compass_advisor,
+      clients,
     });
 
     return;
@@ -135,23 +158,6 @@ export class CompassService {
       page: Number(offset),
       total,
       requests,
-    };
-  }
-
-  async findAllClients(data: FindAllClientsDto) {
-    const { clients, total } = await this.compassRepository.listCompassClients({
-      limit: Number(data.limit),
-      offset: Number(data.offset),
-      is_available: data.is_available === 'true',
-      advisor: data.advisor,
-      compass_advisor: data.compass_advisor,
-    });
-
-    return {
-      total,
-      limit: data.limit,
-      offset: data.offset,
-      clients,
     };
   }
 
@@ -202,16 +208,16 @@ export class CompassService {
 
     await this.compassRepository.reassignClients(parseReassignedClients);
 
-    const message = JSON.stringify({ data: { requestId } });
+    // const message = JSON.stringify({ data: { requestId } });
 
-    await this.sqsService.sendMessage({
-      deduplicationId: requestId,
-      groupId: 'compass',
-      sqsQueueUrl: this.reassignClientsQueue,
-      message,
-    });
+    // await this.sqsService.sendMessage({
+    //   deduplicationId: requestId,
+    //   groupId: 'compass',
+    //   sqsQueueUrl: this.reassignClientsQueue,
+    //   message,
+    // });
 
-    return;
+    this.eventEmitter.emit('compass.clients-reassigned', requestId);
   }
 
   async listReassignedClients({ limit, offset }: ListReassignedClientsDto) {
@@ -226,6 +232,24 @@ export class CompassService {
       limit,
       offset,
       requests,
+    };
+  }
+
+  async listAllClients(data: FindAllClientsDto) {
+    const { clients, total } = await this.compassRepository.listCompassClients({
+      limit: Number(data.limit),
+      offset: Number(data.offset),
+      is_available: data.is_available === 'true',
+      advisor: data.advisor,
+      compass_advisor: data.compass_advisor,
+      client: data.client !== '' && Number(data.client),
+    });
+
+    return {
+      total,
+      limit: data.limit,
+      offset: data.offset,
+      clients,
     };
   }
 
@@ -276,6 +300,9 @@ export class CompassService {
     return_client: boolean,
     message?: string,
   ) {
+    const requestedBackClient =
+      await this.compassRepository.findRequestedBackClientById(request_id);
+
     if (return_client === true) {
       const returnedClient =
         await this.compassRepository.updateRequestedBackClients({
@@ -285,6 +312,27 @@ export class CompassService {
           updated_at: new Date(),
           status: CompassStatus.ATRIBUIDO,
         });
+
+      const payload = {
+        name: '',
+        to: requestedBackClient.assessor_origem.email,
+        message: `A sua solicitação de retorno do cliente ${requestedBackClient.cliente} foi processada, ele voltará para sua base em breve!`,
+        subject: '[SEGMENTO COMPASS] - Devolução de cliente',
+      };
+
+      this.eventEmitter.emit('notification.send-notification', payload);
+
+      //Envia mensagem para quem faz as devoluções dos clientes no Connect
+      const requestedBackPayload = {
+        name: '',
+        to: requestedBackClient.assessor_origem.email,
+        subject: '[SEGMENTO COMPASS] - Devolução de cliente',
+      };
+
+      this.eventEmitter.emit(
+        'notification.send-notification',
+        requestedBackPayload,
+      );
 
       return this.compassRepository.deleteCompassClients(
         returnedClient.cliente,
@@ -303,6 +351,15 @@ export class CompassService {
       is_returning: false,
       client: returnedClient.cliente,
     });
+
+    const payload = {
+      name: '',
+      to: requestedBackClient.assessor_origem.email,
+      message: `A sua solicitação de retorno do cliente ${requestedBackClient.cliente} foi posta em espera. Você pode conferir o motivo pela Intranet.`,
+      subject: '[SEGMENTO COMPASS] - Devolução de cliente',
+    };
+
+    this.eventEmitter.emit('notification.send-notification', payload);
 
     return;
   }

@@ -14,20 +14,24 @@ import { Permissions } from '../../authorization/permissions.decorator';
 import { PermissionsGuard } from '../../authorization/permissions.guard';
 import { ListCompassTransformerInterceptor } from '../interceptors/list-compass-clients-transformer.interceptor';
 import { CompassService } from '../services/compass.service';
-import { AssignCompassClientsDto } from '../dto/assign-compass-clients.dto';
-import { FindAllClientsDto } from '../dto/find-all-clients.dto';
+import { Collaborator } from '../../authorization/collaborator.decorator';
+import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
+
 import {
   CompassAdvisorsTransformerInterceptor,
   GetCompassDataTransformerInterceptor,
   ListCompassReassignedClientsTransformerInterceptor,
   ListRequestedBackClientsTransformerInterceptor,
 } from '../interceptors';
-import { Collaborator } from 'src/authorization/collaborator.decorator';
-import { collaboratorAuthInterface } from 'src/collaborators/interfaces/collaborators-auth.interface';
-import { ReassignCompassClientsDto } from '../dto/reassign-compass-clients.dto';
-import { ListReassignedClientsDto } from '../dto/list-reassigned-compass-clients.dto';
-import { ListRequestBackClientsDto } from '../dto/list-requested-back-clients.dto';
-import { UpdateRequestBackClientsDto } from '../dto/update-requested-back-clients.dto';
+
+import {
+  AssignCompassClientsDto,
+  FindAllClientsDto,
+  ListReassignedClientsDto,
+  ListRequestBackClientsDto,
+  ReassignCompassClientsDto,
+  UpdateRequestBackClientsDto,
+} from '../dto';
 
 @Controller('admin/compass')
 @UseGuards(AuthorizationGuard, PermissionsGuard)
@@ -35,22 +39,27 @@ import { UpdateRequestBackClientsDto } from '../dto/update-requested-back-client
 export class CompassAdminController {
   constructor(private readonly compassService: CompassService) {}
 
-  @Permissions('read:compass-clients')
+  @Permissions({
+    permissions: ['read:compass-clients'],
+  })
   @Get('/clients')
   @UseInterceptors(ListCompassTransformerInterceptor)
   async listAllClients(@Query() query: FindAllClientsDto) {
-    return this.compassService.findAllClients({
+    return this.compassService.listAllClients({
       limit: query.limit || '10',
       offset: query.offset || '1',
       is_available: query.is_available,
       advisor: query.advisor,
       compass_advisor: query.compass_advisor,
+      client: query.client,
     });
   }
 
-  @Put('/clients/client/assign')
-  @Permissions('edit:compass-clients')
-  async update(
+  @Put('/clients/assign')
+  @Permissions({
+    permissions: ['edit:compass-clients'],
+  })
+  async assignClient(
     @Body()
     data: AssignCompassClientsDto,
   ) {
@@ -58,21 +67,27 @@ export class CompassAdminController {
   }
 
   @Get('/advisors')
-  @Permissions('read:compass-advisors')
+  @Permissions({
+    permissions: ['read:compass-advisors'],
+  })
   @UseInterceptors(CompassAdvisorsTransformerInterceptor)
   async listAdvisors() {
     return this.compassService.findCompassAdvisors();
   }
 
   @Get('/data')
-  @Permissions('read:compass-advisors')
+  @Permissions({
+    permissions: ['read:compass-advisors'],
+  })
   @UseInterceptors(GetCompassDataTransformerInterceptor)
   async getCompassData() {
     return this.compassService.getCompassData();
   }
 
   @Post('/clients/reassign')
-  @Permissions('edit:compass-clients')
+  @Permissions({
+    permissions: ['edit:compass-clients'],
+  })
   async reassignClients(
     @Body() assignClients: ReassignCompassClientsDto,
     @Collaborator() collaborator: collaboratorAuthInterface,
@@ -81,7 +96,9 @@ export class CompassAdminController {
   }
 
   @Get('/clients/reassign')
-  @Permissions('read:compass-clients')
+  @Permissions({
+    permissions: ['read:compass-clients'],
+  })
   @UseInterceptors(ListCompassReassignedClientsTransformerInterceptor)
   async lisReassignedClients(@Query() query: ListReassignedClientsDto) {
     return this.compassService.listReassignedClients({
@@ -91,7 +108,9 @@ export class CompassAdminController {
   }
 
   @Get('/clients/client/request-back')
-  @Permissions('read:compass-clients')
+  @Permissions({
+    permissions: ['read:compass-clients'],
+  })
   @UseInterceptors(ListRequestedBackClientsTransformerInterceptor)
   listRequestBackClients(@Query() query: ListRequestBackClientsDto) {
     return this.compassService.listRequestedBackClients({
@@ -101,7 +120,9 @@ export class CompassAdminController {
   }
 
   @Put('/clients/client/request-back')
-  @Permissions('edit:compass-clients')
+  @Permissions({
+    permissions: ['edit:compass-clients'],
+  })
   updateRequestBackClients(@Body() data: UpdateRequestBackClientsDto) {
     return this.compassService.updateRequestedBackClients(
       data.id,
