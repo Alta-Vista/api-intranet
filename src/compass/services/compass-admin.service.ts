@@ -1,26 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { CompassRepository } from '../compass.repository';
-import { CollaboratorsRepository } from 'src/collaborators/collaborators.repository';
+import { CompassStatus } from '../interfaces';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
 import {
   AssignCompassClientsDto,
+  CreateCompassSolicitationsDto,
   FindAllClientsDto,
   ListReassignedClientsDto,
   ListRequestBackClientsDto,
   ReassignCompassClientsDto,
 } from '../dto';
-import { CompassStatus } from '../interfaces';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class CompassAdminService {
   constructor(
     private readonly compassRepository: CompassRepository,
-    private readonly collaboratorsRepository: CollaboratorsRepository,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async getCompassData() {
     return this.compassRepository.getCompassData();
+  }
+
+  // TODO criar DTO exclusivo para que receba os cliente e o assessor para quem deve ir.
+  // TODO criar listeners que vai puxar no DB os clientes e ver se eles existem ou não.
+  async create(requesterId: string, newClients: CreateCompassSolicitationsDto) {
+    const [, collaboratorId] = requesterId.split('|');
+
+    const request = await this.compassRepository.createSolicitation(
+      collaboratorId,
+    );
+
+    const status = CompassStatus.SOLICITADO;
+
+    const parsedNewClients = newClients.clients.map((client) => {
+      return {
+        id_solicitacao: request.id,
+        cod_assessor: newClients.advisor_code,
+        cliente: client,
+        status,
+      };
+    });
+
+    await this.compassRepository.createClientsSolicitation(parsedNewClients);
+
+    const payload = {
+      requestId: request.id,
+    };
+
+    this.eventEmitter.emit('compass.new-clients', payload);
   }
 
   async listAllClients(data: FindAllClientsDto) {
