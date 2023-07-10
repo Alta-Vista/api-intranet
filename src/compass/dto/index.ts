@@ -10,3 +10,4 @@ export * from './reassign-compass-clients.dto';
 export * from './request-client-back.dto';
 export * from './update-compass.dto';
 export * from './update-requested-back-clients.dto';
+export * from './create-compass-solicitations-admin.dto';

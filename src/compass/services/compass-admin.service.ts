@@ -5,7 +5,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import {
   AssignCompassClientsDto,
-  CreateCompassSolicitationsDto,
   FindAllClientsDto,
   ListReassignedClientsDto,
   ListRequestBackClientsDto,
@@ -25,32 +24,6 @@ export class CompassAdminService {
 
   // TODO criar DTO exclusivo para que receba os cliente e o assessor para quem deve ir.
   // TODO criar listeners que vai puxar no DB os clientes e ver se eles existem ou não.
-  async create(requesterId: string, newClients: CreateCompassSolicitationsDto) {
-    const [, collaboratorId] = requesterId.split('|');
-
-    const request = await this.compassRepository.createSolicitation(
-      collaboratorId,
-    );
-
-    const status = CompassStatus.SOLICITADO;
-
-    const parsedNewClients = newClients.clients.map((client) => {
-      return {
-        id_solicitacao: request.id,
-        cod_assessor: newClients.advisor_code,
-        cliente: client,
-        status,
-      };
-    });
-
-    await this.compassRepository.createClientsSolicitation(parsedNewClients);
-
-    const payload = {
-      requestId: request.id,
-    };
-
-    this.eventEmitter.emit('compass.new-clients', payload);
-  }
 
   async listAllClients(data: FindAllClientsDto) {
     const { clients, total } = await this.compassRepository.listCompassClients({
@@ -119,15 +92,6 @@ export class CompassAdminService {
     }));
 
     await this.compassRepository.reassignClients(parseReassignedClients);
-
-    // const message = JSON.stringify({ data: { requestId } });
-
-    // await this.sqsService.sendMessage({
-    //   deduplicationId: requestId,
-    //   groupId: 'compass',
-    //   sqsQueueUrl: this.reassignClientsQueue,
-    //   message,
-    // });
 
     this.eventEmitter.emit('compass.clients-reassigned', requestId);
   }
