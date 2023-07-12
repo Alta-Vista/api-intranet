@@ -1,11 +1,21 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { CompassStatus } from '../interfaces';
 
 export class ListReassignedClientsDto {
-  @IsString()
   @IsOptional()
+  @IsString()
   limit: string;
+
+  @IsOptional()
+  @IsString()
+  offset: string;
+
+  @IsOptional()
+  @ValidateIf((property) => property.status !== '')
+  @IsEnum(CompassStatus)
+  status: CompassStatus | null;
 
   @IsString()
   @IsOptional()
-  offset: string;
+  client: string;
 }

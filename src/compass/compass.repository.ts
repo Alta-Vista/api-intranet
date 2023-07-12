@@ -570,12 +570,39 @@ export class CompassRepository {
   async listReassignedClients({
     limit,
     offset,
+    status,
+    client,
   }: ListReassignedClientsInterface) {
     const skip = limit * offset - limit;
 
+    let where: {
+      status?: CompassStatus;
+      cliente?: number;
+    };
+
+    if (status && !client) {
+      where = {
+        status,
+      };
+    }
+
+    if (!status && client) {
+      where = {
+        cliente: client,
+      };
+    }
+
+    if (status && client) {
+      where = {
+        cliente: client,
+        status,
+      };
+    }
+
     const requests = await this.prisma.compass_reatribuicoes_clientes.findMany({
+      where,
       orderBy: {
-        dt_solicitacao: 'asc',
+        dt_atualizacao: 'desc',
       },
       skip,
       take: limit,
