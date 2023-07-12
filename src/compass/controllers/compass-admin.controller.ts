@@ -104,6 +104,8 @@ export class CompassAdminController {
     return this.service.listReassignedClients({
       limit: query.limit || '10',
       offset: query.offset || '1',
+      status: query.status,
+      client: query.client,
     });
   }
 

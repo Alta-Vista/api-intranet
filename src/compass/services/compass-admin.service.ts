@@ -114,11 +114,18 @@ export class CompassAdminService {
     };
   }
 
-  async listReassignedClients({ limit, offset }: ListReassignedClientsDto) {
+  async listReassignedClients({
+    limit,
+    offset,
+    status,
+    client,
+  }: ListReassignedClientsDto) {
     const { requests, total } =
       await this.compassRepository.listReassignedClients({
         limit: Number(limit),
         offset: Number(offset),
+        status,
+        client: Number(client),
       });
 
     return {

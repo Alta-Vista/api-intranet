@@ -1,5 +1,9 @@
 import { Module } from '@nestjs/common';
-import { CompassService, CompassAdvisorService } from './services';
+import {
+  CompassService,
+  CompassAdvisorService,
+  CompassAdminService,
+} from './services';
 import { DatabaseModule } from '../database/database.module';
 import { CompassRepository } from './compass.repository';
 import { SQSModule } from '../aws/sqs/sqs.module';
@@ -35,6 +39,7 @@ import { ClientsReassignedListener } from './listeners';
   providers: [
     CompassService,
     CompassAdvisorService,
+    CompassAdminService,
     CompassRepository,
     ClientsAssignedListener,
     CreateOwnerTaskListener,
