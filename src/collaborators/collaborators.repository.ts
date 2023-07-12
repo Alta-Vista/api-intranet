@@ -149,6 +149,14 @@ export class CollaboratorsRepository {
     });
   }
 
+  async findCollaboratorByAdvisorCode(code: string) {
+    return this.prisma.usuarios.findUnique({
+      where: {
+        cod_assessor: code,
+      },
+    });
+  }
+
   async findCollaboratorsProfile(collaborator_id: string) {
     return this.prisma.colaboradores_informacoes.findFirst({
       where: {

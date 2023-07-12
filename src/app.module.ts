@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { SendMailNotificationsListener } from './listeners/send-mail-notifications.listener';
 
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthorizationModule } from './authorization/authorization.module';
 import { CollaboratorsModule } from './collaborators/collaborators.module';
 import { OfficesModule } from './offices/offices.module';
@@ -9,7 +10,7 @@ import { AuthProviderModule } from './auth-provider/auth-provider.module';
 import { CompassModule } from './compass/compass.module';
 import { AutomatedPortfolioModule } from './automated-portfolio/automated-portfolio.module';
 import { SESModule } from './aws/ses/ses.module';
-import { SendMailNotificationsListener } from './listeners/send-mail-notifications.listener';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SendMailNotificationsListener } from './listeners/send-mail-notificatio
     SESModule.register({
       region: process.env.SES_MAIL_REGION,
     }),
+    EventsModule,
   ],
   providers: [SendMailNotificationsListener],
 })
