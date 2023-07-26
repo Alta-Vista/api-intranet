@@ -10,6 +10,7 @@ import { CompassModule } from './compass/compass.module';
 import { AutomatedPortfolioModule } from './automated-portfolio/automated-portfolio.module';
 import { SESModule } from './aws/ses/ses.module';
 import { SendMailNotificationsListener } from './listeners/send-mail-notifications.listener';
+import { AwardsModule } from './awards/awards.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SendMailNotificationsListener } from './listeners/send-mail-notificatio
     SESModule.register({
       region: process.env.SES_MAIL_REGION,
     }),
+    AwardsModule,
   ],
   providers: [SendMailNotificationsListener],
 })
