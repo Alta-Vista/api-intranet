@@ -28,6 +28,7 @@
   "dependencies": {
     "@aws-sdk/client-ses": "^3.350.0",
     "@aws-sdk/client-sqs": "^3.300.0",
+    "@aws-sdk/cloudfront-signer": "^3.363.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^8.0.0",

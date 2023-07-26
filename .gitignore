@@ -49,3 +49,6 @@ DEPLOY.md
 
 pnpm-lock.yaml
 yarn.lock
+
+private_key.pem
+public_key.pem
