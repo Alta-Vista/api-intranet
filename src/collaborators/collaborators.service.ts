@@ -6,16 +6,25 @@ import { v4 as uuidV4 } from 'uuid';
 import { UpdateCollaboratorsDataDto } from './dtos/update-collaborators-data.dto';
 import { UpdateCollaboratorsProfileDto } from './dtos/update-collaborators-profile.dto';
 import { UpdateCollaboratorsAddressDto } from './dtos/update-collaborators-address.dto';
+import { SolidesService } from 'src/solides/solides.service';
 
 @Injectable()
 export class CollaboratorsService {
   constructor(
     private collaboratorsRepository: CollaboratorsRepository,
     private eventEmitter: EventEmitter2,
+    private solidesService: SolidesService,
   ) {}
 
   async createCollaborator({
-    collaborator: { advisor_code, email, name, surname },
+    collaborator: {
+      advisor_code,
+      email,
+      name,
+      surname,
+      department_id,
+      position_id,
+    },
     profile,
     mea,
     address,
@@ -74,6 +83,15 @@ export class CollaboratorsService {
 
     this.eventEmitter.emit('create.collaborator-profile', collaboratorProfile);
     this.eventEmitter.emit('create.collaborator-address', collaboratorAddress);
+    this.eventEmitter.emit('solides.create-collaborator', {
+      name: `${name} ${surname}`,
+      email,
+      id_number: String(
+        Math.floor(100000 + Math.random() * 900000000) + 10000000000,
+      ),
+      department_id: Number(department_id),
+      position_id: Number(position_id),
+    });
 
     if (mea.mea) {
       const meaOrExpansionCollaborator = {
@@ -218,13 +236,21 @@ export class CollaboratorsService {
     };
   }
 
+  async listRoles() {
+    return this.collaboratorsRepository.listRoles();
+  }
+
+  async listDepartments() {
+    return this.solidesService.getDepartments();
+  }
+
+  async listPositions() {
+    return this.solidesService.getPositions();
+  }
+
   async getCollaboratorProfile(collaborator_id: string) {
     return this.collaboratorsRepository.getCollaboratorsProfile(
       collaborator_id,
     );
-  }
-
-  async listRoles() {
-    return this.collaboratorsRepository.listRoles();
   }
 }
