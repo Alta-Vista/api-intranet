@@ -15,4 +15,10 @@ export class CreateCollaboratorDto {
 
   @IsString()
   advisor_code: string;
+
+  @IsString()
+  department_id?: number;
+
+  @IsString()
+  position_id?: number;
 }

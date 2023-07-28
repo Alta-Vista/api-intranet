@@ -4,10 +4,15 @@ import { CollaboratorsRepository } from '../collaborators.repository';
 import { CreateCollaboratorsAddressDto } from '../dtos/create-collaborators-address.dto';
 import { CreateCollaboratorMeA } from '../dtos/create-collaborators-mea.dto';
 import { CreateCollaboratorsProfileDto } from '../dtos/create-collaborators-profile.dto';
+import { SolidesCreateCollaboratorDto } from 'src/solides/dtos';
+import { SolidesService } from 'src/solides/solides.service';
 
 @Injectable()
 export class CollaboratorCreatedListener {
-  constructor(private collaboratorsRepository: CollaboratorsRepository) {}
+  constructor(
+    private collaboratorsRepository: CollaboratorsRepository,
+    private solidesService: SolidesService,
+  ) {}
 
   @OnEvent('create.collaborator-profile')
   async createCollaboratorsProfile({
@@ -92,5 +97,10 @@ export class CollaboratorCreatedListener {
   @OnEvent('create.collaborator-address')
   async createCollaboratorAddress(data: CreateCollaboratorsAddressDto) {
     return this.collaboratorsRepository.createCollaboratorAddress(data);
+  }
+
+  @OnEvent('solides.create-collaborator')
+  async createSolidesCollaborator(data: SolidesCreateCollaboratorDto) {
+    await this.solidesService.createSolidesCollaborator(data);
   }
 }

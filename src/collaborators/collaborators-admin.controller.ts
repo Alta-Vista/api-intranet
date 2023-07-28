@@ -47,6 +47,22 @@ export class CollaboratorsAdminController {
     return this.collaboratorsService.listRoles();
   }
 
+  @Get('departments')
+  @Permissions({
+    permissions: ['read:users'],
+  })
+  getDepartments() {
+    return this.collaboratorsService.listDepartments();
+  }
+
+  @Get('positions')
+  @Permissions({
+    permissions: ['read:users'],
+  })
+  getPositions() {
+    return this.collaboratorsService.listPositions();
+  }
+
   @Get(':id')
   @Permissions({
     permissions: ['read:users'],
