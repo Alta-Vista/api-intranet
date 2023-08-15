@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { SolidesCreateCollaboratorDto } from './dtos';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { senMailConstant } from 'src/listeners/constants';
 
 @Injectable()
 export class SolidesService {
@@ -49,7 +50,7 @@ export class SolidesService {
         subject: '[ERRO SOLIDES] - Listar departamentos',
       };
 
-      this.eventEmitter.emit('notification.send-notification', payload);
+      this.eventEmitter.emit(senMailConstant.SEND_NOTIFICATION_MAIL, payload);
     }
   }
 
@@ -73,7 +74,7 @@ export class SolidesService {
         subject: '[ERRO SOLIDES] - Listar Cargos',
       };
 
-      this.eventEmitter.emit('notification.send-notification', payload);
+      this.eventEmitter.emit(senMailConstant.SEND_NOTIFICATION_MAIL, payload);
     }
   }
 
@@ -99,7 +100,7 @@ export class SolidesService {
         subject: '[ERRO SOLIDES] - Criar colaborador',
       };
 
-      this.eventEmitter.emit('notification.send-notification', payload);
+      this.eventEmitter.emit(senMailConstant.SEND_NOTIFICATION_MAIL, payload);
     }
   }
 }

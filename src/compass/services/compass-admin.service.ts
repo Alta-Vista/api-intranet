@@ -10,6 +10,7 @@ import {
   ListRequestBackClientsDto,
   ReassignCompassClientsDto,
 } from '../dto';
+import { senMailConstant } from 'src/listeners/constants';
 
 @Injectable()
 export class CompassAdminService {
@@ -161,7 +162,7 @@ export class CompassAdminService {
         subject: '[SEGMENTO COMPASS] - Devolução de cliente',
       };
 
-      this.eventEmitter.emit('notification.send-notification', payload);
+      this.eventEmitter.emit(senMailConstant.SEND_NOTIFICATION_MAIL, payload);
 
       //Envia mensagem para quem faz as devoluções dos clientes no Connect
       const requestedBackPayload = {
@@ -171,7 +172,7 @@ export class CompassAdminService {
       };
 
       this.eventEmitter.emit(
-        'notification.send-notification',
+        senMailConstant.SEND_NOTIFICATION_MAIL,
         requestedBackPayload,
       );
 
@@ -200,7 +201,7 @@ export class CompassAdminService {
       subject: '[SEGMENTO COMPASS] - Devolução de cliente',
     };
 
-    this.eventEmitter.emit('notification.send-notification', payload);
+    this.eventEmitter.emit(senMailConstant.SEND_NOTIFICATION_MAIL, payload);
 
     return;
   }

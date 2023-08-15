@@ -12,6 +12,7 @@ import {
   ListRequestedClientsDto,
   RequestClientBackDto,
 } from '../dto';
+import { senMailConstant } from 'src/listeners/constants';
 
 @Injectable()
 export class CompassService {
@@ -71,7 +72,7 @@ export class CompassService {
       subject: '[SEGMENTO COMPASS] - Novas solicitações',
     };
 
-    this.eventEmitter.emit('notification.send-notification', payload);
+    this.eventEmitter.emit(senMailConstant.SEND_NOTIFICATION_MAIL, payload);
   }
 
   async createRequestClientBack(
@@ -103,7 +104,7 @@ export class CompassService {
       subject: '[SEGMENTO COMPASS] - Devolução de cliente',
     };
 
-    this.eventEmitter.emit('notification.send-notification', payload);
+    this.eventEmitter.emit(senMailConstant.SEND_NOTIFICATION_MAIL, payload);
 
     return;
   }

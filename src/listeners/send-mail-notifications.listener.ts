@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { SESService } from 'src/aws/ses/ses.service';
+import { senMailConstant } from './constants';
 
 interface SendNotificationListenerInterface {
   to: string;
@@ -13,7 +14,7 @@ interface SendNotificationListenerInterface {
 export class SendMailNotificationsListener {
   constructor(private readonly sesService: SESService) {}
 
-  @OnEvent('notification.send-notification')
+  @OnEvent(senMailConstant.SEND_NOTIFICATION_MAIL)
   async sendNotification(payload: SendNotificationListenerInterface) {
     const templateData = {
       name: payload.name,

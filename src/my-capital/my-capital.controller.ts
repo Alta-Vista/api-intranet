@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { MyCapitalService } from './my-capital.service';
 import { CreateMyCapitalDto } from './dto/create-my-capital.dto';
 import { AuthorizationGuard } from 'src/authorization/authorization.guard';
@@ -25,10 +25,5 @@ export class MyCapitalController {
     const advisor = collaborator['http://user/metadata'].Assessor;
 
     return this.myCapitalService.findAdvisorClients(advisor);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.myCapitalService.list();
   }
 }

@@ -1,13 +1,14 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CreateMyCapitalDto } from './dto/create-my-capital.dto';
 import { MyCapitalRepository } from './repository/my-capital.repository';
-import { KnexService } from 'src/database/knex.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { myCapitalListenersConstants } from './constants';
 
 @Injectable()
 export class MyCapitalService {
   constructor(
     private readonly myCapitalRepository: MyCapitalRepository,
-    private knexService: KnexService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async create({ client, payer }: CreateMyCapitalDto, requester_id: string) {
@@ -28,14 +29,18 @@ export class MyCapitalService {
       throw new HttpException('Client already exists', 409);
     }
 
-    const createClientSolicitation =
+    const createClientRequest =
       await this.myCapitalRepository.createClientSolicitation({
         client: client,
         payer: payer,
         request_id: request.id,
       });
 
-    return createClientSolicitation;
+    this.eventEmitter.emit(myCapitalListenersConstants.NEW_CLIENT_REQUESTED, {
+      id: createClientRequest.id,
+    });
+
+    return createClientRequest;
   }
 
   async findAdvisorClients(advisor: string) {
@@ -44,15 +49,5 @@ export class MyCapitalService {
 
   async findAdvisorClient(client: number) {
     return this.myCapitalRepository.findMyCapitalClient(client);
-  }
-
-  async list() {
-    const knex = this.knexService.queryKnex();
-
-    return knex
-      .select('account_xp_code')
-      .withSchema('xp_repository')
-      .from('cliente_dados_cadastrais')
-      .where('cod_a', '=', 'A23539');
   }
 }

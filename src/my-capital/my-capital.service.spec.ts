@@ -3,9 +3,13 @@ import { MyCapitalService } from './my-capital.service';
 import { MyCapitalRepository } from './repository/my-capital.repository';
 import { HttpException } from '@nestjs/common';
 import { Clients } from './entities/my-capital-clients.entity';
+import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
+import { myCapitalListenersConstants } from './constants';
 
 describe('MyCapitalService', () => {
   let service: MyCapitalService;
+
+  let eventEmitter: EventEmitter2;
 
   const clients: Clients[] = [
     {
@@ -44,10 +48,14 @@ describe('MyCapitalService', () => {
   };
 
   beforeEach(async () => {
+    eventEmitter = new EventEmitter2();
+
     const module: TestingModule = await Test.createTestingModule({
+      imports: [EventEmitterModule.forRoot()],
       providers: [
         MyCapitalService,
         { provide: MyCapitalRepository, useValue: mockMyCapitalRepository },
+        { provide: EventEmitter2, useValue: eventEmitter },
       ],
     }).compile();
 
@@ -63,7 +71,7 @@ describe('MyCapitalService', () => {
       '12345',
     );
 
-    expect(requesteClient).toHaveProperty('id');
+    expect(requesteClient).toBeTruthy();
   });
 
   it('should not be able to create a new client if he already exists', async () => {
@@ -82,5 +90,22 @@ describe('MyCapitalService', () => {
     const advisorClients = await service.findAdvisorClients('A12345');
 
     expect(advisorClients).toEqual(clients);
+  });
+
+  it('should be able to trigger the event new client requested', async () => {
+    const spy = jest.spyOn(eventEmitter, 'emit');
+
+    const newClient = await service.create(
+      {
+        client: 123456,
+        payer: 'ASSESSOR',
+      },
+      '12345',
+    );
+
+    expect(spy).toHaveBeenCalledWith(
+      myCapitalListenersConstants.NEW_CLIENT_REQUESTED,
+      { id: newClient.id },
+    );
   });
 });

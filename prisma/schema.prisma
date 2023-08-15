@@ -767,7 +767,7 @@ model mycapital_clientes_solicitacoes {
   cod_cliente    Int               @db.Integer
   pagador        mycapital_pagador
   status         mycapital_status  @default(SOLICITADO)
-  erro           String?           @db.VarBit()
+  erro           String?           @db.VarChar()
   dt_criacao     DateTime          @default(now()) @db.Timestamp()
   dt_atualizacao DateTime          @default(now()) @db.Timestamp()
 
@@ -789,7 +789,7 @@ model mycapital_clientes {
   dt_criacao             DateTime          @default(now()) @db.Timestamp()
   dt_atualizacao         DateTime          @default(now()) @db.Timestamp()
 
-  cliente_solicitacao mycapital_clientes_solicitacoes? @relation(fields: [id_cliente_solicitacao], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_solicitacoes_clientes")
+  cliente_solicitacao mycapital_clientes_solicitacoes? @relation(fields: [id_cliente_solicitacao], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_solicitacoes_clientes")
   assessor            usuarios                         @relation(fields: [cod_a], references: [cod_assessor], onDelete: NoAction, onUpdate: Cascade, map: "fk_assessores_mycapital_clientes")
 
   @@schema("mycapital")
