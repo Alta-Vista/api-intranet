@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 
-  schemas = ["clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "mesa_rv"]
+  schemas = ["mycapital", "clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "mesa_rv"]
 
   extensions = [pgcrypto]
 }
@@ -49,6 +49,22 @@ enum regime_contrato {
   ASSOCIADO
 
   @@schema("usuarios")
+}
+
+enum mycapital_status {
+  ERRO
+  SUCESSO
+  SOLICITADO
+
+  @@schema("mycapital")
+}
+
+enum mycapital_pagador {
+  CLIENTE
+  ASSESSOR
+  SUBSIDIO
+
+  @@schema("mycapital")
 }
 
 enum tp_ativo {
@@ -484,6 +500,8 @@ model usuarios {
   assessor_origem_devolucao       compass_clientes_devolucao[]     @relation("assessor_o_devolucao")
   assessor_compass_devolucao      compass_clientes_devolucao[]     @relation("assessor_c_devolucao")
   mesa_rv_cart_auto_soli          mesa_rv_cart_auto_soli[]
+  mycapital_solicitacoes          mycapital_solicitacoes[]
+  mycapital_clientes              mycapital_clientes[]
 
   @@schema("usuarios")
 }
@@ -730,4 +748,49 @@ model mesa_rv_cart_auto_soli_ativos {
   solicitacoes mesa_rv_cart_auto_soli @relation(fields: [id_solicitacao], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_clientes_cart_automatizada_solcitacoes")
 
   @@schema("mesa_rv")
+}
+
+model mycapital_solicitacoes {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_solicitante String   @db.Uuid
+  dt_solicitacao DateTime @default(now()) @db.Timestamp()
+
+  solicitante                     usuarios                          @relation(fields: [id_solicitante], references: [id], onDelete: NoAction, onUpdate: Cascade, map: "fk_solicitante_mycapital_solicitacoes")
+  mycapital_clientes_solicitacoes mycapital_clientes_solicitacoes[]
+
+  @@schema("mycapital")
+}
+
+model mycapital_clientes_solicitacoes {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_solicitacao String            @db.Uuid
+  cod_cliente    Int               @db.Integer
+  pagador        mycapital_pagador
+  status         mycapital_status  @default(SOLICITADO)
+  erro           String?           @db.VarBit()
+  dt_criacao     DateTime          @default(now()) @db.Timestamp()
+  dt_atualizacao DateTime          @default(now()) @db.Timestamp()
+
+  solicitacao        mycapital_solicitacoes @relation(fields: [id_solicitacao], references: [id], onDelete: NoAction, onUpdate: Cascade, map: "fk_clientes_solicitacoes")
+  mycapital_clientes mycapital_clientes[]
+
+  @@schema("mycapital")
+}
+
+model mycapital_clientes {
+  id                     String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_cliente_solicitacao String?           @db.Uuid
+  nome                   String            @db.VarChar()
+  codigo                 Int               @unique @db.Integer
+  cod_a                  String            @db.VarChar()
+  email                  String            @db.VarChar()
+  cpf_cnpj               String            @db.VarChar()
+  pagador                mycapital_pagador
+  dt_criacao             DateTime          @default(now()) @db.Timestamp()
+  dt_atualizacao         DateTime          @default(now()) @db.Timestamp()
+
+  cliente_solicitacao mycapital_clientes_solicitacoes? @relation(fields: [id_cliente_solicitacao], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_solicitacoes_clientes")
+  assessor            usuarios                         @relation(fields: [cod_a], references: [cod_assessor], onDelete: NoAction, onUpdate: Cascade, map: "fk_assessores_mycapital_clientes")
+
+  @@schema("mycapital")
 }

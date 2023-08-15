@@ -11,6 +11,7 @@ import { AutomatedPortfolioModule } from './automated-portfolio/automated-portfo
 import { SESModule } from './aws/ses/ses.module';
 import { SendMailNotificationsListener } from './listeners/send-mail-notifications.listener';
 import { AwardsModule } from './awards/awards.module';
+import { MyCapitalModule } from './my-capital/my-capital.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AwardsModule } from './awards/awards.module';
       region: process.env.SES_MAIL_REGION,
     }),
     AwardsModule,
+    MyCapitalModule,
   ],
   providers: [SendMailNotificationsListener],
 })
