@@ -1,10 +1,14 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CreateMyCapitalDto } from './dto/create-my-capital.dto';
 import { MyCapitalRepository } from './repository/my-capital.repository';
+import { KnexService } from 'src/database/knex.service';
 
 @Injectable()
 export class MyCapitalService {
-  constructor(private readonly myCapitalRepository: MyCapitalRepository) {}
+  constructor(
+    private readonly myCapitalRepository: MyCapitalRepository,
+    private knexService: KnexService,
+  ) {}
 
   async create({ client, payer }: CreateMyCapitalDto, requester_id: string) {
     const request = await this.myCapitalRepository.createRequest(requester_id);
@@ -40,5 +44,15 @@ export class MyCapitalService {
 
   async findAdvisorClient(client: number) {
     return this.myCapitalRepository.findMyCapitalClient(client);
+  }
+
+  async list() {
+    const knex = this.knexService.queryKnex();
+
+    return knex
+      .select('account_xp_code')
+      .withSchema('xp_repository')
+      .from('cliente_dados_cadastrais')
+      .where('cod_a', '=', 'A23539');
   }
 }
