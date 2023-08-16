@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MyCapitalService } from './my-capital.service';
-import { MyCapitalRepository } from './repository/my-capital.repository';
+import { MyCapitalRepository } from '../repository/my-capital.repository';
 import { HttpException } from '@nestjs/common';
-import { Clients } from './entities/my-capital-clients.entity';
+import { Clients } from '../entities/my-capital-clients.entity';
 import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
-import { myCapitalListenersConstants } from './constants';
+import { myCapitalListenersConstants } from '../constants';
 
 describe('MyCapitalService', () => {
   let service: MyCapitalService;

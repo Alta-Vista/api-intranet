@@ -5,7 +5,7 @@ import {
   CreateMyCapitalClient,
   GetRedshiftClient,
 } from './interfaces';
-import { KnexService } from 'src/database/knex.service';
+import { KnexService } from '../../database/knex.service';
 
 @Injectable()
 export class MyCapitalRepository {
@@ -87,6 +87,10 @@ export class MyCapitalRepository {
       email: rsClient[0].email,
       name: rsClient[0].nome,
     };
+  }
+
+  async listAllRequestedClients() {
+    return this.prisma.mycapital_clientes_solicitacoes.findMany();
   }
 
   async updateRequestedClient(data: CreateClientRequest) {
