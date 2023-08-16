@@ -3,7 +3,8 @@ import { MyCapitalController } from './my-capital.controller';
 import { DatabaseModule } from 'src/database/database.module';
 import { MyCapitalRepository } from './repository/my-capital.repository';
 import { MyCapitalListener } from './listeners/my-capital.listeners';
-import { MyCapitalAdminService, MyCapitalService } from './services';
+import { MyCapitalAdminService } from './my-capital-admin.service';
+import { MyCapitalService } from './my-capital.service';
 
 @Module({
   imports: [DatabaseModule],

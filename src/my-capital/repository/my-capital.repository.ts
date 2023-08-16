@@ -6,6 +6,8 @@ import {
   GetRedshiftClient,
 } from './interfaces';
 import { KnexService } from '../../database/knex.service';
+import { ListMyCapitalRequestedClientsDto } from '../dto/list-my-capital-requested-clients.dto';
+import { Prisma, mycapital_clientes_solicitacoes } from '@prisma/client';
 
 @Injectable()
 export class MyCapitalRepository {
@@ -89,12 +91,31 @@ export class MyCapitalRepository {
     };
   }
 
-  async listAllRequestedClients() {
-    return this.prisma.mycapital_clientes_solicitacoes.findMany();
+  async listAllRequestedClients({
+    limit,
+    offset,
+    status,
+  }: ListMyCapitalRequestedClientsDto) {
+    const skip = limit * offset - limit;
+
+    let find: Prisma.mycapital_clientes_solicitacoesFindManyArgs = {
+      skip,
+      take: limit,
+    };
+
+    if (status) {
+      find = {
+        where: {
+          status,
+        },
+      };
+    }
+
+    return this.prisma.mycapital_clientes_solicitacoes.findMany(find);
   }
 
   async updateRequestedClient(data: CreateClientRequest) {
-    await this.prisma.mycapital_clientes_solicitacoes.update({
+    return this.prisma.mycapital_clientes_solicitacoes.update({
       data: {
         cod_cliente: data.client,
         dt_atualizacao: new Date(),

@@ -1,8 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { MyCapitalRepository } from '../repository/my-capital.repository';
-import { CreateMyCapitalDto } from '../dto/create-my-capital.dto';
-import { myCapitalListenersConstants } from '../constants';
+import { myCapitalListenersConstants } from './constants';
+import { CreateMyCapitalDto } from './dto';
+import { MyCapitalRepository } from './repository/my-capital.repository';
 
 @Injectable()
 export class MyCapitalService {

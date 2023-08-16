@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MyCapitalService } from './my-capital.service';
-import { MyCapitalRepository } from '../repository/my-capital.repository';
 import { HttpException } from '@nestjs/common';
-import { Clients } from '../entities/my-capital-clients.entity';
 import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
-import { myCapitalListenersConstants } from '../constants';
+import { TestingModule, Test } from '@nestjs/testing';
+import { myCapitalListenersConstants } from './constants';
+import { Clients } from './entities/my-capital-clients.entity';
+import { MyCapitalService } from './my-capital.service';
+import { MyCapitalRepository } from './repository/my-capital.repository';
 
 describe('MyCapitalService', () => {
   let service: MyCapitalService;
@@ -76,13 +76,7 @@ describe('MyCapitalService', () => {
 
   it('should not be able to create a new client if he already exists', async () => {
     await expect(
-      service.create(
-        {
-          client: 1234567,
-          payer: 'ASSESSOR',
-        },
-        '12345',
-      ),
+      service.create({ client: 1234567, payer: 'ASSESSOR' }, '12345'),
     ).rejects.toBeInstanceOf(HttpException);
   });
 
