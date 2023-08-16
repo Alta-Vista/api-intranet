@@ -52,3 +52,5 @@ yarn.lock
 
 private_key.pem
 public_key.pem
+
+policies.json
