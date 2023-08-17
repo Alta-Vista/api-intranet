@@ -2,7 +2,7 @@ import { HttpException } from '@nestjs/common';
 import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
 import { TestingModule, Test } from '@nestjs/testing';
 import { myCapitalListenersConstants } from './constants';
-import { Clients } from './entities/my-capital-clients.entity';
+import { MyCapitalClients } from './entities/my-capital-clients.entity';
 import { MyCapitalService } from './my-capital.service';
 import { MyCapitalRepository } from './repository/my-capital.repository';
 
@@ -11,12 +11,12 @@ describe('MyCapitalService', () => {
 
   let eventEmitter: EventEmitter2;
 
-  const clients: Clients[] = [
+  const clients: MyCapitalClients[] = [
     {
       id: Date.now().toString(),
       codigo: 1234567,
       pagador: 'ASSESSOR',
-      cod_a: 'A12345',
+      cod_assessor: 'A12345',
       cpf_cnpj: '000000000',
       email: 'email@email.com',
       nome: 'Kevin Durant',
@@ -37,11 +37,9 @@ describe('MyCapitalService', () => {
         requestId: data.request_id,
       }),
     ),
-    findAdvisorClients: jest
-      .fn()
-      .mockImplementation((data) =>
-        clients.filter((client) => client.cod_a === data),
-      ),
+    findAdvisorClients: jest.fn().mockImplementation((data) => {
+      return clients.filter((client) => client.cod_assessor === data.advisor);
+    }),
     findMyCapitalClient: jest.fn().mockImplementation((data) => {
       return clients.find((client) => client.codigo === data);
     }),
@@ -81,7 +79,13 @@ describe('MyCapitalService', () => {
   });
 
   it('should be able to list advisors clients', async () => {
-    const advisorClients = await service.findAdvisorClients('A12345');
+    const advisorClients = await service.findAdvisorClients(
+      {
+        limit: '10',
+        offset: '1',
+      },
+      'A12345',
+    );
 
     expect(advisorClients).toEqual(clients);
   });

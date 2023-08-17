@@ -4,10 +4,12 @@ import {
   CreateClientRequest,
   CreateMyCapitalClient,
   GetRedshiftClient,
+  ListMyCapitalClientsInterface,
 } from './interfaces';
 import { KnexService } from '../../database/knex.service';
-import { ListMyCapitalRequestedClientsDto } from '../dto/list-my-capital-requested-clients.dto';
-import { Prisma, mycapital_clientes_solicitacoes } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { UpdateClientRequestInterface } from './interfaces/update-client-request.interface';
+import { ListMyCapitalRequestedClientsInterface } from './interfaces/list-my-capital-requested-clients.interface';
 
 @Injectable()
 export class MyCapitalRepository {
@@ -17,7 +19,7 @@ export class MyCapitalRepository {
   ) {}
 
   async createRequest(requesterId: string) {
-    return this.prisma.mycapital_solicitacoes.create({
+    return this.prisma.my_capital_solicitacoes.create({
       data: {
         id_solicitante: requesterId,
       },
@@ -25,49 +27,54 @@ export class MyCapitalRepository {
   }
 
   async createClientSolicitation(data: CreateClientRequest) {
-    return this.prisma.mycapital_clientes_solicitacoes.create({
+    return this.prisma.my_capital_clientes_solicitacoes.create({
       data: {
         cod_cliente: data.client,
         pagador: data.payer,
-        erro: data.error,
+        mensagem: data.message,
         id_solicitacao: data.request_id,
         status: data.status,
+        id_solicitante: data.requester_id,
       },
     });
   }
 
   async createMyCapitalClient(data: CreateMyCapitalClient) {
-    await this.prisma.mycapital_clientes.create({
+    await this.prisma.my_capital_clientes.create({
       data: {
         codigo: data.client_code,
         cpf_cnpj: data.document_id,
         email: data.email,
         nome: data.name,
         pagador: data.payer,
-        cod_a: data.advisor,
+        cod_assessor: data.advisor,
         id_cliente_solicitacao: data.requested_client_id,
       },
     });
   }
 
   async findMyCapitalClient(client: number) {
-    return await this.prisma.mycapital_clientes.findUnique({
+    return await this.prisma.my_capital_clientes.findUnique({
       where: {
         codigo: client,
       },
     });
   }
 
-  async findAdvisorClients(advisor: string) {
-    return this.prisma.mycapital_clientes.findMany({
+  async findAdvisorClients(data: ListMyCapitalClientsInterface) {
+    const skip = data.limit * data.offset - data.limit;
+
+    return this.prisma.my_capital_clientes.findMany({
       where: {
-        cod_a: advisor,
+        cod_assessor: data.advisor,
       },
+      skip,
+      take: data.limit,
     });
   }
 
   async getClientRequestById(id: string) {
-    return this.prisma.mycapital_clientes_solicitacoes.findUnique({
+    return this.prisma.my_capital_clientes_solicitacoes.findUnique({
       where: {
         id,
       },
@@ -91,16 +98,20 @@ export class MyCapitalRepository {
     };
   }
 
-  async listAllRequestedClients({
+  async listAdvisorRequestedClients({
     limit,
     offset,
     status,
-  }: ListMyCapitalRequestedClientsDto) {
+    requester_id,
+  }: ListMyCapitalRequestedClientsInterface) {
     const skip = limit * offset - limit;
 
-    let find: Prisma.mycapital_clientes_solicitacoesFindManyArgs = {
+    let find: Prisma.my_capital_clientes_solicitacoesFindManyArgs = {
       skip,
       take: limit,
+      where: {
+        id_solicitante: requester_id,
+      },
     };
 
     if (status) {
@@ -111,15 +122,40 @@ export class MyCapitalRepository {
       };
     }
 
-    return this.prisma.mycapital_clientes_solicitacoes.findMany(find);
+    return this.prisma.my_capital_clientes_solicitacoes.findMany(find);
   }
 
-  async updateRequestedClient(data: CreateClientRequest) {
-    return this.prisma.mycapital_clientes_solicitacoes.update({
+  async listAllMyCapitalClients({
+    limit,
+    offset,
+    status,
+  }: ListMyCapitalRequestedClientsInterface) {
+    const skip = limit * offset - limit;
+
+    let find: Prisma.my_capital_clientesFindManyArgs = {
+      skip,
+      take: limit,
+    };
+
+    if (status) {
+      find = {
+        where: {
+          cliente_solicitacao: {
+            status,
+          },
+        },
+      };
+    }
+
+    return this.prisma.my_capital_clientes.findMany(find);
+  }
+
+  async updateRequestedClient(data: UpdateClientRequestInterface) {
+    return this.prisma.my_capital_clientes_solicitacoes.update({
       data: {
         cod_cliente: data.client,
         dt_atualizacao: new Date(),
-        erro: data.error,
+        mensagem: data.message,
         status: data.status,
       },
       where: {

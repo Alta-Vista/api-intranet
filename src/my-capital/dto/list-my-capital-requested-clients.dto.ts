@@ -1,18 +1,18 @@
-import { mycapital_status } from '@prisma/client';
+import { my_capital_status } from '@prisma/client';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class ListMyCapitalRequestedClientsDto {
   @IsString()
   @IsOptional()
-  limit: number;
+  limit: string;
 
   @IsString()
   @IsOptional()
-  offset: number;
+  offset: string;
 
-  @IsEnum(mycapital_status)
+  @IsEnum(my_capital_status)
   @IsOptional()
-  status?: mycapital_status;
+  status?: my_capital_status;
 
   @IsOptional()
   @IsString()

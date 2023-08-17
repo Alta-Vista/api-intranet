@@ -1,4 +1,4 @@
-import { mycapital_pagador } from '@prisma/client';
+import { my_capital_pagador } from '@prisma/client';
 
 export interface CreateMyCapitalClient {
   requested_client_id: string;
@@ -7,5 +7,5 @@ export interface CreateMyCapitalClient {
   advisor: string;
   email: string;
   document_id: string;
-  payer: mycapital_pagador;
+  payer: my_capital_pagador;
 }

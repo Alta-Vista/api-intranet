@@ -9,7 +9,7 @@ import {
 import { CompassAdvisorService } from '../services';
 import { FindAllClientsDto } from '../dto/find-all-clients.dto';
 import { Collaborator } from 'src/authorization/collaborator.decorator';
-import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
+import { CollaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
 import {
   ListCompassTransformerInterceptor,
   ListRequestedBackClientsTransformerInterceptor,
@@ -26,7 +26,7 @@ export class CompassAdvisorController {
   @Get('/clients')
   @UseInterceptors(ListCompassTransformerInterceptor)
   async getClients(
-    @Collaborator() collaborator: collaboratorAuthInterface,
+    @Collaborator() collaborator: CollaboratorAuthInterface,
     @Query() query: FindAllClientsDto,
   ) {
     const [, collaboratorId] = collaborator.sub.split('|');
@@ -41,7 +41,7 @@ export class CompassAdvisorController {
   @Get('/clients/requested-back')
   @UseInterceptors(ListRequestedBackClientsTransformerInterceptor)
   listRequestBackClients(
-    @Collaborator() collaborator: collaboratorAuthInterface,
+    @Collaborator() collaborator: CollaboratorAuthInterface,
     @Query() query: ListRequestBackClientsDto,
   ) {
     const [, collaboratorId] = collaborator.sub.split('|');

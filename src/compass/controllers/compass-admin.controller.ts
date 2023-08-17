@@ -14,7 +14,7 @@ import { Permissions } from '../../authorization/permissions.decorator';
 import { PermissionsGuard } from '../../authorization/permissions.guard';
 import { ListCompassTransformerInterceptor } from '../interceptors/list-compass-clients-transformer.interceptor';
 import { Collaborator } from '../../authorization/collaborator.decorator';
-import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
+import { CollaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
 
 import {
   CompassAdvisorsTransformerInterceptor,
@@ -90,7 +90,7 @@ export class CompassAdminController {
   })
   async reassignClients(
     @Body() assignClients: ReassignCompassClientsDto,
-    @Collaborator() collaborator: collaboratorAuthInterface,
+    @Collaborator() collaborator: CollaboratorAuthInterface,
   ) {
     return this.service.reassignClients(collaborator.sub, assignClients);
   }

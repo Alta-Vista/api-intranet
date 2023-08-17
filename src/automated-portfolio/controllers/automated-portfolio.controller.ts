@@ -16,7 +16,7 @@ import {
 } from '../dto';
 import { AuthorizationGuard } from '../../authorization/authorization.guard';
 import { Collaborator } from '../../authorization/collaborator.decorator';
-import { collaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
+import { CollaboratorAuthInterface } from '../../auth-provider/interfaces/collaborators-auth.interface';
 import { ListRequestsDto } from '../dto/list-requests.dto';
 import {
   ListAutomatedPortfolioTransformerInterceptor,
@@ -35,7 +35,7 @@ export class AutomatedPortfolioController {
   @Post('/assets')
   create(
     @Body() createMesaRvDto: CreateAutomatedPortfolioRequestDto,
-    @Collaborator() collaborator: collaboratorAuthInterface,
+    @Collaborator() collaborator: CollaboratorAuthInterface,
   ) {
     const advisor = collaborator['http://user/metadata'].Assessor;
     return this.automatedPortfolioService.create(createMesaRvDto, advisor);
@@ -44,7 +44,7 @@ export class AutomatedPortfolioController {
   @Get('/client/portfolio')
   listPortfolio(
     @Query() listClientPortfolioDto: ListClientPortfolioDto,
-    @Collaborator() collaborator: collaboratorAuthInterface,
+    @Collaborator() collaborator: CollaboratorAuthInterface,
   ) {
     const advisor = collaborator['http://user/metadata'].Assessor;
 
@@ -58,7 +58,7 @@ export class AutomatedPortfolioController {
   @UseInterceptors(ListRequestTransformerInterceptor)
   listRequests(
     @Query() listRequestsDto: ListRequestsDto,
-    @Collaborator() collaborator: collaboratorAuthInterface,
+    @Collaborator() collaborator: CollaboratorAuthInterface,
   ) {
     const advisor = collaborator['http://user/metadata'].Assessor;
     return this.automatedPortfolioService.listRequests(

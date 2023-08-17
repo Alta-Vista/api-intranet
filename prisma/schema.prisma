@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 
-  schemas = ["mycapital", "clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "mesa_rv"]
+  schemas = ["my_capital", "clientes", "compass", "escritorios", "identidades", "localizacoes", "marketing", "public", "usuarios", "mesa_rv"]
 
   extensions = [pgcrypto]
 }
@@ -51,20 +51,20 @@ enum regime_contrato {
   @@schema("usuarios")
 }
 
-enum mycapital_status {
+enum my_capital_status {
   ERRO
   SUCESSO
   SOLICITADO
 
-  @@schema("mycapital")
+  @@schema("my_capital")
 }
 
-enum mycapital_pagador {
+enum my_capital_pagador {
   CLIENTE
   ASSESSOR
   SUBSIDIO
 
-  @@schema("mycapital")
+  @@schema("my_capital")
 }
 
 enum tp_ativo {
@@ -462,46 +462,47 @@ model tipos_codigos {
 }
 
 model usuarios {
-  id                              String                           @id(map: "PK_d7281c63c176e152e4c531594a8") @db.Uuid
-  nome                            String                           @db.VarChar
-  sobrenome                       String                           @db.VarChar
-  cod_assessor                    String?                          @unique @db.VarChar(10)
-  cod_interno                     Int                              @unique @default(autoincrement()) @db.Integer
-  email                           String                           @unique(map: "UQ_446adfc18b35418aac32ae0b7b5") @db.VarChar
-  dt_criacao                      DateTime                         @default(now()) @db.Timestamp(6)
-  clientes                        clientes_clientes[]
-  prospects                       prospects[]
-  assessor_compas                 compass_clientes[]               @relation("clientes_id_assessor_compassTousuarios")
-  assessor_origem                 compass_clientes[]               @relation("clientes_id_assessor_origemTousuarios")
-  assessor_compass_devolvido      clientes_devolvidos[]            @relation("clientes_devolvidos_id_assessor_compassTousuarios")
-  assessor_origem_devolvido       clientes_devolvidos[]            @relation("clientes_devolvidos_id_assessor_origemTousuarios")
-  filiais                         filiais[]
-  colaborador_reservador          filiais_salas_reservadas[]       @relation("filiais_salas_reservadas_id_reservadorTousuarios")
-  colaborador_utilizador          filiais_salas_reservadas[]       @relation("filiais_salas_reservadas_id_utilizadorTousuarios")
-  times                           times[]
-  credenciais                     credenciais[]
-  tokens_usuarios                 tokens_usuarios[]
-  usuario_2fa                     usuario_2fa?
-  enderecos                       enderecos?
-  eventos_convidados              eventos_convidados[]
-  codigos                         codigos[]
-  usuarios_informacoes            usuarios_informacoes[]
-  colaboradores_informacoes       colaboradores_informacoes?
-  filiais_equipes                 filiais_equipes[]
-  colaboradores_expansao          colaboradores_expansao[]
-  expansao_assessor_tombamento    colaboradores_expansao[]         @relation("assessor_tombamento")
-  compass_solicitacoes            compass_solicitacoes[]
-  compass_solicitacoes_clientes   compass_solicitacoes_clientes[]
-  compass_reatribuicoes_a_compass compass_reatribuicoes_clientes[] @relation("assessor_compass")
-  compass_reatribuicoes_a_origem  compass_reatribuicoes_clientes[] @relation("assessor_origem")
-  compass_reatribuicoes_a_destino compass_reatribuicoes_clientes[] @relation("assessor_destino")
-  clientes_assessor_compass       clientes_compass[]               @relation("cliente_assessor_compass")
-  clientes_assessor_origem        clientes_compass[]               @relation("cliente_assessor_origem")
-  assessor_origem_devolucao       compass_clientes_devolucao[]     @relation("assessor_o_devolucao")
-  assessor_compass_devolucao      compass_clientes_devolucao[]     @relation("assessor_c_devolucao")
-  mesa_rv_cart_auto_soli          mesa_rv_cart_auto_soli[]
-  mycapital_solicitacoes          mycapital_solicitacoes[]
-  mycapital_clientes              mycapital_clientes[]
+  id                               String                             @id(map: "PK_d7281c63c176e152e4c531594a8") @db.Uuid
+  nome                             String                             @db.VarChar
+  sobrenome                        String                             @db.VarChar
+  cod_assessor                     String?                            @unique @db.VarChar(10)
+  cod_interno                      Int                                @unique @default(autoincrement()) @db.Integer
+  email                            String                             @unique(map: "UQ_446adfc18b35418aac32ae0b7b5") @db.VarChar
+  dt_criacao                       DateTime                           @default(now()) @db.Timestamp(6)
+  clientes                         clientes_clientes[]
+  prospects                        prospects[]
+  assessor_compas                  compass_clientes[]                 @relation("clientes_id_assessor_compassTousuarios")
+  assessor_origem                  compass_clientes[]                 @relation("clientes_id_assessor_origemTousuarios")
+  assessor_compass_devolvido       clientes_devolvidos[]              @relation("clientes_devolvidos_id_assessor_compassTousuarios")
+  assessor_origem_devolvido        clientes_devolvidos[]              @relation("clientes_devolvidos_id_assessor_origemTousuarios")
+  filiais                          filiais[]
+  colaborador_reservador           filiais_salas_reservadas[]         @relation("filiais_salas_reservadas_id_reservadorTousuarios")
+  colaborador_utilizador           filiais_salas_reservadas[]         @relation("filiais_salas_reservadas_id_utilizadorTousuarios")
+  times                            times[]
+  credenciais                      credenciais[]
+  tokens_usuarios                  tokens_usuarios[]
+  usuario_2fa                      usuario_2fa?
+  enderecos                        enderecos?
+  eventos_convidados               eventos_convidados[]
+  codigos                          codigos[]
+  usuarios_informacoes             usuarios_informacoes[]
+  colaboradores_informacoes        colaboradores_informacoes?
+  filiais_equipes                  filiais_equipes[]
+  colaboradores_expansao           colaboradores_expansao[]
+  expansao_assessor_tombamento     colaboradores_expansao[]           @relation("assessor_tombamento")
+  compass_solicitacoes             compass_solicitacoes[]
+  compass_solicitacoes_clientes    compass_solicitacoes_clientes[]
+  compass_reatribuicoes_a_compass  compass_reatribuicoes_clientes[]   @relation("assessor_compass")
+  compass_reatribuicoes_a_origem   compass_reatribuicoes_clientes[]   @relation("assessor_origem")
+  compass_reatribuicoes_a_destino  compass_reatribuicoes_clientes[]   @relation("assessor_destino")
+  clientes_assessor_compass        clientes_compass[]                 @relation("cliente_assessor_compass")
+  clientes_assessor_origem         clientes_compass[]                 @relation("cliente_assessor_origem")
+  assessor_origem_devolucao        compass_clientes_devolucao[]       @relation("assessor_o_devolucao")
+  assessor_compass_devolucao       compass_clientes_devolucao[]       @relation("assessor_c_devolucao")
+  mesa_rv_cart_auto_soli           mesa_rv_cart_auto_soli[]
+  my_capital_solicitacoes          my_capital_solicitacoes[]
+  my_capital_clientes              my_capital_clientes[]
+  my_capital_clientes_solicitacoes my_capital_clientes_solicitacoes[]
 
   @@schema("usuarios")
 }
@@ -750,47 +751,49 @@ model mesa_rv_cart_auto_soli_ativos {
   @@schema("mesa_rv")
 }
 
-model mycapital_solicitacoes {
+model my_capital_solicitacoes {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   id_solicitante String   @db.Uuid
   dt_solicitacao DateTime @default(now()) @db.Timestamp()
 
-  solicitante                     usuarios                          @relation(fields: [id_solicitante], references: [id], onDelete: NoAction, onUpdate: Cascade, map: "fk_solicitante_mycapital_solicitacoes")
-  mycapital_clientes_solicitacoes mycapital_clientes_solicitacoes[]
+  solicitante                      usuarios                           @relation(fields: [id_solicitante], references: [id], onDelete: NoAction, onUpdate: Cascade, map: "fk_solicitante_my_capital_solicitacoes")
+  my_capital_clientes_solicitacoes my_capital_clientes_solicitacoes[]
 
-  @@schema("mycapital")
+  @@schema("my_capital")
 }
 
-model mycapital_clientes_solicitacoes {
-  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  id_solicitacao String            @db.Uuid
-  cod_cliente    Int               @db.Integer
-  pagador        mycapital_pagador
-  status         mycapital_status  @default(SOLICITADO)
-  erro           String?           @db.VarChar()
-  dt_criacao     DateTime          @default(now()) @db.Timestamp()
-  dt_atualizacao DateTime          @default(now()) @db.Timestamp()
+model my_capital_clientes_solicitacoes {
+  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_solicitacao String             @db.Uuid
+  cod_cliente    Int                @db.Integer
+  id_solicitante String             @db.VarChar()
+  pagador        my_capital_pagador
+  status         my_capital_status  @default(SOLICITADO)
+  mensagem       String?            @db.VarChar()
+  dt_criacao     DateTime           @default(now()) @db.Timestamp()
+  dt_atualizacao DateTime           @default(now()) @db.Timestamp()
 
-  solicitacao        mycapital_solicitacoes @relation(fields: [id_solicitacao], references: [id], onDelete: NoAction, onUpdate: Cascade, map: "fk_clientes_solicitacoes")
-  mycapital_clientes mycapital_clientes[]
+  solicitante         usuarios                @relation(fields: [id_solicitante], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_my_capital_solicitante_solicitacoes")
+  solicitacao         my_capital_solicitacoes @relation(fields: [id_solicitacao], references: [id], onDelete: NoAction, onUpdate: Cascade, map: "fk_clientes_solicitacoes")
+  my_capital_clientes my_capital_clientes[]
 
-  @@schema("mycapital")
+  @@schema("my_capital")
 }
 
-model mycapital_clientes {
-  id                     String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  id_cliente_solicitacao String?           @db.Uuid
-  nome                   String            @db.VarChar()
-  codigo                 Int               @unique @db.Integer
-  cod_a                  String            @db.VarChar()
-  email                  String            @db.VarChar()
-  cpf_cnpj               String            @db.VarChar()
-  pagador                mycapital_pagador
-  dt_criacao             DateTime          @default(now()) @db.Timestamp()
-  dt_atualizacao         DateTime          @default(now()) @db.Timestamp()
+model my_capital_clientes {
+  id                     String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_cliente_solicitacao String?            @db.Uuid
+  nome                   String             @db.VarChar()
+  codigo                 Int                @unique @db.Integer
+  cod_assessor           String             @db.VarChar()
+  email                  String             @db.VarChar()
+  cpf_cnpj               String             @db.VarChar()
+  pagador                my_capital_pagador
+  dt_criacao             DateTime           @default(now()) @db.Timestamp()
+  dt_atualizacao         DateTime           @default(now()) @db.Timestamp()
 
-  cliente_solicitacao mycapital_clientes_solicitacoes? @relation(fields: [id_cliente_solicitacao], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_solicitacoes_clientes")
-  assessor            usuarios                         @relation(fields: [cod_a], references: [cod_assessor], onDelete: NoAction, onUpdate: Cascade, map: "fk_assessores_mycapital_clientes")
+  cliente_solicitacao my_capital_clientes_solicitacoes? @relation(fields: [id_cliente_solicitacao], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_solicitacoes_clientes")
+  assessor            usuarios                          @relation(fields: [cod_assessor], references: [cod_assessor], onDelete: NoAction, onUpdate: Cascade, map: "fk_assessores_my_capital_clientes")
 
-  @@schema("mycapital")
+  @@schema("my_capital")
 }

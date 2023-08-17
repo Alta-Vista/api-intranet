@@ -1,4 +1,4 @@
-import { mycapital_pagador, mycapital_status } from 'prisma/prisma-client';
+import { my_capital_pagador, my_capital_status } from 'prisma/prisma-client';
 
 export class RequestedClients {
   id?: string;
@@ -7,11 +7,13 @@ export class RequestedClients {
 
   cod_cliente: number;
 
-  pagador: mycapital_pagador;
+  id_solicitante: string;
 
-  status: mycapital_status;
+  pagador: my_capital_pagador;
 
-  erro?: string;
+  status: my_capital_status;
+
+  mensagem?: string;
 
   dt_criacao?: Date;
 

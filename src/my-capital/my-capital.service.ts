@@ -3,6 +3,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { myCapitalListenersConstants } from './constants';
 import { CreateMyCapitalDto } from './dto';
 import { MyCapitalRepository } from './repository/my-capital.repository';
+import { ListMyCapitalRequestedClientsDto } from './dto/list-my-capital-requested-clients.dto';
+import { ListMyCapitalClientsDto } from './dto/list-my-capital-clients.dto';
 
 @Injectable()
 export class MyCapitalService {
@@ -22,8 +24,9 @@ export class MyCapitalService {
         client: client,
         payer: payer,
         request_id: request.id,
-        error: 'Cliente já foi enviado a MyCapital',
+        message: 'Cliente já foi enviado a MyCapital',
         status: 'ERRO',
+        requester_id,
       });
 
       throw new HttpException('Client already exists', 409);
@@ -34,6 +37,8 @@ export class MyCapitalService {
         client: client,
         payer: payer,
         request_id: request.id,
+        requester_id,
+        message: 'Cliente recebido!',
       });
 
     this.eventEmitter.emit(myCapitalListenersConstants.NEW_CLIENT_REQUESTED, {
@@ -43,11 +48,26 @@ export class MyCapitalService {
     return createClientRequest;
   }
 
-  async findAdvisorClients(advisor: string) {
-    return this.myCapitalRepository.findAdvisorClients(advisor);
+  async findAdvisorClients(data: ListMyCapitalClientsDto, advisor: string) {
+    return this.myCapitalRepository.findAdvisorClients({
+      limit: Number(data.limit),
+      offset: Number(data.offset),
+      advisor,
+    });
   }
 
   async findAdvisorClient(client: number) {
     return this.myCapitalRepository.findMyCapitalClient(client);
+  }
+
+  async listRequestedClients(
+    data: ListMyCapitalRequestedClientsDto,
+    requester_id: string,
+  ) {
+    return this.myCapitalRepository.listAdvisorRequestedClients({
+      limit: Number(data.limit),
+      offset: Number(data.offset),
+      requester_id,
+    });
   }
 }

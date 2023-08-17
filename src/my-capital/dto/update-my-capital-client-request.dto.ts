@@ -1,7 +1,8 @@
-import { mycapital_status } from '@prisma/client';
+import { my_capital_status } from '@prisma/client';
 import {
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   ValidateIf,
@@ -11,13 +12,14 @@ export class UpdateMyCapitalRequestedClientDto {
   @IsUUID()
   request_id: string;
 
-  @IsEnum(mycapital_status)
-  status: mycapital_status;
+  @IsEnum(my_capital_status)
+  status: my_capital_status;
 
   @IsString()
   @ValidateIf((property) => property.status === 'ERRO')
   @IsNotEmpty({
     message: 'Mensagem é obrigatória',
   })
-  error_message?: string;
+  @IsOptional()
+  message?: string;
 }

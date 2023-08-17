@@ -1,23 +1,46 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MyCapitalRepository } from './repository/my-capital.repository';
 import { HttpException } from '@nestjs/common';
-import { Clients } from './entities/my-capital-clients.entity';
 import { MyCapitalAdminService } from './my-capital-admin.service';
-import { mycapital_status } from '@prisma/client';
+import { my_capital_status } from '@prisma/client';
 import { RequestedClients } from './entities/my-capital-requested-clients.entity';
+import { MyCapitalClients } from './entities/my-capital-clients.entity';
 
 describe('MyCapitalService', () => {
   let service: MyCapitalAdminService;
 
-  const clients: Clients[] = [
+  const myCapitalClients: MyCapitalClients[] = [
     {
-      id: Date.now().toString(),
-      codigo: 1234567,
-      pagador: 'ASSESSOR',
-      cod_a: 'A12345',
-      cpf_cnpj: '000000000',
-      email: 'email@email.com',
+      id: '123456',
+      cod_assessor: 'A123456',
+      codigo: 123456,
+      cpf_cnpj: '00000000000',
+      email: 'kevin@email.com',
       nome: 'Kevin Durant',
+      pagador: 'ASSESSOR',
+      solicitacao: {
+        status: 'SOLICITADO',
+        cod_cliente: 123456,
+        id_solicitacao: '1234567',
+        id_solicitante: '123456789',
+        pagador: 'ASSESSOR',
+      },
+    },
+    {
+      id: '123456',
+      cod_assessor: 'A123456',
+      codigo: 123456,
+      cpf_cnpj: '00000000000',
+      email: 'kevin@email.com',
+      nome: 'Kevin Durant',
+      pagador: 'ASSESSOR',
+      solicitacao: {
+        status: 'SUCESSO',
+        cod_cliente: 123456,
+        id_solicitacao: '1234567',
+        id_solicitante: '123456789',
+        pagador: 'ASSESSOR',
+      },
     },
   ];
 
@@ -28,6 +51,7 @@ describe('MyCapitalService', () => {
       id_solicitacao: '1234567',
       pagador: 'ASSESSOR',
       status: 'SOLICITADO',
+      id_solicitante: '123456',
     },
     {
       id: '1234567',
@@ -35,6 +59,7 @@ describe('MyCapitalService', () => {
       id_solicitacao: '1234567',
       pagador: 'ASSESSOR',
       status: 'ERRO',
+      id_solicitante: '123456',
     },
     {
       id: '1234568',
@@ -42,18 +67,19 @@ describe('MyCapitalService', () => {
       id_solicitacao: '1234567',
       pagador: 'ASSESSOR',
       status: 'SUCESSO',
+      id_solicitante: '123456',
     },
   ];
 
   const mockMyCapitalRepository = {
-    listAllRequestedClients: jest.fn().mockImplementation((data) => {
+    listAllMyCapitalClients: jest.fn().mockImplementation((data) => {
       if (data.status) {
-        return requestedClients.filter(
-          (client) => client.status === data.status,
+        return myCapitalClients.filter(
+          (client) => client.solicitacao.status === data.status,
         );
       }
 
-      return requestedClients;
+      return myCapitalClients;
     }),
     updateRequestedClient: jest.fn().mockImplementation((data) => {
       const requestedClient = requestedClients.find(
@@ -82,29 +108,38 @@ describe('MyCapitalService', () => {
   });
 
   it('should be able to list all requested clients', async () => {
-    const listRequestedClients = await service.listRequestedClients({
-      limit: 10,
-      offset: 1,
+    const listRequestedClients = await service.listAllMyCapitalClients({
+      limit: '10',
+      offset: '1',
     });
 
-    expect(listRequestedClients).toEqual(requestedClients);
+    expect(listRequestedClients).toEqual(myCapitalClients);
   });
 
   it('should be able to filter requested clients', async () => {
     const filteredClients = [
       {
-        id: '1234568',
-        cod_cliente: 123456,
-        id_solicitacao: '1234567',
+        id: '123456',
+        cod_assessor: 'A123456',
+        codigo: 123456,
+        cpf_cnpj: '00000000000',
+        email: 'kevin@email.com',
+        nome: 'Kevin Durant',
         pagador: 'ASSESSOR',
-        status: 'SUCESSO',
+        solicitacao: {
+          status: 'SUCESSO',
+          cod_cliente: 123456,
+          id_solicitacao: '1234567',
+          id_solicitante: '123456789',
+          pagador: 'ASSESSOR',
+        },
       },
     ];
 
-    const listRequestedClients = await service.listRequestedClients({
+    const listRequestedClients = await service.listAllMyCapitalClients({
       status: 'SUCESSO',
-      limit: 10,
-      offset: 1,
+      limit: '10',
+      offset: '1',
     });
 
     expect(listRequestedClients).toEqual(filteredClients);
@@ -112,7 +147,7 @@ describe('MyCapitalService', () => {
 
   it('should be able to update a client to success', async () => {
     const client = await service.updateRequestedClient({
-      status: mycapital_status.SUCESSO,
+      status: my_capital_status.SUCESSO,
       request_id: '123456',
     });
 
@@ -121,9 +156,9 @@ describe('MyCapitalService', () => {
 
   it('should be able to update a client to error', async () => {
     const client = await service.updateRequestedClient({
-      status: mycapital_status.ERRO,
+      status: my_capital_status.ERRO,
       request_id: '123456',
-      error_message: 'Cliente não foi aprovado por algum motivo',
+      message: 'Cliente não foi aprovado por algum motivo',
     });
 
     expect(client.status).toBe('ERRO');
@@ -132,7 +167,7 @@ describe('MyCapitalService', () => {
   it('should not be able to update if there is an error and messege is empty', async () => {
     await expect(
       service.updateRequestedClient({
-        status: mycapital_status.ERRO,
+        status: my_capital_status.ERRO,
         request_id: '123456',
       }),
     ).rejects.toBeInstanceOf(HttpException);

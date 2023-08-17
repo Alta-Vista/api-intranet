@@ -7,17 +7,22 @@ import { ListMyCapitalRequestedClientsDto } from './dto/list-my-capital-requeste
 export class MyCapitalAdminService {
   constructor(private myCapitalRepository: MyCapitalRepository) {}
 
-  async listRequestedClients(data: ListMyCapitalRequestedClientsDto) {
-    return this.myCapitalRepository.listAllRequestedClients(data);
+  async listAllMyCapitalClients(data: ListMyCapitalRequestedClientsDto) {
+    return this.myCapitalRepository.listAllMyCapitalClients({
+      limit: Number(data.limit),
+      offset: Number(data.offset),
+      status: data.status,
+    });
   }
 
   async updateRequestedClient(data: UpdateMyCapitalRequestedClientDto) {
-    if (data.status === 'ERRO' && !data.error_message)
+    if (data.status === 'ERRO' && !data.message)
       throw new HttpException('Error message is required', 400);
 
     const updateRequest = await this.myCapitalRepository.updateRequestedClient({
       id: data.request_id,
       status: data.status,
+      message: data.message,
     });
 
     return updateRequest;
