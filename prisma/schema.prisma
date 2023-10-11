@@ -687,6 +687,18 @@ model compass_clientes_devolucao {
   @@schema("compass")
 }
 
+model compass_logs {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  message    String   @map("mensagem") @db.VarChar()
+  type       String   @map("tipo") @db.VarChar()
+  log        Json     @db.JsonB
+  solved     Boolean  @default(false) @map("resolvido") @db.Boolean
+  created_at DateTime @default(now()) @map("dt_criacao") @db.Timestamp()
+  updated_at DateTime @default(now()) @map("dt_atualizacao") @db.Timestamp()
+
+  @@schema("compass")
+}
+
 model mesa_rv_carteiras_automatizadas {
   id             String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome           String                   @unique @db.VarChar()
