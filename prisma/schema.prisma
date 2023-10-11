@@ -110,42 +110,6 @@ model prospects {
   @@schema("clientes")
 }
 
-model compass_clientes {
-  id                  String    @id(map: "PK_d76bf3571d906e4e86470482c08") @db.Uuid
-  cd_cliente          Decimal   @unique(map: "UQ_f79ca31c4c49e733c3b1eabe252") @db.Decimal()
-  id_assessor_origem  String    @db.Uuid
-  id_assessor_compass String?   @db.Uuid
-  disponivel          Boolean
-  id_estado           String    @db.Uuid
-  id_cidade           String    @db.Uuid
-  cliente_ciente      Boolean
-  dt_criacao          DateTime  @default(now()) @db.Timestamp(6)
-  dt_atualizacao      DateTime? @db.Timestamp(6)
-  patrimonio          Decimal?  @db.Decimal(10, 2)
-  em_devolucao        Boolean   @default(false)
-  assessor_compass    usuarios? @relation("clientes_id_assessor_compassTousuarios", fields: [id_assessor_compass], references: [id], onDelete: Cascade, map: "fk_compass_advisor")
-  cidades             cidades   @relation(fields: [id_cidade], references: [id], onDelete: Cascade, map: "fk_compass_client_city")
-  estados             estados   @relation(fields: [id_estado], references: [id], onDelete: Cascade, map: "fk_compass_client_state")
-  assessor_origem     usuarios  @relation("clientes_id_assessor_origemTousuarios", fields: [id_assessor_origem], references: [id], onDelete: Cascade, map: "fk_original_advisor")
-
-  @@map("clientes")
-  @@schema("compass")
-}
-
-model clientes_devolvidos {
-  id                  String    @id(map: "PK_cb72ea4db243d3818a75afade5c") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cd_cliente          Decimal   @db.Decimal
-  id_assessor_origem  String    @db.Uuid
-  id_assessor_compass String    @db.Uuid
-  devolvido           Boolean   @default(false)
-  dt_solicitacao      DateTime  @default(now()) @db.Timestamp(6)
-  dt_devolucao        DateTime? @db.Timestamp(6)
-  assessor_compass    usuarios  @relation("clientes_devolvidos_id_assessor_compassTousuarios", fields: [id_assessor_compass], references: [id], onDelete: Cascade, map: "compass_advisor_fk")
-  assessor_origem     usuarios  @relation("clientes_devolvidos_id_assessor_origemTousuarios", fields: [id_assessor_origem], references: [id], onDelete: Cascade, map: "original_advisor_fk")
-
-  @@schema("compass")
-}
-
 model departamentos {
   id           String   @id(map: "PK_6d34dc0415358a018818c683c1e") @db.Uuid
   departamento String   @unique(map: "UQ_f8c1d2eff6a4b2e59dd75cb1565") @db.VarChar(60)
@@ -288,13 +252,12 @@ model usuario_2fa {
 }
 
 model cidades {
-  id         String             @id(map: "PK_cc606d4fea4335e32bd19f3a9fa") @db.Uuid
-  cidade     String             @unique(map: "UQ_d1113d12ffe2554ed7dc42d87e5") @db.VarChar(40)
-  id_estado  String             @db.Uuid
-  dt_criacao DateTime           @default(now()) @db.Timestamp(6)
-  clientes   compass_clientes[]
+  id         String    @id(map: "PK_cc606d4fea4335e32bd19f3a9fa") @db.Uuid
+  cidade     String    @unique(map: "UQ_d1113d12ffe2554ed7dc42d87e5") @db.VarChar(40)
+  id_estado  String    @db.Uuid
+  dt_criacao DateTime  @default(now()) @db.Timestamp(6)
   filiais    filiais[]
-  estados    estados            @relation(fields: [id_estado], references: [id], onDelete: Cascade, map: "fk_cities_states")
+  estados    estados   @relation(fields: [id_estado], references: [id], onDelete: Cascade, map: "fk_cities_states")
 
   @@schema("localizacoes")
 }
@@ -319,11 +282,10 @@ model enderecos {
 }
 
 model estados {
-  id         String             @id(map: "PK_3d9a9f2658d5086012f27924d30") @db.Uuid
-  estado     String             @unique(map: "UQ_321047fd6e83a5834679b179172") @db.VarChar(40)
-  uf         String             @unique(map: "UQ_727d8a05d0f922861f13978ac5d") @db.VarChar(2)
-  dt_criacao DateTime           @default(now()) @db.Timestamp(6)
-  clientes   compass_clientes[]
+  id         String    @id(map: "PK_3d9a9f2658d5086012f27924d30") @db.Uuid
+  estado     String    @unique(map: "UQ_321047fd6e83a5834679b179172") @db.VarChar(40)
+  uf         String    @unique(map: "UQ_727d8a05d0f922861f13978ac5d") @db.VarChar(2)
+  dt_criacao DateTime  @default(now()) @db.Timestamp(6)
   cidades    cidades[]
 
   @@schema("localizacoes")
@@ -446,19 +408,16 @@ model tipos_codigos {
 }
 
 model usuarios {
-  id                              String                           @id(map: "PK_d7281c63c176e152e4c531594a8") @db.Uuid
-  nome                            String                           @db.VarChar
-  sobrenome                       String                           @db.VarChar
-  cod_assessor                    String?                          @unique @db.VarChar(10)
-  cod_interno                     Int                              @unique @default(autoincrement()) @db.Integer
-  email                           String                           @unique(map: "UQ_446adfc18b35418aac32ae0b7b5") @db.VarChar
-  dt_criacao                      DateTime                         @default(now()) @db.Timestamp(6)
+  id           String   @id(map: "PK_d7281c63c176e152e4c531594a8") @db.Uuid
+  nome         String   @db.VarChar
+  sobrenome    String   @db.VarChar
+  cod_assessor String?  @unique @db.VarChar(10)
+  cod_interno  Int      @unique @default(autoincrement()) @db.Integer
+  email        String   @unique(map: "UQ_446adfc18b35418aac32ae0b7b5") @db.VarChar
+  dt_criacao   DateTime @default(now()) @db.Timestamp(6)
+
   clientes                        clientes_clientes[]
   prospects                       prospects[]
-  assessor_compas                 compass_clientes[]               @relation("clientes_id_assessor_compassTousuarios")
-  assessor_origem                 compass_clientes[]               @relation("clientes_id_assessor_origemTousuarios")
-  assessor_compass_devolvido      clientes_devolvidos[]            @relation("clientes_devolvidos_id_assessor_compassTousuarios")
-  assessor_origem_devolvido       clientes_devolvidos[]            @relation("clientes_devolvidos_id_assessor_origemTousuarios")
   filiais                         filiais[]
   colaborador_reservador          filiais_salas_reservadas[]       @relation("filiais_salas_reservadas_id_reservadorTousuarios")
   colaborador_utilizador          filiais_salas_reservadas[]       @relation("filiais_salas_reservadas_id_utilizadorTousuarios")
