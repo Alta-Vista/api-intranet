@@ -6,6 +6,7 @@ import { HttpException, ValidationPipe } from '@nestjs/common';
 const whiteList = [
   String(process.env.APP_WEB_URL),
   String(process.env.AUTH0_MANAGEMENT_URL),
+  'https://app.altavistainvest.com.br', // Adicione o domínio aqui
 ];
 
 async function bootstrap() {
